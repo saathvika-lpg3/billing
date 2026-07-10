@@ -1,5 +1,54 @@
 # Test Report
 
+## 2026-07-10 GitHub Baseline And ERP Audit Cycle
+
+### Scope
+
+- Verified GitHub Desktop is running and completed repository initialization
+  with local Git.
+- Committed and pushed the first production baseline to the official remote.
+- Created and pushed release tag `v1.0.0-production-baseline`.
+- Continued with the next roadmap cycle: ERP functional audit tooling,
+  operation parity, desktop coverage, and schema-audit portability.
+
+### Git Evidence
+
+- Baseline commit: `8833190 Initial production-ready PRM GST Desktop baseline`.
+- Remote branch: `origin/main` at `8833190`.
+- Release tag: `v1.0.0-production-baseline`, resolving to `8833190`.
+- Remote tracked file count: 193.
+- Forbidden path scan after push: no generated output, local databases, logs,
+  backups, `.prmlic`, sessions/cookies, uploads or cache paths were present in
+  `origin/main`.
+
+### Audit Evidence
+
+- `docs/DESKTOP_COVERAGE_CHECKLIST.md`: 103 generated rows, 103 done.
+- `docs/operation_parity_checklist.md`: 0 missing labels.
+- Accepted alias documented by tooling: `ERP Profit & Loss` maps to desktop
+  `Profit & Loss` route key `erp_profit_loss`.
+- `audit/sqlite_schema_summary.md`: schema-only output with 116 tables, 1731
+  columns, 20 index-column entries, and no live row counts unless explicitly
+  requested.
+
+### Automated Tests
+
+- `python -m py_compile tools\audit_operation_parity.py tools\audit_mysql_schema.py tests\test_audit_tools.py`
+  - Result: passed.
+- `python -m pytest -q tests\test_audit_tools.py`
+  - Result: 2 passed.
+- `python -m pytest -q tests\test_audit_tools.py tests\test_document_and_module_ui.py`
+  - Result: 49 passed in 189.63s.
+
+### Acceptance Status
+
+- GitHub baseline branch push: PASSED.
+- Release tag push: PASSED.
+- Post-push forbidden-file verification: PASSED.
+- ERP audit tooling cycle: PASSED.
+- Remaining external validation: physical printer, real SMTP, real WhatsApp
+  session, operator acceptance data, and clean-machine installer validation.
+
 ## 2026-07-10 Git Repair And Print Engine Lock Continuation
 
 ### Scope

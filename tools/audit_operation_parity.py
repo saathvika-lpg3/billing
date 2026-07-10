@@ -158,6 +158,12 @@ CURRENT = {
     "Administration": ADMIN_OPERATIONS,
 }
 
+LABEL_ALIASES = {
+    "Accounts": {
+        "ERP Profit & Loss": "Profit & Loss",
+    },
+}
+
 
 def main() -> None:
     out = Path(__file__).resolve().parents[1] / "docs" / "operation_parity_checklist.md"
@@ -175,8 +181,18 @@ def main() -> None:
     for group, expected_labels in EXPECTED.items():
         operations = CURRENT[group]
         current_labels = [operation.label for operation in operations]
-        missing = [label for label in expected_labels if label not in current_labels]
-        extras = [label for label in current_labels if label not in expected_labels]
+        aliases = LABEL_ALIASES.get(group, {})
+        missing = [
+            label
+            for label in expected_labels
+            if label not in current_labels and aliases.get(label) not in current_labels
+        ]
+        alias_targets = set(aliases.values())
+        extras = [
+            label
+            for label in current_labels
+            if label not in expected_labels and label not in alias_targets
+        ]
         full_pages = [operation.label for operation in operations if operation.target_page]
         preview_pages = [operation.label for operation in operations if not operation.target_page]
         total_missing += len(missing)
@@ -198,10 +214,12 @@ def main() -> None:
         )
         by_label = {operation.label: operation for operation in operations}
         for label in expected_labels:
-            operation = by_label.get(label)
+            desktop_label = aliases.get(label, label)
+            operation = by_label.get(label) or by_label.get(desktop_label)
             if operation:
                 status = "Full workflow" if operation.target_page else "Preview/list"
-                lines.append(f"| {label} | {status} | `{operation.target_page or operation.key}` |")
+                display = label if desktop_label == label else f"{desktop_label} (alias for {label})"
+                lines.append(f"| {label} | {status}: {display} | `{operation.target_page or operation.key}` |")
             else:
                 lines.append(f"| {label} | Missing | - |")
         lines.append("")

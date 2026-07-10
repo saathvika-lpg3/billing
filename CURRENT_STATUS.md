@@ -4,6 +4,32 @@ This task-specific status file was created because the requested
 `CURRENT_STATUS.md` did not exist. The canonical long-form project status also
 remains updated in `PRM_CURRENT_STATUS.md`.
 
+## 2026-07-10 GitHub Baseline And ERP Audit Cycle
+
+- Verified GitHub Desktop is running on the workstation and used local Git for
+  the controlled repository operations.
+- Created root production baseline commit:
+  `8833190 Initial production-ready PRM GST Desktop baseline`.
+- Pushed `main` to the official remote
+  `https://github.com/saathvika-lpg3/billing.git` and verified
+  `origin/main` points to commit `8833190`.
+- Created and pushed release tag `v1.0.0-production-baseline`; the annotated
+  tag resolves to the same baseline commit.
+- Verified the remote contains 193 tracked source/documentation/test/resource
+  files and no generated-output, runtime database, backup, log, `.prmlic`,
+  session/cookie or upload paths.
+- Started the next roadmap cycle with an ERP functional audit pass. The desktop
+  coverage checklist reports 103/103 rows done, and operation parity now reports
+  0 missing labels.
+- Repaired `tools/audit_mysql_schema.py` so the schema audit uses Python's
+  built-in SQLite support instead of a hard-coded legacy executable path.
+- Regenerated schema-only SQLite audit artifacts under `audit/`: 116 tables,
+  1731 columns, and 20 index-column entries. Live row counts are not collected
+  unless the audit tool is explicitly run with `--include-row-counts`.
+- Added regression coverage in `tests/test_audit_tools.py` for the portable
+  schema audit and the accepted `ERP Profit & Loss` -> `Profit & Loss` menu
+  alias.
+
 ## 2026-07-10 Git Repair And Print Engine Lock Continuation
 
 - Created source-only pre-repair backup:

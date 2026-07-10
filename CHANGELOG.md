@@ -2,6 +2,20 @@
 
 ## 2026-07-10
 
+### GitHub Baseline And ERP Audit Cycle
+
+- Created and pushed the first production baseline commit:
+  `8833190 Initial production-ready PRM GST Desktop baseline`.
+- Created and pushed the release tag `v1.0.0-production-baseline`.
+- Verified the remote branch and tag resolve to the same baseline source state
+  and that no generated/runtime/customer-sensitive paths were committed.
+- Repaired the schema audit tool to use Python stdlib SQLite instead of a
+  hard-coded legacy executable path.
+- Regenerated desktop coverage, operation parity and SQLite schema audit
+  documents.
+- Added regression coverage for the portable schema audit and the accepted
+  `ERP Profit & Loss` / `Profit & Loss` operation alias.
+
 ### Git Repair And Print Engine Lock
 
 - Created source-only backup before Git repair:

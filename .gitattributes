@@ -8,7 +8,7 @@
 *.iss text eol=crlf
 *.csv text eol=lf
 *.tsv text eol=lf
-audit/mysql_columns.tsv text eol=lf whitespace=-blank-at-eol
+audit/*.tsv text eol=lf whitespace=-blank-at-eol
 *.json text eol=lf
 
 *.ico binary
