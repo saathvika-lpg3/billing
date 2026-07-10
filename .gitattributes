@@ -1,0 +1,22 @@
+* text=auto
+
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.qss text eol=lf
+*.ps1 text eol=crlf
+*.iss text eol=crlf
+*.csv text eol=lf
+*.tsv text eol=lf
+audit/mysql_columns.tsv text eol=lf whitespace=-blank-at-eol
+*.json text eol=lf
+
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.pdf binary
+*.zip binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary

@@ -1,0 +1,213 @@
+phase,route,source_module,source_line,desktop_screen,status
+Foundation,developer_login,Administration,9940,Developer Login Screen,Not migrated
+Foundation,developer_logout,Administration,9941,Developer Logout Screen,Not migrated
+Foundation,developer_dashboard,Administration,9942,Developer Dashboard Screen,Not migrated
+Reports / Print,document_archive_file,Print / Documents,9943,Document Archive File Workspace,Not migrated
+Reports / Print,document_archive_whatsapp_send,Print / Documents,9944,Document Archive Whatsapp Send Workspace,Not migrated
+Shared / Review,portal_search,Masters / Common,9945,Portal Search Screen,Not migrated
+Foundation,dashboard_settings,Administration,9946,Dashboard Settings Screen,Not migrated
+Foundation,company,Administration,9947,Company Screen,Not migrated
+Masters,customers,Masters / Common,9948,Customers Screen,Not migrated
+Masters,suppliers,Masters / Common,9949,Suppliers Screen,Not migrated
+Masters,brands,Masters / Common,9950,Brands Screen,Not migrated
+Masters,manufacturers,Masters / Common,9951,Manufacturers Screen,Not migrated
+Masters,doctors,Restaurant / Pharmacy,9952,Doctors Screen,Not migrated
+Masters,agents,Masters / Common,9953,Agents Screen,Not migrated
+Masters,projects,Masters / Common,9954,Projects Screen,Not migrated
+Shared / Review,property_types,Real Estate,9955,Property Types Screen,Not migrated
+Masters,real_estate_units,Real Estate,9956,Real Estate Units Screen,Not migrated
+Industry,restaurant_categories,Restaurant / Pharmacy,9957,Restaurant Categories Screen,Not migrated
+Masters,item_categories,Inventory,9958,Item Categories Screen,Not migrated
+Industry,restaurant_tables,Restaurant / Pharmacy,9959,Restaurant Tables Screen,Not migrated
+Masters,items,Inventory,9960,Items Screen,Not migrated
+Masters,item_duplicate_check,Inventory,9961,Item Duplicate Check Screen,Not migrated
+Masters,units,Masters / Common,9962,Units Screen,Not migrated
+Masters,tax_slabs,Masters / Common,9963,Tax Slabs Screen,Not migrated
+Shared / Review,schemes,Masters / Common,9964,Schemes Screen,Not migrated
+Reports / Print,master_import_export,Masters / Common,9965,Master Import Export Workspace,Not migrated
+Shared / Review,barcode_labels,Masters / Common,9966,Barcode Labels Screen,Not migrated
+Sales,sale_new,Sales,9967,Sale Entry,Not migrated
+Sales,pos_billing,Sales,9968,Pos Billing Screen,Not migrated
+Sales,electronics_pos_billing,Sales,9969,Electronics Pos Billing Screen,Not migrated
+Industry,pharmacy_retail_billing,Restaurant / Pharmacy,9970,Pharmacy Retail Billing Screen,Not migrated
+Sales,pharmacy_wholesale_billing,Sales,9971,Pharmacy Wholesale Billing Screen,Not migrated
+Industry,prescription_billing,Restaurant / Pharmacy,9972,Prescription Billing Screen,Not migrated
+Sales,pos_dine_in,Sales,9973,Pos Dine In Screen,Not migrated
+Sales,pos_take_away,Sales,9974,Pos Take Away Screen,Not migrated
+Sales,pos_delivery,Sales,9975,Pos Delivery Screen,Not migrated
+Sales,sales,Sales,9976,Sales Screen,Not migrated
+Reports / Print,print_bills,Print / Documents,9977,Print Bills Workspace,Not migrated
+Reports / Print,print_bills_bulk,Print / Documents,9978,Print Bills Bulk Workspace,Not migrated
+Sales,quotation_new,Sales,9979,Quotation Entry,Not migrated
+Sales,quotations,Sales,9980,Quotations Screen,Not migrated
+Sales,quotation_edit,Sales,9981,Quotation Edit Screen,Not migrated
+Sales,quotation_print,Sales,9982,Quotation Print Preview,Not migrated
+Sales,sales_order_new,Sales,9983,Sales Order Entry,Not migrated
+Sales,sales_orders,Sales,9984,Sales Orders Screen,Not migrated
+Sales,sales_order_edit,Sales,9985,Sales Order Edit Screen,Not migrated
+Sales,kot_new,Sales,9986,Kot Entry,Not migrated
+Sales,ready_orders,Sales,9987,Ready Orders Screen,Not migrated
+Sales,sales_order_print,Sales,9988,Sales Order Print Preview,Not migrated
+Sales,sale_print,Sales,9989,Sale Print Preview,Not migrated
+Sales,sale_cancel,Sales,9990,Sale Cancel Action,Not migrated
+Sales,sale_return,Sales,9991,Sale Return Screen,Not migrated
+Sales,sales_returns,Sales,9992,Sales Returns Screen,Not migrated
+Sales,sale_return_print,Sales,9993,Sale Return Print Preview,Not migrated
+Sales,sale_return_cancel,Sales,9994,Sale Return Cancel Action,Not migrated
+Purchase,purchase_new,Purchase,9995,Purchase Entry,Not migrated
+Purchase,purchases,Purchase,9996,Purchases Screen,Not migrated
+Sales,purchase_order_new,Sales,9997,Purchase Order Entry,Not migrated
+Sales,purchase_plan_order,Sales,9998,Purchase Plan Order Screen,Not migrated
+Sales,purchase_orders,Sales,9999,Purchase Orders Screen,Not migrated
+Sales,purchase_order_edit,Sales,10000,Purchase Order Edit Screen,Not migrated
+Sales,purchase_order_print,Sales,10001,Purchase Order Print Preview,Not migrated
+Purchase,purchase_print,Purchase,10002,Purchase Print Preview,Not migrated
+Purchase,purchase_cancel,Purchase,10003,Purchase Cancel Action,Not migrated
+Purchase,purchase_return,Purchase,10004,Purchase Return Screen,Not migrated
+Purchase,purchase_returns,Purchase,10005,Purchase Returns Screen,Not migrated
+Purchase,purchase_return_print,Purchase,10006,Purchase Return Print Preview,Not migrated
+Purchase,purchase_return_cancel,Purchase,10007,Purchase Return Cancel Action,Not migrated
+Inventory,stock_out_new,Inventory,10008,Stock Out Entry,Not migrated
+Inventory,stock_outs,Inventory,10009,Stock Outs Screen,Not migrated
+Shared / Review,delivery_challan_new,Masters / Common,10010,Delivery Challan Entry,Not migrated
+Shared / Review,delivery_challans,Masters / Common,10011,Delivery Challans Screen,Not migrated
+Shared / Review,delivery_challan_edit,Masters / Common,10012,Delivery Challan Edit Screen,Not migrated
+Reports / Print,delivery_challan_print,Print / Documents,10013,Delivery Challan Print Preview,Not migrated
+Sales,order_doc_status,Sales,10014,Order Doc Status Screen,Not migrated
+Sales,order_doc_convert_sale,Sales,10015,Order Doc Convert Sale Screen,Not migrated
+Sales,order_doc_convert_purchase,Sales,10016,Order Doc Convert Purchase Screen,Not migrated
+Inventory,stock_out_print,Inventory,10017,Stock Out Print Preview,Not migrated
+Inventory,stock_out_cancel,Inventory,10018,Stock Out Cancel Action,Not migrated
+Inventory,route_settlement,Inventory,10019,Route Settlement Screen,Not migrated
+Inventory,route_settlement_print,Inventory,10020,Route Settlement Print Preview,Not migrated
+Inventory,stock,Inventory,10021,Stock Screen,Not migrated
+Inventory,stock_entry,Inventory,10022,Stock Entry Screen,Not migrated
+Inventory,stock_alerts,Inventory,10023,Stock Alerts Screen,Not migrated
+Inventory,negative_stock_report,Inventory,10024,Negative Stock Report Screen,Not migrated
+Inventory,stock_expiry,Inventory,10025,Stock Expiry Screen,Not migrated
+Inventory,batch_tracking,Inventory,10026,Batch Tracking Screen,Not migrated
+Inventory,stock_log,Inventory,10027,Stock Log Screen,Not migrated
+Inventory,stock_adjust,Inventory,10028,Stock Adjust Screen,Not migrated
+Shared / Review,serial_numbers,Masters / Common,10029,Serial Numbers Screen,Not migrated
+Shared / Review,warranty_tracking,Masters / Common,10030,Warranty Tracking Screen,Not migrated
+Shared / Review,job_cards,Masters / Common,10031,Job Cards Screen,Not migrated
+Shared / Review,complaints,Masters / Common,10032,Complaints Screen,Not migrated
+Shared / Review,repairs,Masters / Common,10033,Repairs Screen,Not migrated
+Shared / Review,warranty_claims,Masters / Common,10034,Warranty Claims Screen,Not migrated
+Inventory,warehouses,Inventory,10035,Warehouses Screen,Not migrated
+Inventory,stock_transfer_new,Inventory,10036,Stock Transfer Entry,Not migrated
+Inventory,stock_transfers,Inventory,10037,Stock Transfers Screen,Not migrated
+Inventory,stock_transfer_cancel,Inventory,10038,Stock Transfer Cancel Action,Not migrated
+Sales,receipt,Accounts,10039,Receipt Screen,Not migrated
+Sales,receipt_print,Accounts,10040,Receipt Print Preview,Not migrated
+Sales,receipt_cancel,Accounts,10041,Receipt Cancel Action,Not migrated
+Purchase,payment,Accounts,10042,Payment Screen,Not migrated
+Purchase,payment_print,Accounts,10043,Payment Print Preview,Not migrated
+Purchase,payment_cancel,Accounts,10044,Payment Cancel Action,Not migrated
+Accounts,expense,Accounts,10045,Expense Workspace,Not migrated
+Accounts,expense_cancel,Accounts,10046,Expense Cancel Action,Not migrated
+Accounts,account_ledgers,Accounts,10047,Account Ledgers Workspace,Not migrated
+Accounts,ledger_groups,Accounts,10048,Ledger Groups Workspace,Not migrated
+Shared / Review,branches,Masters / Common,10049,Branches Screen,Not migrated
+Shared / Review,cost_centers,Masters / Common,10050,Cost Centers Screen,Not migrated
+Accounts,journal,Accounts,10051,Journal Workspace,Not migrated
+Accounts,journal_cancel,Accounts,10052,Journal Cancel Action,Not migrated
+Accounts,cash_bank_book,Accounts,10053,Cash Bank Book Workspace,Not migrated
+Accounts,bank_reconciliation,Accounts,10054,Bank Reconciliation Workspace,Not migrated
+Accounts,cash_flow_statement,Accounts,10055,Cash Flow Statement Workspace,Not migrated
+Shared / Review,fund_flow_statement,Masters / Common,10056,Fund Flow Statement Screen,Not migrated
+Accounts,trial_balance,Masters / Common,10057,Trial Balance Workspace,Not migrated
+Accounts,closing_management,Masters / Common,10058,Closing Management Workspace,Not migrated
+Shared / Review,erp_control_check,Masters / Common,10059,Erp Control Check Screen,Not migrated
+Accounts,erp_vouchers,Accounts,10060,Erp Vouchers Workspace,Not migrated
+Accounts,erp_voucher,Accounts,10061,Erp Voucher Workspace,Not migrated
+Accounts,erp_voucher_print,Accounts,10062,Erp Voucher Print Preview,Not migrated
+Accounts,voucher_approval,Accounts,10063,Voucher Approval Workspace,Not migrated
+Accounts,erp_ledger,Accounts,10064,Erp Ledger Workspace,Not migrated
+Shared / Review,erp_day_book,Masters / Common,10065,Erp Day Book Screen,Not migrated
+Accounts,erp_profit_loss,Masters / Common,10066,Erp Profit Loss Workspace,Not migrated
+Accounts,erp_balance_sheet,Masters / Common,10067,Erp Balance Sheet Workspace,Not migrated
+Inventory,stock_ledger_adjustment,Inventory,10068,Stock Ledger Adjustment Screen,Not migrated
+Sales,erp_gst_postings,Sales,10069,Erp Gst Postings Screen,Not migrated
+Sales,erp_stock_postings,Sales,10070,Erp Stock Postings Screen,Not migrated
+Shared / Review,inventory_valuation,Masters / Common,10071,Inventory Valuation Screen,Not migrated
+Masters,customer_ledger,Accounts,10072,Customer Ledger Screen,Not migrated
+Masters,supplier_ledger,Accounts,10073,Supplier Ledger Screen,Not migrated
+Shared / Review,outstanding,Masters / Common,10074,Outstanding Screen,Not migrated
+Shared / Review,outstanding_aging,Masters / Common,10075,Outstanding Aging Screen,Not migrated
+Industry,prescription_entry,Restaurant / Pharmacy,10076,Prescription Entry Screen,Not migrated
+Industry,patient_history,Restaurant / Pharmacy,10077,Patient History Screen,Not migrated
+Shared / Review,refill_reminders,Masters / Common,10078,Refill Reminders Screen,Not migrated
+Industry,real_estate_leads,Real Estate,10079,Real Estate Leads Screen,Not migrated
+Industry,real_estate_followups,Real Estate,10080,Real Estate Followups Screen,Not migrated
+Industry,real_estate_site_visits,Real Estate,10081,Real Estate Site Visits Screen,Not migrated
+Industry,real_estate_enquiries,Real Estate,10082,Real Estate Enquiries Screen,Not migrated
+Industry,real_estate_new_booking,Real Estate,10083,Real Estate New Booking Screen,Not migrated
+Industry,real_estate_agreements,Real Estate,10084,Real Estate Agreements Screen,Not migrated
+Industry,real_estate_cancellations,Real Estate,10085,Real Estate Cancellations Screen,Not migrated
+Sales,real_estate_possession,Sales,10086,Real Estate Possession Screen,Not migrated
+Industry,real_estate_installments,Real Estate,10087,Real Estate Installments Screen,Not migrated
+Industry,real_estate_refunds,Real Estate,10088,Real Estate Refunds Screen,Not migrated
+Industry,real_estate_commissions,Real Estate,10089,Real Estate Commissions Screen,Not migrated
+Reports / Print,real_estate_property_documents,Print / Documents,10090,Real Estate Property Documents Workspace,Not migrated
+Masters,real_estate_customer_documents,Print / Documents,10091,Real Estate Customer Documents Screen,Not migrated
+Reports / Print,real_estate_document_agreements,Print / Documents,10092,Real Estate Document Agreements Workspace,Not migrated
+Industry,manufacturing_boms,Manufacturing,10093,Manufacturing Boms Screen,Not migrated
+Sales,manufacturing_work_orders,Sales,10094,Manufacturing Work Orders Screen,Not migrated
+Sales,manufacturing_production_orders,Sales,10095,Manufacturing Production Orders Screen,Not migrated
+Industry,manufacturing_production_cancel,Manufacturing,10096,Manufacturing Production Cancel Action,Not migrated
+Industry,manufacturing_job_work,Manufacturing,10097,Manufacturing Job Work Screen,Not migrated
+Industry,manufacturing_quality_checks,Manufacturing,10098,Manufacturing Quality Checks Screen,Not migrated
+Reports / Print,manufacturing_reports,Manufacturing,10099,Manufacturing Reports Workspace,Not migrated
+Reports / Print,source_document_view,Print / Documents,10100,Source Document View Workspace,Not migrated
+Reports / Print,reports,Masters / Common,10101,Reports Workspace,Not migrated
+Inventory,daily_dispatch_summary,Inventory,10102,Daily Dispatch Summary Screen,Not migrated
+Shared / Review,loading_sheet,Masters / Common,10103,Loading Sheet Screen,Not migrated
+Inventory,route_loading_sheet,Inventory,10104,Route Loading Sheet Screen,Not migrated
+Inventory,pending_dispatch,Inventory,10105,Pending Dispatch Screen,Not migrated
+Inventory,dispatch_sheet,Inventory,10106,Dispatch Sheet Screen,Not migrated
+Masters,customer_dispatch_sheet,Inventory,10107,Customer Dispatch Sheet Screen,Not migrated
+Inventory,dispatch_status_update,Inventory,10108,Dispatch Status Update Screen,Not migrated
+Inventory,dispatch_original_open,Inventory,10109,Dispatch Original Open Screen,Not migrated
+Inventory,dispatch_return_entry,Inventory,10110,Dispatch Return Entry Screen,Not migrated
+Inventory,dispatch_return_summary,Inventory,10111,Dispatch Return Summary Screen,Not migrated
+Inventory,dispatch_summary,Inventory,10112,Dispatch Summary Screen,Not migrated
+Masters,item_movement,Inventory,10113,Item Movement Screen,Not migrated
+Reports / Print,warranty_reports,Masters / Common,10114,Warranty Reports Workspace,Not migrated
+Sales,real_estate_sales_reports,Sales,10115,Real Estate Sales Reports Screen,Not migrated
+Reports / Print,real_estate_collection_reports,Real Estate,10116,Real Estate Collection Reports Workspace,Not migrated
+Reports / Print,real_estate_inventory_reports,Real Estate,10117,Real Estate Inventory Reports Workspace,Not migrated
+Reports / Print,real_estate_commission_reports,Real Estate,10118,Real Estate Commission Reports Workspace,Not migrated
+Foundation,real_estate_financial_reports,Real Estate,10119,Real Estate Financial Reports Screen,Not migrated
+GST / Compliance,gst_return,GST / Compliance,10120,Gst Return Workspace,Not migrated
+GST / Compliance,gst_adjustment,GST / Compliance,10121,Gst Adjustment Workspace,Not migrated
+GST / Compliance,gst_itc_reconciliation,GST / Compliance,10122,Gst Itc Reconciliation Workspace,Not migrated
+GST / Compliance,gstr9_annual_return,GST / Compliance,10123,Gstr9 Annual Return Workspace,Not migrated
+GST / Compliance,einvoices,GST / Compliance,10124,Einvoices Workspace,Not migrated
+GST / Compliance,eway_bills,GST / Compliance,10125,Eway Bills Workspace,Not migrated
+Accounts,profit_loss,Masters / Common,10126,Profit Loss Workspace,Not migrated
+Shared / Review,day_book,Masters / Common,10127,Day Book Screen,Not migrated
+Shared / Review,audit,Masters / Common,10128,Audit Screen,Not migrated
+Foundation,users,Administration,10129,Users Screen,Not migrated
+Shared / Review,employees,Masters / Common,10130,Employees Screen,Not migrated
+Foundation,role_permissions,Administration,10131,Role Permissions Screen,Not migrated
+Foundation,financial_years,Masters / Common,10132,Financial Years Screen,Not migrated
+Foundation,print_settings,Administration,10133,Print Settings Screen,Not migrated
+Shared / Review,lan_setup,Masters / Common,10134,Lan Setup Screen,Not migrated
+Foundation,backup,Administration,10135,Backup Screen,Not migrated
+Sales,sales,Sales,20802,Sales Screen,Not migrated
+Purchase,purchases,Purchase,20815,Purchases Screen,Not migrated
+Sales,sales_returns,Sales,20828,Sales Returns Screen,Not migrated
+Purchase,purchase_returns,Purchase,20841,Purchase Returns Screen,Not migrated
+Sales,receipts,Accounts,20854,Receipts Screen,Not migrated
+Purchase,payments,Accounts,20866,Payments Screen,Not migrated
+Accounts,expenses,Accounts,20878,Expenses Workspace,Not migrated
+Accounts,journal_entries,Accounts,20893,Journal Entries Workspace,Not migrated
+Inventory,stock_valuation_adjustments,Inventory,20908,Stock Valuation Adjustments Screen,Not migrated
+Industry,production_runs,Manufacturing,20919,Production Runs Screen,Not migrated
+GST / Compliance,gst_adjustments,GST / Compliance,20935,Gst Adjustments Workspace,Not migrated
+Foundation,financial_years_year_end,Masters / Common,20952,Financial Years Year End Screen,Not migrated
+Masters,customers,Masters / Common,20962,Customers Screen,Not migrated
+Masters,suppliers,Masters / Common,20975,Suppliers Screen,Not migrated
+Masters,items,Inventory,20987,Items Screen,Not migrated
+Accounts,account_ledgers,Accounts,20998,Account Ledgers Workspace,Not migrated

@@ -1,0 +1,1501 @@
+table	column	type	nullable	default	key	extra
+account_ledgers	id	int(11)	NO		PRI	auto_increment
+account_ledgers	name	varchar(160)	NO		UNI	
+account_ledgers	group_name	varchar(80)	YES	'General'		
+account_ledgers	opening_dr	decimal(12,2)	YES	0.00		
+account_ledgers	opening_cr	decimal(12,2)	YES	0.00		
+account_ledgers	is_system	tinyint(1)	YES	0		
+account_ledgers	created_at	timestamp	NO	current_timestamp()		
+app_release_versions	version_key	varchar(80)	NO		PRI	
+app_release_versions	version_value	varchar(160)	NO			
+app_release_versions	notes	varchar(255)	YES	NULL		
+app_release_versions	updated_at	timestamp	NO	current_timestamp()		on update current_timestamp()
+app_settings	setting_key	varchar(80)	NO		PRI	
+app_settings	setting_value	text	YES	NULL		
+app_settings	updated_at	timestamp	NO	current_timestamp()		on update current_timestamp()
+audit_logs	id	int(11)	NO		PRI	auto_increment
+audit_logs	user_id	int(11)	YES	NULL		
+audit_logs	user_name	varchar(120)	YES	NULL		
+audit_logs	action	varchar(80)	NO			
+audit_logs	ref_type	varchar(50)	YES	NULL		
+audit_logs	ref_no	varchar(80)	YES	NULL		
+audit_logs	details	text	YES	NULL		
+audit_logs	ip_address	varchar(60)	YES	NULL		
+audit_logs	created_at	timestamp	NO	current_timestamp()	MUL	
+backup_logs	id	int(11)	NO		PRI	auto_increment
+backup_logs	action	varchar(40)	NO			
+backup_logs	file_path	varchar(500)	YES	NULL		
+backup_logs	status	varchar(30)	NO			
+backup_logs	message	text	YES	NULL		
+backup_logs	created_at	timestamp	NO	current_timestamp()	MUL	
+bank_reconciliations	id	bigint(20)	NO		PRI	auto_increment
+bank_reconciliations	ledger_posting_id	bigint(20)	NO		UNI	
+bank_reconciliations	voucher_id	bigint(20)	NO			
+bank_reconciliations	bank_ledger	varchar(180)	NO		MUL	
+bank_reconciliations	voucher_date	date	NO			
+bank_reconciliations	source_ref	varchar(80)	YES	NULL		
+bank_reconciliations	debit	decimal(14,2)	YES	0.00		
+bank_reconciliations	credit	decimal(14,2)	YES	0.00		
+bank_reconciliations	clearance_status	varchar(30)	YES	'Uncleared'		
+bank_reconciliations	cleared_date	date	YES	NULL	MUL	
+bank_reconciliations	bank_reference	varchar(120)	YES	NULL		
+bank_reconciliations	notes	varchar(255)	YES	NULL		
+bank_reconciliations	created_by	bigint(20)	YES	NULL		
+bank_reconciliations	created_at	timestamp	NO	current_timestamp()		
+bank_reconciliations	updated_at	datetime	YES	NULL		
+branches	id	bigint(20)	NO		PRI	auto_increment
+branches	name	varchar(120)	NO		UNI	
+branches	code	varchar(40)	YES	NULL		
+branches	gstin	varchar(20)	YES	NULL		
+branches	state	varchar(80)	YES	NULL		
+branches	address	text	YES	NULL		
+branches	is_default	tinyint(1)	YES	0		
+branches	is_active	tinyint(1)	YES	1		
+branches	notes	varchar(255)	YES	NULL		
+branches	created_at	timestamp	NO	current_timestamp()		
+business_masters	id	int(11)	NO		PRI	auto_increment
+business_masters	business_type_code	varchar(80)	NO		MUL	
+business_masters	master_type	varchar(80)	NO			
+business_masters	code	varchar(80)	YES	NULL		
+business_masters	name	varchar(180)	NO			
+business_masters	phone	varchar(30)	YES	NULL		
+business_masters	email	varchar(160)	YES	NULL		
+business_masters	address	text	YES	NULL		
+business_masters	notes	text	YES	NULL		
+business_masters	is_active	tinyint(1)	YES	1		
+business_masters	created_at	timestamp	NO	current_timestamp()		
+business_masters	supplier_id	int(11)	YES	NULL	MUL	
+business_masters	contact_name	varchar(120)	YES	NULL		
+business_masters	website	varchar(160)	YES	NULL		
+business_masters	gstin	varchar(20)	YES	NULL		
+business_registers	id	int(11)	NO		PRI	auto_increment
+business_registers	business_type_code	varchar(80)	NO			
+business_registers	record_type	varchar(80)	NO			
+business_registers	record_no	varchar(80)	YES	NULL		
+business_registers	record_date	date	NO			
+business_registers	party_name	varchar(180)	YES	NULL		
+business_registers	phone	varchar(30)	YES	NULL		
+business_registers	reference	varchar(180)	YES	NULL		
+business_registers	status	varchar(60)	YES	'Open'		
+business_registers	amount	decimal(12,2)	YES	0.00		
+business_registers	due_date	date	YES	NULL		
+business_registers	details_json	mediumtext	YES	NULL		
+business_registers	notes	text	YES	NULL		
+business_registers	created_at	timestamp	NO	current_timestamp()		
+ca_export_logs	id	bigint(20)	NO		PRI	auto_increment
+ca_export_logs	company_id	int(11)	YES	NULL		
+ca_export_logs	company_name	varchar(180)	YES	NULL		
+ca_export_logs	financial_year_id	int(11)	YES	NULL		
+ca_export_logs	financial_year_label	varchar(40)	YES	NULL		
+ca_export_logs	closing_period_id	bigint(20)	YES	NULL		
+ca_export_logs	closing_type	varchar(30)	YES	NULL		
+ca_export_logs	from_date	date	NO		MUL	
+ca_export_logs	to_date	date	NO			
+ca_export_logs	ca_email	varchar(160)	NO			
+ca_export_logs	export_format	varchar(20)	NO			
+ca_export_logs	file_path	varchar(500)	NO			
+ca_export_logs	email_status	varchar(30)	YES	'Pending'		
+ca_export_logs	email_message	text	YES	NULL		
+ca_export_logs	created_by	bigint(20)	YES	NULL		
+ca_export_logs	created_by_name	varchar(120)	YES	NULL		
+ca_export_logs	created_at	timestamp	NO	current_timestamp()		
+ca_export_logs	itr_form	varchar(20)	YES	'ca_decide'		
+ca_export_logs	assessment_year	varchar(20)	YES	NULL		
+ca_export_logs	schema_version	varchar(40)	YES	NULL		
+ca_export_logs	close_decision	varchar(30)	YES	'not_selected'		
+ca_json_templates	id	bigint(20)	NO		PRI	auto_increment
+ca_json_templates	template_name	varchar(160)	NO			
+ca_json_templates	sample_file_name	varchar(255)	NO			
+ca_json_templates	sample_json	mediumtext	NO			
+ca_json_templates	mapping_json	mediumtext	YES	NULL		
+ca_json_templates	is_active	tinyint(1)	YES	1	MUL	
+ca_json_templates	created_by	bigint(20)	YES	NULL		
+ca_json_templates	created_by_name	varchar(120)	YES	NULL		
+ca_json_templates	created_at	timestamp	NO	current_timestamp()		
+ca_json_templates	updated_at	datetime	YES	NULL		
+ca_json_templates	last_used_at	datetime	YES	NULL		
+closing_periods	id	bigint(20)	NO		PRI	auto_increment
+closing_periods	company_id	int(11)	YES	NULL		
+closing_periods	company_name	varchar(180)	YES	NULL		
+closing_periods	financial_year_id	int(11)	YES	NULL		
+closing_periods	financial_year_label	varchar(40)	YES	NULL		
+closing_periods	closing_type	varchar(30)	NO		MUL	
+closing_periods	period_label	varchar(80)	NO			
+closing_periods	from_date	date	NO		MUL	
+closing_periods	to_date	date	NO			
+closing_periods	status	varchar(30)	YES	'Closed'		
+closing_periods	backup_path	varchar(500)	YES	NULL		
+closing_periods	export_path	varchar(500)	YES	NULL		
+closing_periods	export_format	varchar(20)	YES	NULL		
+closing_periods	ca_email	varchar(160)	YES	NULL		
+closing_periods	remarks	text	YES	NULL		
+closing_periods	reopened_reason	text	YES	NULL		
+closing_periods	closed_by	bigint(20)	YES	NULL		
+closing_periods	closed_by_name	varchar(120)	YES	NULL		
+closing_periods	closed_at	datetime	YES	NULL		
+closing_periods	reopened_by	bigint(20)	YES	NULL		
+closing_periods	reopened_by_name	varchar(120)	YES	NULL		
+closing_periods	reopened_at	datetime	YES	NULL		
+closing_periods	created_at	timestamp	NO	current_timestamp()		
+closing_periods	updated_at	datetime	YES	NULL		
+company	id	int(11)	NO		PRI	auto_increment
+company	name	varchar(160)	NO			
+company	gstin	varchar(20)	YES	NULL		
+company	phone	varchar(30)	YES	NULL		
+company	email	varchar(160)	YES	NULL		
+company	address	text	YES	NULL		
+company	state	varchar(80)	YES	NULL		
+company	invoice_prefix	varchar(20)	YES	'PRM'		
+company	logo_path	varchar(255)	YES	NULL		
+company	upi_id	varchar(120)	YES	NULL		
+company	payment_qr_path	varchar(255)	YES	NULL		
+company	bank	text	YES	NULL		
+company	owner_name	varchar(160)	YES	NULL		
+company	business_type_code	varchar(80)	YES	'retail_supermarket'		
+company	invoice_template_code	varchar(80)	YES	'retail_supermarket'		
+company	subscription_plan_code	varchar(80)	YES	'basic'		
+company	pan	varchar(20)	YES	NULL		
+company	fssai_no	varchar(40)	YES	NULL		
+company	drug_license_no	varchar(80)	YES	NULL		
+company	website	varchar(160)	YES	NULL		
+company	business_name	varchar(180)	YES	NULL		
+company	mobile	varchar(30)	YES	NULL		
+company	phone_alt	varchar(30)	YES	NULL		
+company	city	varchar(80)	YES	NULL		
+company	country	varchar(80)	YES	NULL		
+company	pincode	varchar(20)	YES	NULL		
+company	header_image_path	varchar(255)	YES	NULL		
+company	footer_image_path	varchar(255)	YES	NULL		
+company	other_registrations	text	YES	NULL		
+cost_centers	id	bigint(20)	NO		PRI	auto_increment
+cost_centers	name	varchar(120)	NO		UNI	
+cost_centers	code	varchar(40)	YES	NULL		
+cost_centers	parent_id	bigint(20)	YES	NULL		
+cost_centers	is_active	tinyint(1)	YES	1		
+cost_centers	notes	varchar(255)	YES	NULL		
+cost_centers	created_at	timestamp	NO	current_timestamp()		
+customers	id	int(11)	NO		PRI	auto_increment
+customers	name	varchar(160)	NO		MUL	
+customers	gstin	varchar(20)	YES	NULL	MUL	
+customers	phone	varchar(30)	YES	NULL	MUL	
+customers	area	varchar(120)	YES	NULL		
+customers	address	text	YES	NULL		
+customers	state	varchar(80)	YES	NULL		
+customers	balance	decimal(12,2)	YES	0.00		
+customers	created_at	timestamp	NO	current_timestamp()		
+customers	contact_person	varchar(120)	YES	NULL		
+customers	place_of_supply	varchar(120)	YES	NULL		
+customers	fssai_no	varchar(40)	YES	NULL		
+customers	drug_license_no	varchar(80)	YES	NULL		
+customers	gst_treatment	varchar(40)	YES	'Regular'		
+customers	reverse_charge_applicable	tinyint(1)	YES	0		
+customers	shipping_address	text	YES	NULL		
+data_maintenance_logs	id	int(11)	NO		PRI	auto_increment
+data_maintenance_logs	operation	varchar(60)	NO			
+data_maintenance_logs	status	varchar(30)	NO			
+data_maintenance_logs	backup_path	varchar(500)	YES	NULL		
+data_maintenance_logs	archive_path	varchar(500)	YES	NULL		
+data_maintenance_logs	report_path	varchar(500)	YES	NULL		
+data_maintenance_logs	records_exported	int(11)	YES	0		
+data_maintenance_logs	records_deleted	int(11)	YES	0		
+data_maintenance_logs	created_by	varchar(120)	YES	NULL		
+data_maintenance_logs	details_json	mediumtext	YES	NULL		
+data_maintenance_logs	created_at	timestamp	NO	current_timestamp()		
+data_maintenance_opening_balances	id	int(11)	NO		PRI	auto_increment
+data_maintenance_opening_balances	operation_id	int(11)	YES	NULL		
+data_maintenance_opening_balances	balance_date	date	NO			
+data_maintenance_opening_balances	balance_type	varchar(40)	NO		MUL	
+data_maintenance_opening_balances	ref_id	int(11)	YES	NULL		
+data_maintenance_opening_balances	ref_name	varchar(180)	YES	NULL		
+data_maintenance_opening_balances	balance_qty	decimal(14,3)	YES	0.000		
+data_maintenance_opening_balances	balance_amount	decimal(14,2)	YES	0.00		
+data_maintenance_opening_balances	details_json	mediumtext	YES	NULL		
+data_maintenance_opening_balances	created_at	timestamp	NO	current_timestamp()		
+dev_business_types	id	int(11)	NO		PRI	auto_increment
+dev_business_types	code	varchar(80)	NO		UNI	
+dev_business_types	name	varchar(140)	NO			
+dev_business_types	invoice_template_code	varchar(80)	NO			
+dev_business_types	module_codes	text	YES	NULL		
+dev_business_types	field_config	text	YES	NULL		
+dev_business_types	is_active	tinyint(1)	YES	1		
+dev_business_types	created_at	timestamp	NO	current_timestamp()		
+dev_companies	id	int(11)	NO		PRI	auto_increment
+dev_companies	company_name	varchar(180)	NO			
+dev_companies	owner_name	varchar(160)	YES	NULL		
+dev_companies	mobile	varchar(30)	YES	NULL		
+dev_companies	email	varchar(160)	YES	NULL		
+dev_companies	address	text	YES	NULL		
+dev_companies	gst_number	varchar(20)	YES	NULL		
+dev_companies	business_type_code	varchar(80)	YES	NULL		
+dev_companies	subscription_plan_code	varchar(80)	YES	NULL		
+dev_companies	invoice_template_code	varchar(80)	YES	NULL		
+dev_companies	status	varchar(30)	YES	'Active'		
+dev_companies	license_key	varchar(160)	YES	NULL		
+dev_companies	start_date	date	YES	NULL		
+dev_companies	expiry_date	date	YES	NULL		
+dev_companies	grace_days	int(11)	YES	7		
+dev_companies	license_status	varchar(30)	YES	'Active'		
+dev_companies	last_renewal_date	date	YES	NULL		
+dev_companies	logo_path	varchar(255)	YES	NULL		
+dev_companies	notes	varchar(255)	YES	NULL		
+dev_companies	created_at	timestamp	NO	current_timestamp()		
+dev_companies	updated_at	datetime	YES	NULL		
+dev_companies	state	varchar(80)	YES	NULL		
+dev_companies	invoice_prefix	varchar(20)	YES	NULL		
+dev_companies	upi_id	varchar(120)	YES	NULL		
+dev_companies	payment_qr_path	varchar(255)	YES	NULL		
+dev_companies	bank	text	YES	NULL		
+dev_companies	fssai_no	varchar(40)	YES	NULL		
+dev_companies	drug_license_no	varchar(80)	YES	NULL		
+dev_companies	other_registrations	text	YES	NULL		
+dev_company_modules	id	int(11)	NO		PRI	auto_increment
+dev_company_modules	company_id	int(11)	NO		MUL	
+dev_company_modules	module_code	varchar(80)	NO			
+dev_company_modules	is_enabled	tinyint(1)	YES	1		
+dev_invoice_templates	id	int(11)	NO		PRI	auto_increment
+dev_invoice_templates	code	varchar(80)	NO		UNI	
+dev_invoice_templates	name	varchar(140)	NO			
+dev_invoice_templates	business_type_code	varchar(80)	YES	NULL		
+dev_invoice_templates	title	varchar(120)	YES	NULL		
+dev_invoice_templates	description	varchar(255)	YES	NULL		
+dev_invoice_templates	print_style	varchar(80)	YES	'professional'		
+dev_invoice_templates	settings_json	text	YES	NULL		
+dev_invoice_templates	is_default	tinyint(1)	YES	0		
+dev_invoice_templates	is_active	tinyint(1)	YES	1		
+dev_invoice_templates	created_at	timestamp	NO	current_timestamp()		
+dev_invoice_templates	document_type	varchar(80)	YES	'sales_invoice'		
+dev_invoice_templates	reference_file_path	varchar(255)	YES	NULL		
+dev_invoice_templates	template_version	varchar(40)	YES	'1.0'		
+dev_invoice_templates	updated_at	datetime	YES	NULL		
+dev_login_history	id	int(11)	NO		PRI	auto_increment
+dev_login_history	company_id	int(11)	YES	NULL		
+dev_login_history	user_id	int(11)	YES	NULL		
+dev_login_history	user_name	varchar(120)	YES	NULL		
+dev_login_history	email	varchar(160)	YES	NULL		
+dev_login_history	ip_address	varchar(60)	YES	NULL		
+dev_login_history	status	varchar(40)	YES	NULL		
+dev_login_history	logged_at	timestamp	NO	current_timestamp()		
+dev_modules	id	int(11)	NO		PRI	auto_increment
+dev_modules	code	varchar(80)	NO		UNI	
+dev_modules	name	varchar(120)	NO			
+dev_modules	description	varchar(255)	YES	NULL		
+dev_modules	is_active	tinyint(1)	YES	1		
+dev_modules	created_at	timestamp	NO	current_timestamp()		
+dev_notifications	id	int(11)	NO		PRI	auto_increment
+dev_notifications	title	varchar(160)	NO			
+dev_notifications	message	text	YES	NULL		
+dev_notifications	audience	varchar(80)	YES	'All Companies'		
+dev_notifications	status	varchar(30)	YES	'Draft'		
+dev_notifications	created_at	timestamp	NO	current_timestamp()		
+dev_subscription_plans	id	int(11)	NO		PRI	auto_increment
+dev_subscription_plans	code	varchar(80)	NO		UNI	
+dev_subscription_plans	name	varchar(120)	NO			
+dev_subscription_plans	user_limit	int(11)	YES	1		
+dev_subscription_plans	branch_limit	int(11)	YES	1		
+dev_subscription_plans	storage_limit_mb	int(11)	YES	1024		
+dev_subscription_plans	invoice_limit	int(11)	YES	0		
+dev_subscription_plans	api_access	tinyint(1)	YES	0		
+dev_subscription_plans	monthly_fee	decimal(12,2)	YES	0.00		
+dev_subscription_plans	module_codes	text	YES	NULL		
+dev_subscription_plans	is_active	tinyint(1)	YES	1		
+dev_subscription_plans	created_at	timestamp	NO	current_timestamp()		
+dispatch_returns	id	bigint(20)	NO		PRI	auto_increment
+dispatch_returns	return_no	varchar(50)	YES	NULL	UNI	
+dispatch_returns	return_date	date	NO		MUL	
+dispatch_returns	source_table	varchar(40)	NO		MUL	
+dispatch_returns	source_id	bigint(20)	NO			
+dispatch_returns	source_ref	varchar(80)	YES	NULL		
+dispatch_returns	customer_name	varchar(180)	YES	NULL		
+dispatch_returns	route	varchar(120)	YES	NULL		
+dispatch_returns	area	varchar(120)	YES	NULL		
+dispatch_returns	vehicle	varchar(160)	YES	NULL		
+dispatch_returns	dispatch_status_before	varchar(40)	YES	NULL		
+dispatch_returns	dispatch_status_after	varchar(40)	YES	'Partially Returned'		
+dispatch_returns	total_dispatched_qty	decimal(14,3)	YES	0.000		
+dispatch_returns	total_returned_qty	decimal(14,3)	YES	0.000		
+dispatch_returns	total_accepted_qty	decimal(14,3)	YES	0.000		
+dispatch_returns	damaged_qty	decimal(14,3)	YES	0.000		
+dispatch_returns	total_value	decimal(14,2)	YES	0.00		
+dispatch_returns	reason	varchar(255)	YES	NULL		
+dispatch_returns	condition_type	varchar(40)	YES	'Reusable'		
+dispatch_returns	notes	text	YES	NULL		
+dispatch_returns	sale_return_id	bigint(20)	YES	NULL		
+dispatch_returns	stock_impact	varchar(160)	YES	NULL		
+dispatch_returns	accounting_impact	varchar(160)	YES	NULL		
+dispatch_returns	status	varchar(30)	YES	'Active'		
+dispatch_returns	created_by	bigint(20)	YES	NULL		
+dispatch_returns	created_by_name	varchar(120)	YES	NULL		
+dispatch_returns	updated_by	bigint(20)	YES	NULL		
+dispatch_returns	updated_by_name	varchar(120)	YES	NULL		
+dispatch_returns	created_at	timestamp	NO	current_timestamp()		
+dispatch_returns	updated_at	datetime	YES	NULL		
+dispatch_return_items	id	bigint(20)	NO		PRI	auto_increment
+dispatch_return_items	dispatch_return_id	bigint(20)	NO		MUL	
+dispatch_return_items	source_table	varchar(40)	NO		MUL	
+dispatch_return_items	source_id	bigint(20)	NO			
+dispatch_return_items	source_item_id	bigint(20)	YES	NULL		
+dispatch_return_items	item_id	bigint(20)	YES	NULL		
+dispatch_return_items	item_name	varchar(180)	YES	NULL		
+dispatch_return_items	unit	varchar(30)	YES	NULL		
+dispatch_return_items	company	varchar(160)	YES	NULL		
+dispatch_return_items	dispatched_qty	decimal(14,3)	YES	0.000		
+dispatch_return_items	free_qty	decimal(14,3)	YES	0.000		
+dispatch_return_items	returned_qty	decimal(14,3)	YES	0.000		
+dispatch_return_items	accepted_qty	decimal(14,3)	YES	0.000		
+dispatch_return_items	damaged_qty	decimal(14,3)	YES	0.000		
+dispatch_return_items	rate	decimal(12,2)	YES	0.00		
+dispatch_return_items	value	decimal(14,2)	YES	0.00		
+dispatch_return_items	condition_type	varchar(40)	YES	'Reusable'		
+dispatch_return_items	reason	varchar(255)	YES	NULL		
+dispatch_return_items	remarks	varchar(255)	YES	NULL		
+dispatch_return_items	warehouse_id	bigint(20)	YES	NULL		
+dispatch_return_items	pack_id	int(11)	YES	NULL		
+dispatch_return_items	pack_display_snapshot	varchar(100)	YES	NULL		
+dispatch_return_items	pack_size_snapshot	decimal(10,3)	YES	0.000		
+document_archive_logs	id	bigint(20)	NO		PRI	auto_increment
+document_archive_logs	user_id	bigint(20)	YES	NULL		
+document_archive_logs	user_name	varchar(120)	YES	NULL		
+document_archive_logs	company_id	bigint(20)	YES	NULL		
+document_archive_logs	company_name	varchar(180)	YES	NULL		
+document_archive_logs	module	varchar(120)	YES	NULL	MUL	
+document_archive_logs	document_type	varchar(120)	YES	NULL	MUL	
+document_archive_logs	document_no	varchar(120)	YES	NULL		
+document_archive_logs	party_name	varchar(180)	YES	NULL		
+document_archive_logs	action	varchar(80)	YES	NULL		
+document_archive_logs	status	varchar(30)	YES	NULL	MUL	
+document_archive_logs	file_count	int(11)	YES	0		
+document_archive_logs	total_size	bigint(20)	YES	0		
+document_archive_logs	root_path	varchar(500)	YES	NULL		
+document_archive_logs	folder_path	varchar(500)	YES	NULL		
+document_archive_logs	files_json	mediumtext	YES	NULL		
+document_archive_logs	message	text	YES	NULL		
+document_archive_logs	created_at	timestamp	NO	current_timestamp()	MUL	
+einvoices	id	int(11)	NO		PRI	auto_increment
+einvoices	sale_id	int(11)	NO		UNI	
+einvoices	invoice_no	varchar(50)	YES	NULL		
+einvoices	irn	varchar(120)	NO			
+einvoices	ack_no	varchar(80)	YES	NULL		
+einvoices	ack_date	date	YES	NULL		
+einvoices	signed_qr	text	YES	NULL		
+einvoices	signed_json	mediumtext	YES	NULL		
+einvoices	status	varchar(30)	YES	'Generated'		
+einvoices	cancel_reason	varchar(255)	YES	NULL		
+einvoices	cancelled_at	datetime	YES	NULL		
+einvoices	created_at	timestamp	NO	current_timestamp()		
+eway_bills	id	int(11)	NO		PRI	auto_increment
+eway_bills	sale_id	int(11)	NO		UNI	
+eway_bills	invoice_no	varchar(50)	YES	NULL		
+eway_bills	eway_no	varchar(80)	NO			
+eway_bills	eway_date	date	YES	NULL		
+eway_bills	valid_until	date	YES	NULL		
+eway_bills	transporter_name	varchar(160)	YES	NULL		
+eway_bills	transporter_id	varchar(80)	YES	NULL		
+eway_bills	vehicle_no	varchar(40)	YES	NULL		
+eway_bills	distance_km	decimal(10,2)	YES	0.00		
+eway_bills	status	varchar(30)	YES	'Generated'		
+eway_bills	cancel_reason	varchar(255)	YES	NULL		
+eway_bills	cancelled_at	datetime	YES	NULL		
+eway_bills	created_at	timestamp	NO	current_timestamp()		
+expenses	id	int(11)	NO		PRI	auto_increment
+expenses	expense_no	varchar(50)	YES	NULL	UNI	
+expenses	expense_date	date	NO			
+expenses	ledger_id	int(11)	YES	NULL		
+expenses	ledger_name	varchar(120)	NO			
+expenses	amount	decimal(12,2)	NO			
+expenses	mode	varchar(40)	YES	NULL		
+expenses	paid_to	varchar(160)	YES	NULL		
+expenses	notes	varchar(255)	YES	NULL		
+expenses	status	varchar(20)	YES	'Active'		
+expenses	cancel_reason	varchar(255)	YES	NULL		
+expenses	cancelled_at	datetime	YES	NULL		
+expenses	created_at	timestamp	NO	current_timestamp()		
+expenses	branch_id	bigint(20)	YES	NULL		
+expenses	branch_name	varchar(120)	YES	NULL		
+expenses	cost_center_id	bigint(20)	YES	NULL		
+expenses	cost_center_name	varchar(120)	YES	NULL		
+expenses	created_by	bigint(20)	YES	NULL		
+expenses	created_by_name	varchar(120)	YES	NULL		
+expenses	updated_by	bigint(20)	YES	NULL		
+expenses	updated_by_name	varchar(120)	YES	NULL		
+expenses	cancelled_by	bigint(20)	YES	NULL		
+expenses	cancelled_by_name	varchar(120)	YES	NULL		
+expenses	updated_at	datetime	YES	NULL		
+expense_ledgers	id	int(11)	NO		PRI	auto_increment
+expense_ledgers	name	varchar(120)	NO		UNI	
+expense_ledgers	group_name	varchar(80)	YES	'Indirect Expense'		
+expense_ledgers	created_at	timestamp	NO	current_timestamp()		
+financial_periods	id	bigint(20)	NO		PRI	auto_increment
+financial_periods	financial_year_id	int(11)	NO		MUL	
+financial_periods	period_type	varchar(20)	YES	'Month'		
+financial_periods	label	varchar(40)	NO			
+financial_periods	start_date	date	NO		MUL	
+financial_periods	end_date	date	NO			
+financial_periods	is_locked	tinyint(1)	YES	0		
+financial_periods	locked_at	datetime	YES	NULL		
+financial_periods	created_at	timestamp	NO	current_timestamp()		
+financial_years	id	int(11)	NO		PRI	auto_increment
+financial_years	label	varchar(20)	NO		UNI	
+financial_years	start_date	date	NO		MUL	
+financial_years	end_date	date	NO			
+financial_years	is_locked	tinyint(1)	YES	0		
+financial_years	locked_at	datetime	YES	NULL		
+financial_years	created_at	timestamp	NO	current_timestamp()		
+gst_adjustments	id	bigint(20)	NO		PRI	auto_increment
+gst_adjustments	adjustment_no	varchar(60)	NO		UNI	
+gst_adjustments	adjustment_date	date	NO		MUL	
+gst_adjustments	return_type	varchar(20)	YES	'GSTR-3B'		
+gst_adjustments	period_from	date	NO		MUL	
+gst_adjustments	period_to	date	NO			
+gst_adjustments	adjustment_type	varchar(40)	YES	'Mixed'		
+gst_adjustments	mode	varchar(40)	YES	'Bank'		
+gst_adjustments	branch_id	bigint(20)	YES	NULL		
+gst_adjustments	branch_name	varchar(120)	YES	NULL		
+gst_adjustments	cgst_itc	decimal(14,2)	YES	0.00		
+gst_adjustments	sgst_itc	decimal(14,2)	YES	0.00		
+gst_adjustments	igst_itc	decimal(14,2)	YES	0.00		
+gst_adjustments	cess_itc	decimal(14,2)	YES	0.00		
+gst_adjustments	cgst_cash	decimal(14,2)	YES	0.00		
+gst_adjustments	sgst_cash	decimal(14,2)	YES	0.00		
+gst_adjustments	igst_cash	decimal(14,2)	YES	0.00		
+gst_adjustments	cess_cash	decimal(14,2)	YES	0.00		
+gst_adjustments	total_itc	decimal(14,2)	YES	0.00		
+gst_adjustments	total_cash	decimal(14,2)	YES	0.00		
+gst_adjustments	total_amount	decimal(14,2)	YES	0.00		
+gst_adjustments	voucher_id	bigint(20)	YES	NULL	MUL	
+gst_adjustments	status	varchar(30)	YES	'Posted'		
+gst_adjustments	notes	varchar(255)	YES	NULL		
+gst_adjustments	cancel_reason	varchar(255)	YES	NULL		
+gst_adjustments	cancelled_at	datetime	YES	NULL		
+gst_adjustments	created_by	bigint(20)	YES	NULL		
+gst_adjustments	created_at	timestamp	NO	current_timestamp()		
+gst_adjustments	updated_at	datetime	YES	NULL		
+gst_adjustments	created_by_name	varchar(120)	YES	NULL		
+gst_adjustments	updated_by	bigint(20)	YES	NULL		
+gst_adjustments	updated_by_name	varchar(120)	YES	NULL		
+gst_adjustments	cancelled_by	bigint(20)	YES	NULL		
+gst_adjustments	cancelled_by_name	varchar(120)	YES	NULL		
+gst_api_logs	id	int(11)	NO		PRI	auto_increment
+gst_api_logs	api_type	varchar(30)	NO			
+gst_api_logs	api_action	varchar(60)	NO			
+gst_api_logs	ref_type	varchar(40)	YES	NULL		
+gst_api_logs	ref_id	int(11)	YES	NULL		
+gst_api_logs	endpoint	varchar(500)	YES	NULL		
+gst_api_logs	http_status	int(11)	YES	0		
+gst_api_logs	status	varchar(30)	YES	'Pending'		
+gst_api_logs	message	varchar(255)	YES	NULL		
+gst_api_logs	request_payload	mediumtext	YES	NULL		
+gst_api_logs	response_payload	mediumtext	YES	NULL		
+gst_api_logs	created_at	timestamp	NO	current_timestamp()		
+gst_itc_reconciliations	id	bigint(20)	NO		PRI	auto_increment
+gst_itc_reconciliations	source_type	varchar(20)	YES	'GSTR-2B'	MUL	
+gst_itc_reconciliations	return_period	varchar(20)	YES	NULL	MUL	
+gst_itc_reconciliations	supplier_gstin	varchar(20)	YES	NULL	MUL	
+gst_itc_reconciliations	supplier_name	varchar(180)	YES	NULL		
+gst_itc_reconciliations	invoice_no	varchar(80)	YES	NULL		
+gst_itc_reconciliations	invoice_date	date	YES	NULL		
+gst_itc_reconciliations	taxable	decimal(14,2)	YES	0.00		
+gst_itc_reconciliations	cgst	decimal(14,2)	YES	0.00		
+gst_itc_reconciliations	sgst	decimal(14,2)	YES	0.00		
+gst_itc_reconciliations	igst	decimal(14,2)	YES	0.00		
+gst_itc_reconciliations	cess	decimal(14,2)	YES	0.00		
+gst_itc_reconciliations	total	decimal(14,2)	YES	0.00		
+gst_itc_reconciliations	portal_status	varchar(80)	YES	NULL		
+gst_itc_reconciliations	matched_purchase_id	bigint(20)	YES	NULL		
+gst_itc_reconciliations	match_status	varchar(40)	YES	'Pending'		
+gst_itc_reconciliations	difference_taxable	decimal(14,2)	YES	0.00		
+gst_itc_reconciliations	difference_gst	decimal(14,2)	YES	0.00		
+gst_itc_reconciliations	notes	varchar(255)	YES	NULL		
+gst_itc_reconciliations	imported_by	bigint(20)	YES	NULL		
+gst_itc_reconciliations	imported_at	timestamp	NO	current_timestamp()		
+gst_itc_reconciliations	updated_at	datetime	YES	NULL		
+gst_postings	id	bigint(20)	NO		PRI	auto_increment
+gst_postings	voucher_id	bigint(20)	NO		MUL	
+gst_postings	voucher_date	date	NO		MUL	
+gst_postings	source_table	varchar(80)	YES	NULL	MUL	
+gst_postings	source_id	bigint(20)	YES	NULL		
+gst_postings	source_ref	varchar(80)	YES	NULL		
+gst_postings	party_type	varchar(30)	YES	NULL		
+gst_postings	party_id	bigint(20)	YES	NULL		
+gst_postings	hsn_sac	varchar(20)	YES	NULL		
+gst_postings	tax_rate	decimal(6,2)	YES	0.00		
+gst_postings	taxable	decimal(14,2)	YES	0.00		
+gst_postings	cgst	decimal(14,2)	YES	0.00		
+gst_postings	sgst	decimal(14,2)	YES	0.00		
+gst_postings	igst	decimal(14,2)	YES	0.00		
+gst_postings	cess	decimal(14,2)	YES	0.00		
+gst_postings	input_output	varchar(20)	NO			
+gst_postings	transaction_type	varchar(60)	YES	NULL		
+gst_postings	status	varchar(30)	YES	'Posted'		
+gst_postings	created_at	timestamp	NO	current_timestamp()		
+gst_postings	item_id	bigint(20)	YES	NULL		
+gst_postings	item_name	varchar(180)	YES	NULL		
+gst_postings	unit	varchar(30)	YES	NULL		
+gst_postings	qty	decimal(14,3)	YES	0.000		
+gst_postings	free_qty	decimal(14,3)	YES	0.000		
+gst_postings	branch_id	bigint(20)	YES	NULL	MUL	
+gst_postings	branch_name	varchar(120)	YES	NULL		
+gst_return_filings	id	bigint(20)	NO		PRI	auto_increment
+gst_return_filings	return_type	varchar(20)	NO		MUL	
+gst_return_filings	period_from	date	NO			
+gst_return_filings	period_to	date	NO			
+gst_return_filings	taxable_value	decimal(14,2)	YES	0.00		
+gst_return_filings	output_cgst	decimal(14,2)	YES	0.00		
+gst_return_filings	output_sgst	decimal(14,2)	YES	0.00		
+gst_return_filings	output_igst	decimal(14,2)	YES	0.00		
+gst_return_filings	input_cgst	decimal(14,2)	YES	0.00		
+gst_return_filings	input_sgst	decimal(14,2)	YES	0.00		
+gst_return_filings	input_igst	decimal(14,2)	YES	0.00		
+gst_return_filings	net_cgst	decimal(14,2)	YES	0.00		
+gst_return_filings	net_sgst	decimal(14,2)	YES	0.00		
+gst_return_filings	net_igst	decimal(14,2)	YES	0.00		
+gst_return_filings	status	varchar(30)	YES	'Prepared'		
+gst_return_filings	arn	varchar(80)	YES	NULL		
+gst_return_filings	filed_date	date	YES	NULL		
+gst_return_filings	is_locked	tinyint(1)	YES	0	MUL	
+gst_return_filings	locked_at	datetime	YES	NULL		
+gst_return_filings	notes	varchar(255)	YES	NULL		
+gst_return_filings	created_by	bigint(20)	YES	NULL		
+gst_return_filings	created_at	timestamp	NO	current_timestamp()		
+gst_return_filings	updated_at	datetime	YES	NULL		
+items	id	int(11)	NO		PRI	auto_increment
+items	code	varchar(60)	YES	NULL	MUL	
+items	supplier_id	int(11)	YES	NULL	MUL	
+items	name	varchar(180)	NO		MUL	
+items	hsn	varchar(20)	YES	NULL		
+items	unit	varchar(30)	YES	NULL		
+items	gst	decimal(5,2)	YES	0.00		
+items	mrp	decimal(12,2)	YES	0.00		
+items	sale_rate	decimal(12,2)	YES	0.00		
+items	buy_rate	decimal(12,2)	YES	0.00		
+items	stock	decimal(12,3)	YES	0.000		
+items	min_stock	decimal(12,3)	YES	0.000		
+items	barcode	varchar(80)	YES	NULL	MUL	
+items	created_at	timestamp	NO	current_timestamp()		
+items	category_id	int(11)	YES	NULL	MUL	
+items	brand_id	int(11)	YES	NULL	MUL	
+items	item_type	varchar(40)	YES	'Stock Item'		
+items	status	varchar(30)	YES	'Active'	MUL	
+items	sku_alias	varchar(120)	YES	NULL	MUL	
+items	supplier_item_code	varchar(120)	YES	NULL	MUL	
+items	sale_unit	varchar(30)	YES	NULL		
+items	purchase_unit	varchar(30)	YES	NULL		
+items	pack_size	decimal(12,3)	YES	1.000		
+items	box_qty	decimal(12,3)	YES	0.000		
+items	valuation_method	varchar(40)	YES	'weighted_average'		
+items	standard_cost	decimal(12,2)	YES	0.00		
+items	reorder_qty	decimal(12,3)	YES	0.000		
+items	lead_time_days	int(11)	YES	0		
+items	item_notes	text	YES	NULL		
+items	batch_required	tinyint(1)	YES	0	MUL	
+items	expiry_required	tinyint(1)	YES	0		
+item_batches	id	int(11)	NO		PRI	auto_increment
+item_batches	item_id	int(11)	NO		MUL	
+item_batches	warehouse_id	int(11)	NO			
+item_batches	batch_no	varchar(80)	NO			
+item_batches	expiry_date	date	YES	NULL		
+item_batches	mrp	decimal(12,2)	YES	0.00		
+item_batches	stock	decimal(12,3)	YES	0.000		
+item_batches	created_at	timestamp	NO	current_timestamp()		
+item_batches	mfg_date	date	YES	NULL		
+item_batches	supplier_id	int(11)	YES	NULL		
+item_batches	landed_cost	decimal(12,2)	YES	0.00		
+item_batches	batch_status	varchar(40)	YES	'Saleable'	MUL	
+item_batches	batch_barcode	varchar(120)	YES	NULL	MUL	
+item_batches	notes	varchar(255)	YES	NULL		
+item_categories	id	int(11)	NO		PRI	auto_increment
+item_categories	business_type_code	varchar(80)	NO		MUL	
+item_categories	name	varchar(120)	NO			
+item_categories	sort_order	int(11)	YES	0		
+item_categories	is_active	tinyint(1)	YES	1		
+item_categories	created_at	timestamp	NO	current_timestamp()		
+item_categories	code	varchar(40)	YES	NULL		
+item_categories	parent_id	int(11)	YES	NULL	MUL	
+item_categories	default_gst	decimal(5,2)	YES	0.00		
+item_categories	margin_percent	decimal(7,2)	YES	0.00		
+item_categories	report_group	varchar(120)	YES	NULL		
+journal_entries	id	int(11)	NO		PRI	auto_increment
+journal_entries	entry_no	varchar(50)	YES	NULL	UNI	
+journal_entries	entry_date	date	NO			
+journal_entries	voucher_type	varchar(30)	YES	'Journal'		
+journal_entries	debit_ledger	varchar(160)	NO			
+journal_entries	credit_ledger	varchar(160)	NO			
+journal_entries	amount	decimal(12,2)	NO			
+journal_entries	narration	varchar(255)	YES	NULL		
+journal_entries	status	varchar(20)	YES	'Active'		
+journal_entries	cancel_reason	varchar(255)	YES	NULL		
+journal_entries	cancelled_at	datetime	YES	NULL		
+journal_entries	created_at	timestamp	NO	current_timestamp()		
+journal_entries	cost_center_id	bigint(20)	YES	NULL		
+journal_entries	cost_center_name	varchar(120)	YES	NULL		
+journal_entries	branch_id	bigint(20)	YES	NULL		
+journal_entries	branch_name	varchar(120)	YES	NULL		
+journal_entries	created_by	bigint(20)	YES	NULL		
+journal_entries	created_by_name	varchar(120)	YES	NULL		
+journal_entries	updated_by	bigint(20)	YES	NULL		
+journal_entries	updated_by_name	varchar(120)	YES	NULL		
+journal_entries	cancelled_by	bigint(20)	YES	NULL		
+journal_entries	cancelled_by_name	varchar(120)	YES	NULL		
+journal_entries	updated_at	datetime	YES	NULL		
+journal_entries	details_json	mediumtext	YES	NULL		
+ledger_groups	id	int(11)	NO		PRI	auto_increment
+ledger_groups	code	varchar(80)	NO		UNI	
+ledger_groups	name	varchar(120)	NO		UNI	
+ledger_groups	parent_code	varchar(80)	YES	NULL		
+ledger_groups	nature	varchar(40)	YES	'other'		
+ledger_groups	report_section	varchar(40)	YES	'other'	MUL	
+ledger_groups	sort_order	int(11)	YES	0		
+ledger_groups	is_system	tinyint(1)	YES	0		
+ledger_groups	is_active	tinyint(1)	YES	1		
+ledger_groups	created_at	timestamp	NO	current_timestamp()		
+ledger_groups	updated_at	datetime	YES	NULL		
+ledger_postings	id	bigint(20)	NO		PRI	auto_increment
+ledger_postings	voucher_id	bigint(20)	NO		MUL	
+ledger_postings	voucher_date	date	NO			
+ledger_postings	ledger_name	varchar(180)	NO		MUL	
+ledger_postings	debit	decimal(14,2)	YES	0.00		
+ledger_postings	credit	decimal(14,2)	YES	0.00		
+ledger_postings	party_type	varchar(30)	YES	NULL		
+ledger_postings	party_id	bigint(20)	YES	NULL		
+ledger_postings	source_table	varchar(80)	YES	NULL	MUL	
+ledger_postings	source_id	bigint(20)	YES	NULL		
+ledger_postings	source_ref	varchar(80)	YES	NULL		
+ledger_postings	status	varchar(30)	YES	'Posted'	MUL	
+ledger_postings	created_at	timestamp	NO	current_timestamp()		
+ledger_postings	cost_center_id	bigint(20)	YES	NULL	MUL	
+ledger_postings	cost_center_name	varchar(120)	YES	NULL		
+ledger_postings	branch_id	bigint(20)	YES	NULL	MUL	
+ledger_postings	branch_name	varchar(120)	YES	NULL		
+license	id	int(11)	NO		PRI	auto_increment
+license	install_code	varchar(80)	NO			
+license	license_key	varchar(120)	NO		UNI	
+license	client_name	varchar(160)	NO			
+license	activated_at	timestamp	NO	current_timestamp()		
+license	machine_hash	varchar(128)	YES	NULL		
+license	last_checked_at	datetime	YES	NULL		
+license	company_id	int(11)	YES	NULL	MUL	
+license	company_name	varchar(180)	YES	NULL		
+license	business_type	varchar(80)	YES	NULL		
+license	installation_key	varchar(160)	YES	NULL		
+license	activation_date	datetime	YES	NULL		
+license	expiry_date	date	YES	NULL		
+license	status	varchar(20)	YES	'active'	MUL	
+license	max_users	int(11)	YES	1		
+license	installation_count	int(11)	YES	0		
+license	notes	text	YES	NULL		
+license	created_at	timestamp	NO	current_timestamp()		
+license	updated_at	datetime	YES	NULL		
+license	activation_required	tinyint(1)	YES	0		
+license	activation_token	text	YES	NULL		
+license	activation_payload	text	YES	NULL		
+license	activation_issued_at	datetime	YES	NULL		
+license	license_plan	varchar(80)	YES	NULL		
+license	gstin	varchar(20)	YES	NULL		
+license	signed_license_token	mediumtext	YES	NULL		
+license	license_payload	mediumtext	YES	NULL		
+license	license_signature_hash	varchar(128)	YES	NULL		
+license_renewal_history	id	int(11)	NO		PRI	auto_increment
+license_renewal_history	license_id	int(11)	NO			
+license_renewal_history	old_expiry_date	date	YES	NULL		
+license_renewal_history	new_expiry_date	date	YES	NULL		
+license_renewal_history	old_status	varchar(20)	YES	NULL		
+license_renewal_history	new_status	varchar(20)	YES	NULL		
+license_renewal_history	action	varchar(40)	NO			
+license_renewal_history	notes	text	YES	NULL		
+license_renewal_history	created_at	timestamp	NO	current_timestamp()		
+order_documents	id	int(11)	NO		PRI	auto_increment
+order_documents	doc_no	varchar(50)	YES	NULL	UNI	
+order_documents	doc_date	date	NO			
+order_documents	doc_type	varchar(40)	NO		MUL	
+order_documents	party_type	varchar(20)	NO		MUL	
+order_documents	party_id	int(11)	YES	NULL		
+order_documents	party_name	varchar(160)	YES	NULL		
+order_documents	area	varchar(120)	YES	NULL		
+order_documents	warehouse_id	int(11)	YES	NULL		
+order_documents	pay_mode	varchar(40)	YES	NULL		
+order_documents	valid_until	date	YES	NULL		
+order_documents	delivery_date	date	YES	NULL		
+order_documents	taxable	decimal(12,2)	YES	0.00		
+order_documents	gst_total	decimal(12,2)	YES	0.00		
+order_documents	cgst_total	decimal(12,2)	YES	0.00		
+order_documents	sgst_total	decimal(12,2)	YES	0.00		
+order_documents	igst_total	decimal(12,2)	YES	0.00		
+order_documents	round_off	decimal(12,2)	YES	0.00		
+order_documents	grand_total	decimal(12,2)	YES	0.00		
+order_documents	status	varchar(30)	YES	'Open'		
+order_documents	converted_ref	varchar(80)	YES	NULL		
+order_documents	notes	varchar(255)	YES	NULL		
+order_documents	created_at	timestamp	NO	current_timestamp()		
+order_documents	created_by	bigint(20)	YES	NULL		
+order_documents	created_by_name	varchar(120)	YES	NULL		
+order_documents	updated_by	bigint(20)	YES	NULL		
+order_documents	updated_by_name	varchar(120)	YES	NULL		
+order_documents	cancelled_by	bigint(20)	YES	NULL		
+order_documents	cancelled_by_name	varchar(120)	YES	NULL		
+order_documents	updated_at	datetime	YES	NULL		
+order_documents	employee_id	bigint(20)	YES	NULL		
+order_documents	employee_name	varchar(120)	YES	NULL		
+order_documents	dispatch_status	varchar(40)	YES	'Pending Dispatch'		
+order_documents	dispatch_status_at	datetime	YES	NULL		
+order_documents	dispatch_status_by	bigint(20)	YES	NULL		
+order_documents	dispatch_status_by_name	varchar(120)	YES	NULL		
+order_documents	dispatch_status_note	varchar(255)	YES	NULL		
+order_documents	dispatch_remarks	varchar(255)	YES	NULL		
+order_document_items	id	int(11)	NO		PRI	auto_increment
+order_document_items	order_document_id	int(11)	NO			
+order_document_items	item_id	int(11)	NO			
+order_document_items	item_name	varchar(180)	YES	NULL		
+order_document_items	hsn	varchar(20)	YES	NULL		
+order_document_items	unit	varchar(30)	YES	NULL		
+order_document_items	batch_id	int(11)	YES	NULL		
+order_document_items	batch_no	varchar(80)	YES	NULL		
+order_document_items	expiry_date	date	YES	NULL		
+order_document_items	mrp	decimal(12,2)	YES	0.00		
+order_document_items	qty	decimal(12,3)	YES	NULL		
+order_document_items	free_qty	decimal(12,3)	YES	0.000		
+order_document_items	rate	decimal(12,2)	YES	NULL		
+order_document_items	gst	decimal(5,2)	YES	NULL		
+order_document_items	taxable	decimal(12,2)	YES	NULL		
+order_document_items	gst_amt	decimal(12,2)	YES	NULL		
+order_document_items	cgst	decimal(12,2)	YES	0.00		
+order_document_items	sgst	decimal(12,2)	YES	0.00		
+order_document_items	igst	decimal(12,2)	YES	0.00		
+order_document_items	total	decimal(12,2)	YES	NULL		
+order_document_items	discount	decimal(12,2)	YES	0.00		
+order_document_items	warehouse_id	int(11)	YES	NULL		
+order_document_items	pack_id	int(11)	YES	NULL		
+order_document_items	pack_display_snapshot	varchar(100)	YES	NULL		
+order_document_items	pack_size_snapshot	decimal(10,3)	YES	0.000		
+order_document_items	price_level	varchar(30)	YES	NULL		
+payments	id	int(11)	NO		PRI	auto_increment
+payments	payment_no	varchar(50)	YES	NULL	UNI	
+payments	payment_date	date	NO		MUL	
+payments	supplier_id	int(11)	NO		MUL	
+payments	supplier_name	varchar(160)	YES	NULL		
+payments	amount	decimal(12,2)	NO			
+payments	mode	varchar(40)	YES	NULL		
+payments	notes	varchar(255)	YES	NULL		
+payments	status	varchar(20)	YES	'Active'	MUL	
+payments	cancel_reason	varchar(255)	YES	NULL		
+payments	cancelled_at	datetime	YES	NULL		
+payments	created_at	timestamp	NO	current_timestamp()		
+payments	branch_id	bigint(20)	YES	NULL		
+payments	branch_name	varchar(120)	YES	NULL		
+payments	cost_center_id	bigint(20)	YES	NULL		
+payments	cost_center_name	varchar(120)	YES	NULL		
+payments	created_by	bigint(20)	YES	NULL		
+payments	created_by_name	varchar(120)	YES	NULL		
+payments	updated_by	bigint(20)	YES	NULL		
+payments	updated_by_name	varchar(120)	YES	NULL		
+payments	cancelled_by	bigint(20)	YES	NULL		
+payments	cancelled_by_name	varchar(120)	YES	NULL		
+payments	updated_at	datetime	YES	NULL		
+print_batches	id	bigint(20)	NO		PRI	auto_increment
+print_batches	batch_no	varchar(80)	NO		UNI	
+print_batches	document_type	varchar(80)	NO		MUL	
+print_batches	print_scope	varchar(80)	NO			
+print_batches	filter_json	mediumtext	YES	NULL		
+print_batches	document_count	int(11)	YES	0		
+print_batches	reprint_reason	varchar(255)	YES	NULL		
+print_batches	status	varchar(30)	YES	'Previewed'		
+print_batches	printed_by_user_id	bigint(20)	YES	NULL		
+print_batches	printed_by_user_name	varchar(120)	YES	NULL		
+print_batches	created_at	timestamp	NO	current_timestamp()	MUL	
+print_logs	id	bigint(20)	NO		PRI	auto_increment
+print_logs	user_id	bigint(20)	YES	NULL		
+print_logs	user_name	varchar(120)	YES	NULL		
+print_logs	module	varchar(120)	YES	NULL		
+print_logs	document_table	varchar(80)	YES	NULL	MUL	
+print_logs	document_id	bigint(20)	YES	NULL		
+print_logs	document_type	varchar(120)	YES	NULL		
+print_logs	document_no	varchar(120)	YES	NULL		
+print_logs	party_name	varchar(180)	YES	NULL		
+print_logs	action	varchar(80)	YES	NULL		
+print_logs	ip_address	varchar(60)	YES	NULL		
+print_logs	created_at	timestamp	NO	current_timestamp()	MUL	
+print_logs	batch_id	bigint(20)	YES	NULL	MUL	
+print_templates	id	int(11)	NO		PRI	auto_increment
+print_templates	family_id	int(11)	NO		MUL	
+print_templates	template_code	varchar(80)	NO		UNI	
+print_templates	template_name	varchar(140)	NO			
+print_templates	document_type	varchar(80)	NO			
+print_templates	paper_size	varchar(40)	YES	'a4'		
+print_templates	print_mode	varchar(40)	YES	'laser'		
+print_templates	html_template	mediumtext	YES	NULL		
+print_templates	css_template	mediumtext	YES	NULL		
+print_templates	is_default	tinyint(1)	YES	0		
+print_templates	is_active	tinyint(1)	YES	1		
+print_templates	created_at	timestamp	NO	current_timestamp()		
+print_templates	updated_at	datetime	YES	NULL		
+print_template_families	id	int(11)	NO		PRI	auto_increment
+print_template_families	business_type	varchar(80)	NO		MUL	
+print_template_families	family_code	varchar(80)	NO			
+print_template_families	family_name	varchar(140)	NO			
+print_template_families	description	text	YES	NULL		
+print_template_families	default_paper_size	varchar(40)	YES	'a4'		
+print_template_families	default_print_mode	varchar(40)	YES	'laser'		
+print_template_families	supports_thermal	tinyint(1)	YES	0		
+print_template_families	supports_a4	tinyint(1)	YES	1		
+print_template_families	is_default	tinyint(1)	YES	0		
+print_template_families	is_active	tinyint(1)	YES	1		
+print_template_families	created_at	timestamp	NO	current_timestamp()		
+print_template_families	updated_at	datetime	YES	NULL		
+production_boms	id	int(11)	NO		PRI	auto_increment
+production_boms	bom_no	varchar(50)	YES	NULL	UNI	
+production_boms	name	varchar(180)	NO			
+production_boms	finished_item_id	int(11)	NO		MUL	
+production_boms	finished_item_name	varchar(180)	YES	NULL		
+production_boms	finished_qty	decimal(12,3)	YES	1.000		
+production_boms	unit	varchar(30)	YES	NULL		
+production_boms	default_warehouse_id	int(11)	YES	NULL		
+production_boms	branch_id	bigint(20)	YES	NULL		
+production_boms	branch_name	varchar(120)	YES	NULL		
+production_boms	cost_center_id	bigint(20)	YES	NULL		
+production_boms	cost_center_name	varchar(120)	YES	NULL		
+production_boms	status	varchar(20)	YES	'Active'		
+production_boms	notes	varchar(255)	YES	NULL		
+production_boms	created_at	timestamp	NO	current_timestamp()		
+production_bom_items	id	int(11)	NO		PRI	auto_increment
+production_bom_items	bom_id	int(11)	NO		MUL	
+production_bom_items	item_id	int(11)	NO			
+production_bom_items	item_name	varchar(180)	YES	NULL		
+production_bom_items	hsn	varchar(20)	YES	NULL		
+production_bom_items	unit	varchar(30)	YES	NULL		
+production_bom_items	qty	decimal(12,3)	NO			
+production_bom_items	wastage_percent	decimal(6,2)	YES	0.00		
+production_bom_items	warehouse_id	int(11)	YES	NULL		
+production_runs	id	int(11)	NO		PRI	auto_increment
+production_runs	production_no	varchar(50)	YES	NULL	UNI	
+production_runs	production_date	date	NO		MUL	
+production_runs	bom_id	int(11)	NO			
+production_runs	bom_name	varchar(180)	YES	NULL		
+production_runs	finished_item_id	int(11)	NO			
+production_runs	finished_item_name	varchar(180)	YES	NULL		
+production_runs	warehouse_id	int(11)	YES	NULL		
+production_runs	branch_id	bigint(20)	YES	NULL		
+production_runs	branch_name	varchar(120)	YES	NULL		
+production_runs	cost_center_id	bigint(20)	YES	NULL		
+production_runs	cost_center_name	varchar(120)	YES	NULL		
+production_runs	planned_qty	decimal(12,3)	YES	0.000		
+production_runs	finished_qty	decimal(12,3)	YES	0.000		
+production_runs	total_input_value	decimal(14,2)	YES	0.00		
+production_runs	finished_value	decimal(14,2)	YES	0.00		
+production_runs	variance_value	decimal(14,2)	YES	0.00		
+production_runs	status	varchar(20)	YES	'Active'		
+production_runs	notes	varchar(255)	YES	NULL		
+production_runs	cancel_reason	varchar(255)	YES	NULL		
+production_runs	cancelled_at	datetime	YES	NULL		
+production_runs	created_at	timestamp	NO	current_timestamp()		
+production_runs	created_by	bigint(20)	YES	NULL		
+production_runs	created_by_name	varchar(120)	YES	NULL		
+production_runs	updated_by	bigint(20)	YES	NULL		
+production_runs	updated_by_name	varchar(120)	YES	NULL		
+production_runs	cancelled_by	bigint(20)	YES	NULL		
+production_runs	cancelled_by_name	varchar(120)	YES	NULL		
+production_runs	updated_at	datetime	YES	NULL		
+production_run_items	id	int(11)	NO		PRI	auto_increment
+production_run_items	production_run_id	int(11)	NO		MUL	
+production_run_items	item_id	int(11)	NO			
+production_run_items	item_name	varchar(180)	YES	NULL		
+production_run_items	hsn	varchar(20)	YES	NULL		
+production_run_items	unit	varchar(30)	YES	NULL		
+production_run_items	required_qty	decimal(12,3)	YES	0.000		
+production_run_items	issued_qty	decimal(12,3)	YES	0.000		
+production_run_items	warehouse_id	int(11)	YES	NULL		
+production_run_items	rate	decimal(12,2)	YES	0.00		
+production_run_items	value	decimal(14,2)	YES	0.00		
+product_packs	id	int(11)	NO		PRI	auto_increment
+product_packs	product_id	int(11)	NO		MUL	
+product_packs	pack_size	decimal(10,3)	NO			
+product_packs	pack_unit	varchar(20)	NO			
+product_packs	display_name	varchar(100)	YES	NULL		
+product_packs	barcode	varchar(80)	YES	NULL	MUL	
+product_packs	supplier_item_code	varchar(80)	YES	NULL		
+product_packs	hsn	varchar(20)	YES	NULL		
+product_packs	mrp	decimal(12,2)	YES	0.00		
+product_packs	purchase_rate	decimal(12,2)	YES	0.00		
+product_packs	sale_rate	decimal(12,2)	YES	0.00		
+product_packs	dealer_rate	decimal(12,2)	YES	0.00		
+product_packs	distributor_rate	decimal(12,2)	YES	0.00		
+product_packs	wholesale_rate	decimal(12,2)	YES	0.00		
+product_packs	retail_rate	decimal(12,2)	YES	0.00		
+product_packs	standard_cost	decimal(12,2)	YES	0.00		
+product_packs	box_qty	decimal(12,3)	YES	0.000		
+product_packs	opening_stock_qty	decimal(12,3)	YES	0.000		
+product_packs	current_stock_qty	decimal(12,3)	YES	0.000		
+product_packs	low_stock_alert	decimal(12,3)	YES	0.000		
+product_packs	reorder_qty	decimal(12,3)	YES	0.000		
+product_packs	scheme	varchar(100)	YES	NULL		
+product_packs	is_default	tinyint(1)	YES	0		
+product_packs	is_active	tinyint(1)	YES	1		
+product_packs	created_at	timestamp	NO	current_timestamp()		
+product_packs	updated_at	timestamp	NO	current_timestamp()		on update current_timestamp()
+product_pack_warehouse_stock	id	int(11)	NO		PRI	auto_increment
+product_pack_warehouse_stock	warehouse_id	int(11)	NO		MUL	
+product_pack_warehouse_stock	product_id	int(11)	NO		MUL	
+product_pack_warehouse_stock	pack_id	int(11)	NO		MUL	
+product_pack_warehouse_stock	stock	decimal(12,3)	YES	0.000		
+product_pack_warehouse_stock	created_at	timestamp	NO	current_timestamp()		
+product_pack_warehouse_stock	updated_at	datetime	YES	NULL		
+purchases	id	int(11)	NO		PRI	auto_increment
+purchases	bill_no	varchar(50)	YES	NULL	UNI	
+purchases	bill_date	date	YES	NULL	MUL	
+purchases	supplier_id	int(11)	YES	NULL	MUL	
+purchases	warehouse_id	int(11)	YES	NULL		
+purchases	supplier_name	varchar(160)	YES	NULL		
+purchases	pay_mode	varchar(40)	YES	NULL		
+purchases	taxable	decimal(12,2)	YES	NULL		
+purchases	gst_total	decimal(12,2)	YES	NULL		
+purchases	cgst_total	decimal(12,2)	YES	0.00		
+purchases	sgst_total	decimal(12,2)	YES	0.00		
+purchases	igst_total	decimal(12,2)	YES	0.00		
+purchases	grand_total	decimal(12,2)	YES	NULL		
+purchases	status	varchar(20)	YES	'Active'	MUL	
+purchases	cancel_reason	varchar(255)	YES	NULL		
+purchases	cancelled_at	datetime	YES	NULL		
+purchases	created_at	timestamp	NO	current_timestamp()		
+purchases	branch_id	bigint(20)	YES	NULL		
+purchases	branch_name	varchar(120)	YES	NULL		
+purchases	cost_center_id	bigint(20)	YES	NULL		
+purchases	cost_center_name	varchar(120)	YES	NULL		
+purchases	created_by	bigint(20)	YES	NULL		
+purchases	created_by_name	varchar(120)	YES	NULL		
+purchases	updated_by	bigint(20)	YES	NULL		
+purchases	updated_by_name	varchar(120)	YES	NULL		
+purchases	cancelled_by	bigint(20)	YES	NULL		
+purchases	cancelled_by_name	varchar(120)	YES	NULL		
+purchases	updated_at	datetime	YES	NULL		
+purchases	employee_id	bigint(20)	YES	NULL		
+purchases	employee_name	varchar(120)	YES	NULL		
+purchases	round_off	decimal(12,2)	YES	0.00		
+purchases	print_count	int(11)	YES	0		
+purchases	last_printed_at	datetime	YES	NULL		
+purchases	last_printed_by	varchar(120)	YES	NULL		
+purchase_items	id	int(11)	NO		PRI	auto_increment
+purchase_items	purchase_id	int(11)	YES	NULL	MUL	
+purchase_items	item_id	int(11)	YES	NULL	MUL	
+purchase_items	item_name	varchar(180)	YES	NULL		
+purchase_items	unit	varchar(30)	YES	NULL		
+purchase_items	batch_id	int(11)	YES	NULL		
+purchase_items	batch_no	varchar(80)	YES	NULL		
+purchase_items	expiry_date	date	YES	NULL		
+purchase_items	mrp	decimal(12,2)	YES	0.00		
+purchase_items	qty	decimal(12,3)	YES	NULL		
+purchase_items	free_qty	decimal(12,3)	YES	0.000		
+purchase_items	rate	decimal(12,2)	YES	NULL		
+purchase_items	gst	decimal(5,2)	YES	NULL		
+purchase_items	taxable	decimal(12,2)	YES	NULL		
+purchase_items	gst_amt	decimal(12,2)	YES	NULL		
+purchase_items	cgst	decimal(12,2)	YES	0.00		
+purchase_items	sgst	decimal(12,2)	YES	0.00		
+purchase_items	igst	decimal(12,2)	YES	0.00		
+purchase_items	total	decimal(12,2)	YES	NULL		
+purchase_items	hsn	varchar(20)	YES	NULL		
+purchase_items	warehouse_id	int(11)	YES	NULL		
+purchase_items	pack_id	int(11)	YES	NULL		
+purchase_items	pack_display_snapshot	varchar(100)	YES	NULL		
+purchase_items	pack_size_snapshot	decimal(10,3)	YES	0.000		
+purchase_items	price_level	varchar(30)	YES	NULL		
+purchase_returns	id	int(11)	NO		PRI	auto_increment
+purchase_returns	return_no	varchar(50)	YES	NULL	UNI	
+purchase_returns	return_date	date	NO			
+purchase_returns	purchase_id	int(11)	NO			
+purchase_returns	supplier_id	int(11)	YES	NULL	MUL	
+purchase_returns	supplier_name	varchar(160)	YES	NULL		
+purchase_returns	warehouse_id	int(11)	YES	NULL		
+purchase_returns	taxable	decimal(12,2)	YES	0.00		
+purchase_returns	gst_total	decimal(12,2)	YES	0.00		
+purchase_returns	cgst_total	decimal(12,2)	YES	0.00		
+purchase_returns	sgst_total	decimal(12,2)	YES	0.00		
+purchase_returns	igst_total	decimal(12,2)	YES	0.00		
+purchase_returns	grand_total	decimal(12,2)	YES	0.00		
+purchase_returns	reason	varchar(255)	YES	NULL		
+purchase_returns	status	varchar(20)	YES	'Active'	MUL	
+purchase_returns	cancel_reason	varchar(255)	YES	NULL		
+purchase_returns	cancelled_at	datetime	YES	NULL		
+purchase_returns	created_at	timestamp	NO	current_timestamp()		
+purchase_returns	branch_id	bigint(20)	YES	NULL		
+purchase_returns	branch_name	varchar(120)	YES	NULL		
+purchase_returns	cost_center_id	bigint(20)	YES	NULL		
+purchase_returns	cost_center_name	varchar(120)	YES	NULL		
+purchase_returns	created_by	bigint(20)	YES	NULL		
+purchase_returns	created_by_name	varchar(120)	YES	NULL		
+purchase_returns	updated_by	bigint(20)	YES	NULL		
+purchase_returns	updated_by_name	varchar(120)	YES	NULL		
+purchase_returns	cancelled_by	bigint(20)	YES	NULL		
+purchase_returns	cancelled_by_name	varchar(120)	YES	NULL		
+purchase_returns	updated_at	datetime	YES	NULL		
+purchase_returns	round_off	decimal(12,2)	YES	0.00		
+purchase_return_items	id	int(11)	NO		PRI	auto_increment
+purchase_return_items	return_id	int(11)	NO		MUL	
+purchase_return_items	purchase_item_id	int(11)	NO			
+purchase_return_items	item_id	int(11)	NO			
+purchase_return_items	item_name	varchar(180)	YES	NULL		
+purchase_return_items	hsn	varchar(20)	YES	NULL		
+purchase_return_items	unit	varchar(30)	YES	NULL		
+purchase_return_items	batch_id	int(11)	YES	NULL		
+purchase_return_items	batch_no	varchar(80)	YES	NULL		
+purchase_return_items	expiry_date	date	YES	NULL		
+purchase_return_items	mrp	decimal(12,2)	YES	0.00		
+purchase_return_items	qty	decimal(12,3)	YES	NULL		
+purchase_return_items	free_qty	decimal(12,3)	YES	0.000		
+purchase_return_items	rate	decimal(12,2)	YES	NULL		
+purchase_return_items	gst	decimal(5,2)	YES	NULL		
+purchase_return_items	taxable	decimal(12,2)	YES	NULL		
+purchase_return_items	gst_amt	decimal(12,2)	YES	NULL		
+purchase_return_items	cgst	decimal(12,2)	YES	0.00		
+purchase_return_items	sgst	decimal(12,2)	YES	0.00		
+purchase_return_items	igst	decimal(12,2)	YES	0.00		
+purchase_return_items	total	decimal(12,2)	YES	NULL		
+purchase_return_items	warehouse_id	int(11)	YES	NULL		
+purchase_return_items	pack_id	int(11)	YES	NULL		
+purchase_return_items	pack_display_snapshot	varchar(100)	YES	NULL		
+purchase_return_items	pack_size_snapshot	decimal(10,3)	YES	0.000		
+real_estate_units	id	int(11)	NO		PRI	auto_increment
+real_estate_units	project_name	varchar(180)	YES	NULL	MUL	
+real_estate_units	property_type	varchar(120)	YES	NULL		
+real_estate_units	unit_no	varchar(80)	NO			
+real_estate_units	area_sqft	decimal(12,2)	YES	0.00		
+real_estate_units	rate	decimal(12,2)	YES	0.00		
+real_estate_units	total_value	decimal(12,2)	YES	0.00		
+real_estate_units	status	varchar(60)	YES	'Available'		
+real_estate_units	notes	text	YES	NULL		
+real_estate_units	created_at	timestamp	NO	current_timestamp()		
+receipts	id	int(11)	NO		PRI	auto_increment
+receipts	receipt_no	varchar(50)	YES	NULL	UNI	
+receipts	receipt_date	date	NO		MUL	
+receipts	customer_id	int(11)	NO		MUL	
+receipts	customer_name	varchar(160)	YES	NULL		
+receipts	amount	decimal(12,2)	NO			
+receipts	mode	varchar(40)	YES	NULL		
+receipts	notes	varchar(255)	YES	NULL		
+receipts	status	varchar(20)	YES	'Active'	MUL	
+receipts	cancel_reason	varchar(255)	YES	NULL		
+receipts	cancelled_at	datetime	YES	NULL		
+receipts	created_at	timestamp	NO	current_timestamp()		
+receipts	branch_id	bigint(20)	YES	NULL		
+receipts	branch_name	varchar(120)	YES	NULL		
+receipts	cost_center_id	bigint(20)	YES	NULL		
+receipts	cost_center_name	varchar(120)	YES	NULL		
+receipts	created_by	bigint(20)	YES	NULL		
+receipts	created_by_name	varchar(120)	YES	NULL		
+receipts	updated_by	bigint(20)	YES	NULL		
+receipts	updated_by_name	varchar(120)	YES	NULL		
+receipts	cancelled_by	bigint(20)	YES	NULL		
+receipts	cancelled_by_name	varchar(120)	YES	NULL		
+receipts	updated_at	datetime	YES	NULL		
+restaurant_categories	id	int(11)	NO		PRI	auto_increment
+restaurant_categories	name	varchar(120)	NO		UNI	
+restaurant_categories	sort_order	int(11)	YES	0		
+restaurant_categories	is_active	tinyint(1)	YES	1		
+restaurant_categories	created_at	timestamp	NO	current_timestamp()		
+restaurant_tables	id	int(11)	NO		PRI	auto_increment
+restaurant_tables	table_no	varchar(40)	NO		UNI	
+restaurant_tables	floor_area	varchar(120)	YES	NULL		
+restaurant_tables	capacity	int(11)	YES	0		
+restaurant_tables	status	varchar(40)	YES	'Available'		
+restaurant_tables	notes	varchar(255)	YES	NULL		
+restaurant_tables	created_at	timestamp	NO	current_timestamp()		
+role_permissions	id	int(11)	NO		PRI	auto_increment
+role_permissions	role_name	varchar(60)	NO		MUL	
+role_permissions	permission_key	varchar(80)	NO			
+role_permissions	allowed	tinyint(1)	YES	1		
+route_settlements	id	int(11)	NO		PRI	auto_increment
+route_settlements	settlement_no	varchar(50)	YES	NULL	UNI	
+route_settlements	settlement_date	date	NO			
+route_settlements	area	varchar(120)	NO			
+route_settlements	salesman_name	varchar(120)	YES	NULL		
+route_settlements	total_bills	int(11)	YES	0		
+route_settlements	cash_sales	decimal(12,2)	YES	0.00		
+route_settlements	credit_sales	decimal(12,2)	YES	0.00		
+route_settlements	receipts_total	decimal(12,2)	YES	0.00		
+route_settlements	loaded_qty	decimal(12,3)	YES	0.000		
+route_settlements	loaded_free	decimal(12,3)	YES	0.000		
+route_settlements	outstanding_total	decimal(12,2)	YES	0.00		
+route_settlements	collected_cash	decimal(12,2)	YES	0.00		
+route_settlements	short_excess	decimal(12,2)	YES	0.00		
+route_settlements	notes	varchar(255)	YES	NULL		
+route_settlements	status	varchar(30)	YES	'Closed'		
+route_settlements	created_at	timestamp	NO	current_timestamp()		
+sales	id	int(11)	NO		PRI	auto_increment
+sales	bill_no	varchar(50)	YES	NULL	UNI	
+sales	bill_date	date	YES	NULL	MUL	
+sales	customer_id	int(11)	YES	NULL	MUL	
+sales	customer_name	varchar(160)	YES	NULL		
+sales	customer_area	varchar(120)	YES	NULL		
+sales	warehouse_id	int(11)	YES	NULL		
+sales	pay_mode	varchar(30)	YES	NULL		
+sales	taxable	decimal(12,2)	YES	NULL		
+sales	gst_total	decimal(12,2)	YES	NULL		
+sales	cgst_total	decimal(12,2)	YES	0.00		
+sales	sgst_total	decimal(12,2)	YES	0.00		
+sales	igst_total	decimal(12,2)	YES	0.00		
+sales	round_off	decimal(12,2)	YES	NULL		
+sales	grand_total	decimal(12,2)	YES	NULL		
+sales	status	varchar(20)	YES	'Active'	MUL	
+sales	cancel_reason	varchar(255)	YES	NULL		
+sales	cancelled_at	datetime	YES	NULL		
+sales	created_at	timestamp	NO	current_timestamp()		
+sales	po_no	varchar(80)	YES	NULL		
+sales	transport_details	varchar(255)	YES	NULL		
+sales	credit_terms	varchar(160)	YES	NULL		
+sales	table_no	varchar(60)	YES	NULL		
+sales	waiter_name	varchar(120)	YES	NULL		
+sales	dining_type	varchar(40)	YES	NULL		
+sales	service_charge	decimal(12,2)	YES	0.00		
+sales	cashier_name	varchar(120)	YES	NULL		
+sales	loyalty_points	decimal(12,2)	YES	0.00		
+sales	doctor_name	varchar(120)	YES	NULL		
+sales	prescription_no	varchar(80)	YES	NULL		
+sales	branch_id	bigint(20)	YES	NULL		
+sales	branch_name	varchar(120)	YES	NULL		
+sales	cost_center_id	bigint(20)	YES	NULL		
+sales	cost_center_name	varchar(120)	YES	NULL		
+sales	created_by	bigint(20)	YES	NULL		
+sales	created_by_name	varchar(120)	YES	NULL		
+sales	updated_by	bigint(20)	YES	NULL		
+sales	updated_by_name	varchar(120)	YES	NULL		
+sales	cancelled_by	bigint(20)	YES	NULL		
+sales	cancelled_by_name	varchar(120)	YES	NULL		
+sales	updated_at	datetime	YES	NULL		
+sales	employee_id	bigint(20)	YES	NULL		
+sales	employee_name	varchar(120)	YES	NULL		
+sales	dispatch_status	varchar(40)	YES	'Pending Dispatch'		
+sales	dispatch_status_at	datetime	YES	NULL		
+sales	dispatch_status_by	bigint(20)	YES	NULL		
+sales	dispatch_status_by_name	varchar(120)	YES	NULL		
+sales	dispatch_status_note	varchar(255)	YES	NULL		
+sales	dispatch_remarks	varchar(255)	YES	NULL		
+sales	shipping_address	text	YES	NULL		
+sales	print_count	int(11)	YES	0		
+sales	last_printed_at	datetime	YES	NULL		
+sales	last_printed_by	varchar(120)	YES	NULL		
+sales_items	id	int(11)	NO		PRI	auto_increment
+sales_items	sale_id	int(11)	YES	NULL	MUL	
+sales_items	item_id	int(11)	YES	NULL	MUL	
+sales_items	item_name	varchar(180)	YES	NULL		
+sales_items	hsn	varchar(20)	YES	NULL		
+sales_items	unit	varchar(30)	YES	NULL		
+sales_items	batch_id	int(11)	YES	NULL		
+sales_items	batch_no	varchar(80)	YES	NULL		
+sales_items	expiry_date	date	YES	NULL		
+sales_items	mrp	decimal(12,2)	YES	0.00		
+sales_items	qty	decimal(12,3)	YES	NULL		
+sales_items	free_qty	decimal(12,3)	YES	0.000		
+sales_items	rate	decimal(12,2)	YES	NULL		
+sales_items	gst	decimal(5,2)	YES	NULL		
+sales_items	taxable	decimal(12,2)	YES	NULL		
+sales_items	gst_amt	decimal(12,2)	YES	NULL		
+sales_items	cgst	decimal(12,2)	YES	0.00		
+sales_items	sgst	decimal(12,2)	YES	0.00		
+sales_items	igst	decimal(12,2)	YES	0.00		
+sales_items	total	decimal(12,2)	YES	NULL		
+sales_items	discount	decimal(12,2)	YES	0.00		
+sales_items	serial_no	varchar(120)	YES	NULL		
+sales_items	imei_no	varchar(120)	YES	NULL		
+sales_items	warranty_details	varchar(160)	YES	NULL		
+sales_items	model_no	varchar(120)	YES	NULL		
+sales_items	warehouse_id	int(11)	YES	NULL		
+sales_items	pack_id	int(11)	YES	NULL		
+sales_items	pack_display_snapshot	varchar(100)	YES	NULL		
+sales_items	pack_size_snapshot	decimal(10,3)	YES	0.000		
+sales_items	price_level	varchar(30)	YES	NULL		
+sales_returns	id	int(11)	NO		PRI	auto_increment
+sales_returns	return_no	varchar(50)	YES	NULL	UNI	
+sales_returns	return_date	date	NO			
+sales_returns	sale_id	int(11)	NO			
+sales_returns	customer_id	int(11)	YES	NULL	MUL	
+sales_returns	customer_name	varchar(160)	YES	NULL		
+sales_returns	warehouse_id	int(11)	YES	NULL		
+sales_returns	taxable	decimal(12,2)	YES	0.00		
+sales_returns	gst_total	decimal(12,2)	YES	0.00		
+sales_returns	cgst_total	decimal(12,2)	YES	0.00		
+sales_returns	sgst_total	decimal(12,2)	YES	0.00		
+sales_returns	igst_total	decimal(12,2)	YES	0.00		
+sales_returns	round_off	decimal(12,2)	YES	0.00		
+sales_returns	grand_total	decimal(12,2)	YES	0.00		
+sales_returns	reason	varchar(255)	YES	NULL		
+sales_returns	status	varchar(20)	YES	'Active'	MUL	
+sales_returns	cancel_reason	varchar(255)	YES	NULL		
+sales_returns	cancelled_at	datetime	YES	NULL		
+sales_returns	created_at	timestamp	NO	current_timestamp()		
+sales_returns	branch_id	bigint(20)	YES	NULL		
+sales_returns	branch_name	varchar(120)	YES	NULL		
+sales_returns	cost_center_id	bigint(20)	YES	NULL		
+sales_returns	cost_center_name	varchar(120)	YES	NULL		
+sales_returns	created_by	bigint(20)	YES	NULL		
+sales_returns	created_by_name	varchar(120)	YES	NULL		
+sales_returns	updated_by	bigint(20)	YES	NULL		
+sales_returns	updated_by_name	varchar(120)	YES	NULL		
+sales_returns	cancelled_by	bigint(20)	YES	NULL		
+sales_returns	cancelled_by_name	varchar(120)	YES	NULL		
+sales_returns	updated_at	datetime	YES	NULL		
+sales_return_items	id	int(11)	NO		PRI	auto_increment
+sales_return_items	return_id	int(11)	NO		MUL	
+sales_return_items	sale_item_id	int(11)	NO			
+sales_return_items	item_id	int(11)	NO			
+sales_return_items	item_name	varchar(180)	YES	NULL		
+sales_return_items	hsn	varchar(20)	YES	NULL		
+sales_return_items	unit	varchar(30)	YES	NULL		
+sales_return_items	batch_id	int(11)	YES	NULL		
+sales_return_items	batch_no	varchar(80)	YES	NULL		
+sales_return_items	expiry_date	date	YES	NULL		
+sales_return_items	mrp	decimal(12,2)	YES	0.00		
+sales_return_items	qty	decimal(12,3)	YES	NULL		
+sales_return_items	free_qty	decimal(12,3)	YES	0.000		
+sales_return_items	rate	decimal(12,2)	YES	NULL		
+sales_return_items	gst	decimal(5,2)	YES	NULL		
+sales_return_items	taxable	decimal(12,2)	YES	NULL		
+sales_return_items	gst_amt	decimal(12,2)	YES	NULL		
+sales_return_items	cgst	decimal(12,2)	YES	0.00		
+sales_return_items	sgst	decimal(12,2)	YES	0.00		
+sales_return_items	igst	decimal(12,2)	YES	0.00		
+sales_return_items	total	decimal(12,2)	YES	NULL		
+sales_return_items	stock_qty	decimal(12,3)	YES	NULL		
+sales_return_items	warehouse_id	int(11)	YES	NULL		
+sales_return_items	pack_id	int(11)	YES	NULL		
+sales_return_items	pack_display_snapshot	varchar(100)	YES	NULL		
+sales_return_items	pack_size_snapshot	decimal(10,3)	YES	0.000		
+schema_migrations	id	bigint(20)	NO		PRI	auto_increment
+schema_migrations	migration_key	varchar(160)	NO		UNI	
+schema_migrations	app_version	varchar(160)	YES	NULL		
+schema_migrations	description	varchar(255)	YES	NULL		
+schema_migrations	applied_at	timestamp	NO	current_timestamp()		
+scheme_rules	id	int(11)	NO		PRI	auto_increment
+scheme_rules	item_id	int(11)	NO			
+scheme_rules	min_qty	decimal(12,3)	YES	0.000		
+scheme_rules	free_qty	decimal(12,3)	YES	0.000		
+scheme_rules	sale_rate	decimal(12,2)	YES	0.00		
+scheme_rules	start_date	date	YES	NULL		
+scheme_rules	end_date	date	YES	NULL		
+scheme_rules	notes	varchar(255)	YES	NULL		
+scheme_rules	is_active	tinyint(1)	YES	1		
+scheme_rules	created_at	timestamp	NO	current_timestamp()		
+stock_adjustments	id	int(11)	NO		PRI	auto_increment
+stock_adjustments	adj_no	varchar(50)	YES	NULL	UNI	
+stock_adjustments	adj_date	date	NO			
+stock_adjustments	warehouse_id	int(11)	NO			
+stock_adjustments	item_id	int(11)	NO			
+stock_adjustments	item_name	varchar(180)	YES	NULL		
+stock_adjustments	old_stock	decimal(12,3)	YES	0.000		
+stock_adjustments	counted_stock	decimal(12,3)	YES	0.000		
+stock_adjustments	difference_qty	decimal(12,3)	YES	0.000		
+stock_adjustments	reason	varchar(255)	YES	NULL		
+stock_adjustments	created_at	timestamp	NO	current_timestamp()		
+stock_adjustments	created_by	bigint(20)	YES	NULL		
+stock_adjustments	created_by_name	varchar(120)	YES	NULL		
+stock_adjustments	updated_by	bigint(20)	YES	NULL		
+stock_adjustments	updated_by_name	varchar(120)	YES	NULL		
+stock_adjustments	updated_at	datetime	YES	NULL		
+stock_adjustments	pack_id	int(11)	YES	NULL		
+stock_adjustments	pack_display_snapshot	varchar(100)	YES	NULL		
+stock_adjustments	pack_size_snapshot	decimal(10,3)	YES	0.000		
+stock_log	id	int(11)	NO		PRI	auto_increment
+stock_log	item_id	int(11)	YES	NULL	MUL	
+stock_log	kind	varchar(30)	YES	NULL		
+stock_log	ref_no	varchar(50)	YES	NULL		
+stock_log	qty_in	decimal(12,3)	YES	0.000		
+stock_log	qty_out	decimal(12,3)	YES	0.000		
+stock_log	entry_date	date	YES	NULL	MUL	
+stock_log	created_at	timestamp	NO	current_timestamp()		
+stock_log	pack_id	int(11)	YES	NULL		
+stock_outs	id	int(11)	NO		PRI	auto_increment
+stock_outs	challan_no	varchar(50)	YES	NULL	UNI	
+stock_outs	challan_date	date	NO			
+stock_outs	area	varchar(120)	YES	NULL		
+stock_outs	warehouse_id	int(11)	YES	NULL		
+stock_outs	vehicle_no	varchar(40)	YES	NULL		
+stock_outs	driver_name	varchar(120)	YES	NULL		
+stock_outs	driver_phone	varchar(30)	YES	NULL		
+stock_outs	salesman_name	varchar(120)	YES	NULL		
+stock_outs	stock_effect	tinyint(1)	YES	0		
+stock_outs	notes	varchar(255)	YES	NULL		
+stock_outs	total_qty	decimal(12,3)	YES	0.000		
+stock_outs	total_free	decimal(12,3)	YES	0.000		
+stock_outs	status	varchar(20)	YES	'Active'	MUL	
+stock_outs	cancel_reason	varchar(255)	YES	NULL		
+stock_outs	cancelled_at	datetime	YES	NULL		
+stock_outs	created_at	timestamp	NO	current_timestamp()		
+stock_outs	created_by	bigint(20)	YES	NULL		
+stock_outs	created_by_name	varchar(120)	YES	NULL		
+stock_outs	updated_by	bigint(20)	YES	NULL		
+stock_outs	updated_by_name	varchar(120)	YES	NULL		
+stock_outs	cancelled_by	bigint(20)	YES	NULL		
+stock_outs	cancelled_by_name	varchar(120)	YES	NULL		
+stock_outs	updated_at	datetime	YES	NULL		
+stock_outs	dispatch_status	varchar(40)	YES	'Pending Dispatch'		
+stock_outs	dispatch_status_at	datetime	YES	NULL		
+stock_outs	dispatch_status_by	bigint(20)	YES	NULL		
+stock_outs	dispatch_status_by_name	varchar(120)	YES	NULL		
+stock_outs	dispatch_status_note	varchar(255)	YES	NULL		
+stock_outs	dispatch_remarks	varchar(255)	YES	NULL		
+stock_out_items	id	int(11)	NO		PRI	auto_increment
+stock_out_items	stock_out_id	int(11)	NO		MUL	
+stock_out_items	item_id	int(11)	NO		MUL	
+stock_out_items	item_name	varchar(180)	YES	NULL		
+stock_out_items	hsn	varchar(20)	YES	NULL		
+stock_out_items	unit	varchar(30)	YES	NULL		
+stock_out_items	batch_id	int(11)	YES	NULL		
+stock_out_items	batch_no	varchar(80)	YES	NULL		
+stock_out_items	expiry_date	date	YES	NULL		
+stock_out_items	mrp	decimal(12,2)	YES	0.00		
+stock_out_items	qty	decimal(12,3)	YES	NULL		
+stock_out_items	free_qty	decimal(12,3)	YES	0.000		
+stock_out_items	total_qty	decimal(12,3)	YES	NULL		
+stock_out_items	warehouse_id	int(11)	YES	NULL		
+stock_out_items	pack_id	int(11)	YES	NULL		
+stock_out_items	pack_display_snapshot	varchar(100)	YES	NULL		
+stock_out_items	pack_size_snapshot	decimal(10,3)	YES	0.000		
+stock_postings	id	bigint(20)	NO		PRI	auto_increment
+stock_postings	voucher_id	bigint(20)	NO		MUL	
+stock_postings	voucher_date	date	NO			
+stock_postings	item_id	bigint(20)	YES	NULL	MUL	
+stock_postings	item_name	varchar(180)	YES	NULL		
+stock_postings	warehouse_id	bigint(20)	YES	NULL		
+stock_postings	batch_id	bigint(20)	YES	NULL		
+stock_postings	qty_in	decimal(14,3)	YES	0.000		
+stock_postings	qty_out	decimal(14,3)	YES	0.000		
+stock_postings	rate	decimal(14,2)	YES	0.00		
+stock_postings	value_in	decimal(14,2)	YES	0.00		
+stock_postings	value_out	decimal(14,2)	YES	0.00		
+stock_postings	source_table	varchar(80)	YES	NULL	MUL	
+stock_postings	source_id	bigint(20)	YES	NULL		
+stock_postings	source_ref	varchar(80)	YES	NULL		
+stock_postings	status	varchar(30)	YES	'Posted'		
+stock_postings	created_at	timestamp	NO	current_timestamp()		
+stock_postings	branch_id	bigint(20)	YES	NULL	MUL	
+stock_postings	branch_name	varchar(120)	YES	NULL		
+stock_transfers	id	int(11)	NO		PRI	auto_increment
+stock_transfers	transfer_no	varchar(50)	YES	NULL	UNI	
+stock_transfers	transfer_date	date	NO			
+stock_transfers	from_warehouse_id	int(11)	NO			
+stock_transfers	to_warehouse_id	int(11)	NO			
+stock_transfers	notes	varchar(255)	YES	NULL		
+stock_transfers	total_qty	decimal(12,3)	YES	0.000		
+stock_transfers	status	varchar(20)	YES	'Active'	MUL	
+stock_transfers	cancel_reason	varchar(255)	YES	NULL		
+stock_transfers	cancelled_at	datetime	YES	NULL		
+stock_transfers	created_at	timestamp	NO	current_timestamp()		
+stock_transfers	created_by	bigint(20)	YES	NULL		
+stock_transfers	created_by_name	varchar(120)	YES	NULL		
+stock_transfers	updated_by	bigint(20)	YES	NULL		
+stock_transfers	updated_by_name	varchar(120)	YES	NULL		
+stock_transfers	updated_at	datetime	YES	NULL		
+stock_transfers	cancelled_by	bigint(20)	YES	NULL		
+stock_transfers	cancelled_by_name	varchar(120)	YES	NULL		
+stock_transfer_items	id	int(11)	NO		PRI	auto_increment
+stock_transfer_items	stock_transfer_id	int(11)	NO		MUL	
+stock_transfer_items	item_id	int(11)	NO			
+stock_transfer_items	item_name	varchar(180)	YES	NULL		
+stock_transfer_items	hsn	varchar(20)	YES	NULL		
+stock_transfer_items	unit	varchar(30)	YES	NULL		
+stock_transfer_items	qty	decimal(12,3)	NO			
+stock_transfer_items	batch_id	int(11)	YES	NULL	MUL	
+stock_transfer_items	dest_batch_id	int(11)	YES	NULL		
+stock_transfer_items	batch_no	varchar(80)	YES	NULL		
+stock_transfer_items	expiry_date	date	YES	NULL		
+stock_transfer_items	mrp	decimal(12,2)	YES	0.00		
+stock_transfer_items	pack_id	int(11)	YES	NULL		
+stock_transfer_items	pack_display_snapshot	varchar(100)	YES	NULL		
+stock_transfer_items	pack_size_snapshot	decimal(10,3)	YES	0.000		
+stock_valuation_adjustments	id	bigint(20)	NO		PRI	auto_increment
+stock_valuation_adjustments	adjustment_no	varchar(60)	YES	NULL	UNI	
+stock_valuation_adjustments	adjustment_date	date	NO		MUL	
+stock_valuation_adjustments	stock_register_value	decimal(14,2)	YES	0.00		
+stock_valuation_adjustments	stock_ledger_value	decimal(14,2)	YES	0.00		
+stock_valuation_adjustments	difference_amount	decimal(14,2)	YES	0.00		
+stock_valuation_adjustments	voucher_id	bigint(20)	YES	NULL	MUL	
+stock_valuation_adjustments	narration	varchar(255)	YES	NULL		
+stock_valuation_adjustments	created_by	int(11)	YES	NULL		
+stock_valuation_adjustments	created_at	timestamp	NO	current_timestamp()		
+suppliers	id	int(11)	NO		PRI	auto_increment
+suppliers	name	varchar(160)	NO		MUL	
+suppliers	gstin	varchar(20)	YES	NULL	MUL	
+suppliers	phone	varchar(30)	YES	NULL		
+suppliers	address	text	YES	NULL		
+suppliers	state	varchar(80)	YES	NULL		
+suppliers	balance	decimal(12,2)	YES	0.00		
+suppliers	created_at	timestamp	NO	current_timestamp()		
+suppliers	contact_person	varchar(120)	YES	NULL		
+suppliers	place_of_supply	varchar(120)	YES	NULL		
+suppliers	fssai_no	varchar(40)	YES	NULL		
+suppliers	drug_license_no	varchar(80)	YES	NULL		
+suppliers	gst_treatment	varchar(40)	YES	'Regular'		
+suppliers	reverse_charge_applicable	tinyint(1)	YES	0		
+tax_slabs	id	int(11)	NO		PRI	auto_increment
+tax_slabs	rate	decimal(5,2)	NO		UNI	
+tax_slabs	name	varchar(80)	YES	NULL		
+tax_slabs	is_active	tinyint(1)	YES	1		
+tax_slabs	created_at	timestamp	NO	current_timestamp()		
+units	id	int(11)	NO		PRI	auto_increment
+units	name	varchar(40)	YES	NULL	UNI	
+users	id	int(11)	NO		PRI	auto_increment
+users	name	varchar(120)	YES	NULL		
+users	email	varchar(160)	YES	NULL	UNI	
+users	pass	varchar(255)	YES	NULL		
+users	role	varchar(40)	YES	NULL		
+users	locked	tinyint(1)	YES	0		
+users	last_login	datetime	YES	NULL		
+users	last_login_ip	varchar(60)	YES	NULL		
+voucher_approval_rules	id	int(11)	NO		PRI	auto_increment
+voucher_approval_rules	role_name	varchar(60)	NO		UNI	
+voucher_approval_rules	can_approve	tinyint(1)	YES	1		
+voucher_approval_rules	approval_limit	decimal(14,2)	YES	0.00		
+voucher_approval_rules	is_unlimited	tinyint(1)	YES	0		
+voucher_approval_rules	notes	varchar(255)	YES	NULL		
+voucher_approval_rules	updated_at	datetime	YES	NULL		
+voucher_approval_rules	approval_level	int(11)	YES	1		
+voucher_approval_rules	escalation_role	varchar(60)	YES	NULL		
+voucher_approval_rules	escalation_days	int(11)	YES	0		
+voucher_headers	id	bigint(20)	NO		PRI	auto_increment
+voucher_headers	voucher_type_code	varchar(60)	NO		MUL	
+voucher_headers	voucher_no	varchar(80)	NO			
+voucher_headers	voucher_date	date	NO		MUL	
+voucher_headers	source_table	varchar(80)	YES	NULL	MUL	
+voucher_headers	source_id	bigint(20)	YES	NULL		
+voucher_headers	source_ref	varchar(80)	YES	NULL		
+voucher_headers	party_type	varchar(30)	YES	NULL		
+voucher_headers	party_id	bigint(20)	YES	NULL		
+voucher_headers	party_name	varchar(180)	YES	NULL		
+voucher_headers	status	varchar(30)	YES	'Posted'	MUL	
+voucher_headers	reversal_of_id	bigint(20)	YES	NULL		
+voucher_headers	total_debit	decimal(14,2)	YES	0.00		
+voucher_headers	total_credit	decimal(14,2)	YES	0.00		
+voucher_headers	narration	varchar(255)	YES	NULL		
+voucher_headers	created_by	bigint(20)	YES	NULL		
+voucher_headers	created_at	timestamp	NO	current_timestamp()		
+voucher_headers	approval_status	varchar(30)	YES	'Pending'	MUL	
+voucher_headers	approved_by	bigint(20)	YES	NULL		
+voucher_headers	approved_at	datetime	YES	NULL		
+voucher_headers	approval_note	varchar(255)	YES	NULL		
+voucher_headers	branch_id	bigint(20)	YES	NULL	MUL	
+voucher_headers	branch_name	varchar(120)	YES	NULL		
+voucher_headers	approval_level_required	int(11)	YES	1		
+voucher_headers	escalated_to_role	varchar(60)	YES	NULL		
+voucher_headers	approval_due_at	datetime	YES	NULL		
+voucher_lines	id	bigint(20)	NO		PRI	auto_increment
+voucher_lines	voucher_id	bigint(20)	NO		MUL	
+voucher_lines	line_no	int(11)	NO			
+voucher_lines	ledger_name	varchar(180)	NO		MUL	
+voucher_lines	debit	decimal(14,2)	YES	0.00		
+voucher_lines	credit	decimal(14,2)	YES	0.00		
+voucher_lines	narration	varchar(255)	YES	NULL		
+voucher_lines	created_at	timestamp	NO	current_timestamp()		
+voucher_lines	cost_center_id	bigint(20)	YES	NULL	MUL	
+voucher_lines	cost_center_name	varchar(120)	YES	NULL		
+voucher_types	id	int(11)	NO		PRI	auto_increment
+voucher_types	code	varchar(60)	NO		UNI	
+voucher_types	name	varchar(120)	NO			
+voucher_types	affects_accounts	tinyint(1)	YES	1		
+voucher_types	affects_gst	tinyint(1)	YES	0		
+voucher_types	affects_stock	tinyint(1)	YES	0		
+voucher_types	is_active	tinyint(1)	YES	1		
+voucher_types	created_at	timestamp	NO	current_timestamp()		
+warehouses	id	int(11)	NO		PRI	auto_increment
+warehouses	name	varchar(120)	NO		UNI	
+warehouses	address	text	YES	NULL		
+warehouses	is_default	tinyint(1)	YES	0		
+warehouses	created_at	timestamp	NO	current_timestamp()		
+warehouse_stock	id	int(11)	NO		PRI	auto_increment
+warehouse_stock	warehouse_id	int(11)	NO		MUL	
+warehouse_stock	item_id	int(11)	NO			
+warehouse_stock	stock	decimal(12,3)	YES	0.000		

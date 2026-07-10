@@ -1,0 +1,79 @@
+# Python/runtime caches
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments and local tooling
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Build/package output
+build/
+dist/
+*.spec.bak
+installer_output/
+installer_test*/
+_installer_test/
+
+# Generated print/report/runtime artifacts
+output/
+prints/
+reports/
+screenshots/
+ui_checks/
+tmp/
+drafts/
+*.tmp
+*.bak
+tmp_*.pdf
+tmp_*.db
+.business_type_parity_analysis_output.json
+AI_RESUME_*.txt
+
+# Logs and local traces
+logs/
+*.log
+app_run_output.txt
+app_startup_trace.txt
+
+# Backups and invalid metadata snapshots
+backups/
+.git_invalid_backup_*/
+
+# Runtime/client data
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+uploads/
+*.prmlic
+license/*.prmlic
+
+# Communication/session/secrets
+*.session
+*.cookies
+cookies/
+sessions/
+whatsapp_session*/
+smtp*.json
+secrets.*
+*.pem
+*.key
+
+# Local Codex/agent state
+.agents/
+.codex/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/

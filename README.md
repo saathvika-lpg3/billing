@@ -1,0 +1,30 @@
+# PRM Billing Inventory Desktop
+
+This project is the Python desktop ERP for PRM Billing Inventory.
+It runs from its own application folder with a local SQLite database, without
+requiring XAMPP on client machines.
+
+## Target
+
+- Python desktop ERP application
+- PyQt6 UI
+- SQLAlchemy data layer
+- SQLite / SQLCipher local database
+- Modern desktop ERP layout, not a visual copy of the web portal
+- Data import and verification tools for existing PRM business data
+
+## Verification
+
+1. Verify menu and database parity.
+2. Verify local desktop data and backup flow.
+3. Verify operator screens, reports, print templates and installer output.
+
+## Git Status
+
+- Official origin: `https://github.com/saathvika-lpg3/billing.git`
+- Current branch after repair: `main`
+- The official remote was empty at the 2026-07-10 repair pass, so the live
+  source tree is prepared for a user-reviewed first commit.
+- Do not commit local databases, `.prmlic` files, uploads, generated PDFs,
+  screenshots, logs, backups, sessions/cookies, SMTP/WhatsApp secrets or build
+  output.

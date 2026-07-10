@@ -1,0 +1,135 @@
+PRM BILLING INVENTORY
+ELECTRONIC LICENSE, INSTALLATION AND RESPONSIBILITY AGREEMENT
+
+IMPORTANT: READ CAREFULLY BEFORE INSTALLING OR USING THIS SOFTWARE.
+
+By clicking "I accept the agreement", selecting a PRM client license file, installing,
+opening, activating, or using PRM Billing Inventory, the client, business owner,
+authorized employee, installer, or representative accepting this agreement confirms
+that they have authority to bind the client business and agrees to all terms below.
+If the client does not agree, installation and use must be stopped immediately.
+
+1. CLIENT-SPECIFIC LICENSE
+
+PRM Billing Inventory is licensed, not sold. The software may be installed and used
+only for the client business named in the valid .prmlic license file issued by PRM
+Software Solutions or its authorized client management application. The license is
+non-transferable, machine/client-specific where applicable, and limited to the plan,
+features, expiry date, users, business type, and permissions contained in the .prmlic
+file or configured by PRM Software Solutions.
+
+The client must not copy, resell, rent, share, publish, reverse engineer, tamper with,
+remove license controls from, bypass security in, or use the software for any business
+other than the licensed client business. Any such act may result in immediate
+suspension of support, deactivation, and legal action.
+
+2. LICENSE FILE AND DEVELOPER ACCESS
+
+Installation requires a valid .prmlic file. Without a valid .prmlic file, installation
+and activation must not continue. The .prmlic file may contain client details,
+license key, installation key, super-admin credentials, developer access key, plan,
+expiry date, and feature permissions. The client must keep this file and all developer
+keys confidential.
+
+Developer dashboard access is restricted to PRM Software Solutions or authorized
+support personnel. Access to developer tools, support keys, database tools, import,
+backup, restore, or configuration options must not be shared with normal operators
+unless expressly authorized.
+
+3. CLIENT RESPONSIBILITY FOR DATA AND OPERATIONS
+
+The client is fully responsible for:
+
+- Correct entry of company details, GSTIN, PAN, FSSAI, drug license, tax rates, HSN,
+  items, stock, prices, customer/supplier records, opening balances, bank details,
+  invoice terms, and all business records.
+- Verifying every bill, purchase, return, receipt, payment, report, tax output,
+  e-invoice, e-way bill, WhatsApp message, print, PDF, label, and exported file before
+  using, sending, filing, or submitting it.
+- Taking regular backups and keeping backup copies outside the installed machine.
+- Maintaining the laptop/system, Windows account, antivirus, printer, network,
+  internet, power supply, storage, and other third-party services.
+- Ensuring the software is used only by trained and authorized users.
+- Complying with tax, accounting, privacy, consumer, electronic communication,
+  record-retention, and business laws applicable to the client.
+
+PRM Software Solutions is not responsible for losses caused by wrong data entry,
+wrong tax setup, missed backups, operator mistakes, hardware failure, Windows issues,
+virus/malware, power failure, printer problems, internet failure, third-party service
+failure, unauthorized access, shared passwords, accidental deletion, or client-side
+misuse.
+
+4. BACKUP AND DATABASE PROTECTION
+
+The database is an important business asset. The client must maintain regular,
+tested backups. Any database protection, password, encryption, machine binding,
+license check, or access control provided by the software is a security aid and does
+not replace safe business practice, physical security, Windows security, antivirus,
+or off-machine backup discipline.
+
+The client understands that no software can guarantee complete protection against
+all data loss, theft, corruption, misuse, hardware damage, operating-system failure,
+or unauthorized access. PRM Software Solutions may assist on a best-effort basis, but
+the client remains responsible for backup availability and business continuity.
+
+5. FEATURES, PLAN, EXPIRY AND SUPPORT
+
+Available menus and features depend on the licensed plan, expiry date, role
+permissions, and developer configuration. Some features may be disabled, hidden,
+or restricted unless enabled in the client's license or subscription plan.
+
+Support, updates, renewals, data recovery, template changes, training, remote visits,
+custom development, printer setup, GST/e-invoice/e-way integrations, WhatsApp setup,
+and migration work may require separate approval, payment, or service terms.
+
+6. TAX, GST, ACCOUNTING AND LEGAL OUTPUTS
+
+The software helps generate business records, but it does not replace a qualified
+accountant, tax consultant, auditor, legal advisor, or government portal validation.
+The client must verify all GST, HSN, tax, invoice, e-invoice, e-way bill, accounting,
+stock, ledger, profit/loss, balance sheet, and statutory outputs before use.
+
+PRM Software Solutions is not liable for penalties, interest, notices, mismatches,
+filing errors, wrong returns, wrong GST treatment, wrong tax rates, wrong documents,
+wrong WhatsApp/email communication, delayed filing, or government portal rejection
+arising from client configuration, data, interpretation, or usage.
+
+7. NO WARRANTY
+
+To the maximum extent permitted by applicable law, the software is provided on an
+"as is" and "as available" basis. PRM Software Solutions does not guarantee that the
+software will be error-free, uninterrupted, suitable for every business situation,
+compatible with every device/printer/service, or immune from data loss or misuse.
+
+8. LIMITATION OF LIABILITY
+
+To the maximum extent permitted by applicable law, PRM Software Solutions will not
+be liable for indirect, incidental, special, consequential, punitive, business,
+revenue, profit, goodwill, tax, penalty, data-loss, data-corruption, or downtime
+losses.
+
+If any liability is legally imposed despite this agreement, the total liability of
+PRM Software Solutions will be limited to the amount actually paid by the client for
+the software license/support for the one month immediately preceding the event giving
+rise to the claim, or the minimum amount permitted by law, whichever is lower.
+
+9. TERMINATION
+
+PRM Software Solutions may suspend license, support, updates, or developer services
+if the license expires, payment is unpaid, the .prmlic file is misused, the software
+is copied or tampered with, credentials are shared improperly, or the client violates
+this agreement.
+
+10. ELECTRONIC ACCEPTANCE
+
+Clicking "I accept the agreement" is an electronic acceptance of this agreement and
+has the same intent as a physical signature by an authorized representative of the
+client. The installer may record license and installation details for support,
+security, and audit purposes.
+
+If the person installing is not authorized to accept this agreement for the client,
+they must click "I do not accept" and stop installation.
+
+This agreement is a practical software usage and installation agreement draft. PRM
+Software Solutions may have this text reviewed and adjusted by a qualified legal
+professional for the applicable jurisdiction and final business policy.

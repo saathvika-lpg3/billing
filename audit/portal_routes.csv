@@ -1,0 +1,213 @@
+route,module,line,snippet
+developer_login,Administration,9940,case 'developer_login':
+developer_logout,Administration,9941,case 'developer_logout':
+developer_dashboard,Administration,9942,case 'developer_dashboard':
+document_archive_file,Print / Documents,9943,case 'document_archive_file':
+document_archive_whatsapp_send,Print / Documents,9944,case 'document_archive_whatsapp_send':
+portal_search,Masters / Common,9945,case 'portal_search':
+dashboard_settings,Administration,9946,case 'dashboard_settings':
+company,Administration,9947,case 'company':
+customers,Masters / Common,9948,case 'customers':
+suppliers,Masters / Common,9949,case 'suppliers':
+brands,Masters / Common,9950,case 'brands':
+manufacturers,Masters / Common,9951,case 'manufacturers':
+doctors,Restaurant / Pharmacy,9952,case 'doctors':
+agents,Masters / Common,9953,case 'agents':
+projects,Masters / Common,9954,case 'projects':
+property_types,Real Estate,9955,case 'property_types':
+real_estate_units,Real Estate,9956,case 'real_estate_units':
+restaurant_categories,Restaurant / Pharmacy,9957,case 'restaurant_categories':
+item_categories,Inventory,9958,case 'item_categories':
+restaurant_tables,Restaurant / Pharmacy,9959,case 'restaurant_tables':
+items,Inventory,9960,case 'items':
+item_duplicate_check,Inventory,9961,case 'item_duplicate_check':
+units,Masters / Common,9962,case 'units':
+tax_slabs,Masters / Common,9963,case 'tax_slabs':
+schemes,Masters / Common,9964,case 'schemes':
+master_import_export,Masters / Common,9965,case 'master_import_export':
+barcode_labels,Masters / Common,9966,case 'barcode_labels':
+sale_new,Sales,9967,case 'sale_new':
+pos_billing,Sales,9968,case 'pos_billing':
+electronics_pos_billing,Sales,9969,case 'electronics_pos_billing':
+pharmacy_retail_billing,Restaurant / Pharmacy,9970,case 'pharmacy_retail_billing':
+pharmacy_wholesale_billing,Sales,9971,case 'pharmacy_wholesale_billing':
+prescription_billing,Restaurant / Pharmacy,9972,case 'prescription_billing':
+pos_dine_in,Sales,9973,case 'pos_dine_in':
+pos_take_away,Sales,9974,case 'pos_take_away':
+pos_delivery,Sales,9975,case 'pos_delivery':
+sales,Sales,9976,case 'sales':
+print_bills,Print / Documents,9977,case 'print_bills':
+print_bills_bulk,Print / Documents,9978,case 'print_bills_bulk':
+quotation_new,Sales,9979,case 'quotation_new':
+quotations,Sales,9980,case 'quotations':
+quotation_edit,Sales,9981,case 'quotation_edit':
+quotation_print,Sales,9982,case 'quotation_print':
+sales_order_new,Sales,9983,case 'sales_order_new':
+sales_orders,Sales,9984,case 'sales_orders':
+sales_order_edit,Sales,9985,case 'sales_order_edit':
+kot_new,Sales,9986,case 'kot_new':
+ready_orders,Sales,9987,case 'ready_orders':
+sales_order_print,Sales,9988,case 'sales_order_print':
+sale_print,Sales,9989,case 'sale_print':
+sale_cancel,Sales,9990,case 'sale_cancel':
+sale_return,Sales,9991,case 'sale_return':
+sales_returns,Sales,9992,case 'sales_returns':
+sale_return_print,Sales,9993,case 'sale_return_print':
+sale_return_cancel,Sales,9994,case 'sale_return_cancel':
+purchase_new,Purchase,9995,case 'purchase_new':
+purchases,Purchase,9996,case 'purchases':
+purchase_order_new,Sales,9997,case 'purchase_order_new':
+purchase_plan_order,Sales,9998,case 'purchase_plan_order':
+purchase_orders,Sales,9999,case 'purchase_orders':
+purchase_order_edit,Sales,10000,case 'purchase_order_edit':
+purchase_order_print,Sales,10001,case 'purchase_order_print':
+purchase_print,Purchase,10002,case 'purchase_print':
+purchase_cancel,Purchase,10003,case 'purchase_cancel':
+purchase_return,Purchase,10004,case 'purchase_return':
+purchase_returns,Purchase,10005,case 'purchase_returns':
+purchase_return_print,Purchase,10006,case 'purchase_return_print':
+purchase_return_cancel,Purchase,10007,case 'purchase_return_cancel':
+stock_out_new,Inventory,10008,case 'stock_out_new':
+stock_outs,Inventory,10009,case 'stock_outs':
+delivery_challan_new,Masters / Common,10010,case 'delivery_challan_new':
+delivery_challans,Masters / Common,10011,case 'delivery_challans':
+delivery_challan_edit,Masters / Common,10012,case 'delivery_challan_edit':
+delivery_challan_print,Print / Documents,10013,case 'delivery_challan_print':
+order_doc_status,Sales,10014,case 'order_doc_status':
+order_doc_convert_sale,Sales,10015,case 'order_doc_convert_sale':
+order_doc_convert_purchase,Sales,10016,case 'order_doc_convert_purchase':
+stock_out_print,Inventory,10017,case 'stock_out_print':
+stock_out_cancel,Inventory,10018,case 'stock_out_cancel':
+route_settlement,Inventory,10019,case 'route_settlement':
+route_settlement_print,Inventory,10020,case 'route_settlement_print':
+stock,Inventory,10021,case 'stock':
+stock_entry,Inventory,10022,case 'stock_entry':
+stock_alerts,Inventory,10023,case 'stock_alerts':
+negative_stock_report,Inventory,10024,case 'negative_stock_report':
+stock_expiry,Inventory,10025,case 'stock_expiry':
+batch_tracking,Inventory,10026,case 'batch_tracking':
+stock_log,Inventory,10027,case 'stock_log':
+stock_adjust,Inventory,10028,case 'stock_adjust':
+serial_numbers,Masters / Common,10029,case 'serial_numbers':
+warranty_tracking,Masters / Common,10030,case 'warranty_tracking':
+job_cards,Masters / Common,10031,case 'job_cards':
+complaints,Masters / Common,10032,case 'complaints':
+repairs,Masters / Common,10033,case 'repairs':
+warranty_claims,Masters / Common,10034,case 'warranty_claims':
+warehouses,Inventory,10035,case 'warehouses':
+stock_transfer_new,Inventory,10036,case 'stock_transfer_new':
+stock_transfers,Inventory,10037,case 'stock_transfers':
+stock_transfer_cancel,Inventory,10038,case 'stock_transfer_cancel':
+receipt,Accounts,10039,case 'receipt':
+receipt_print,Accounts,10040,case 'receipt_print':
+receipt_cancel,Accounts,10041,case 'receipt_cancel':
+payment,Accounts,10042,case 'payment':
+payment_print,Accounts,10043,case 'payment_print':
+payment_cancel,Accounts,10044,case 'payment_cancel':
+expense,Accounts,10045,case 'expense':
+expense_cancel,Accounts,10046,case 'expense_cancel':
+account_ledgers,Accounts,10047,case 'account_ledgers':
+ledger_groups,Accounts,10048,case 'ledger_groups':
+branches,Masters / Common,10049,case 'branches':
+cost_centers,Masters / Common,10050,case 'cost_centers':
+journal,Accounts,10051,case 'journal':
+journal_cancel,Accounts,10052,case 'journal_cancel':
+cash_bank_book,Accounts,10053,case 'cash_bank_book':
+bank_reconciliation,Accounts,10054,case 'bank_reconciliation':
+cash_flow_statement,Accounts,10055,case 'cash_flow_statement':
+fund_flow_statement,Masters / Common,10056,case 'fund_flow_statement':
+trial_balance,Masters / Common,10057,case 'trial_balance':
+closing_management,Masters / Common,10058,case 'closing_management':
+erp_control_check,Masters / Common,10059,case 'erp_control_check':
+erp_vouchers,Accounts,10060,case 'erp_vouchers':
+erp_voucher,Accounts,10061,case 'erp_voucher':
+erp_voucher_print,Accounts,10062,case 'erp_voucher_print':
+voucher_approval,Accounts,10063,case 'voucher_approval':
+erp_ledger,Accounts,10064,case 'erp_ledger':
+erp_day_book,Masters / Common,10065,case 'erp_day_book':
+erp_profit_loss,Masters / Common,10066,case 'erp_profit_loss':
+erp_balance_sheet,Masters / Common,10067,case 'erp_balance_sheet':
+stock_ledger_adjustment,Inventory,10068,case 'stock_ledger_adjustment':
+erp_gst_postings,Sales,10069,case 'erp_gst_postings':
+erp_stock_postings,Sales,10070,case 'erp_stock_postings':
+inventory_valuation,Masters / Common,10071,case 'inventory_valuation':
+customer_ledger,Accounts,10072,case 'customer_ledger':
+supplier_ledger,Accounts,10073,case 'supplier_ledger':
+outstanding,Masters / Common,10074,case 'outstanding':
+outstanding_aging,Masters / Common,10075,case 'outstanding_aging':
+prescription_entry,Restaurant / Pharmacy,10076,case 'prescription_entry':
+patient_history,Restaurant / Pharmacy,10077,case 'patient_history':
+refill_reminders,Masters / Common,10078,case 'refill_reminders':
+real_estate_leads,Real Estate,10079,case 'real_estate_leads':
+real_estate_followups,Real Estate,10080,case 'real_estate_followups':
+real_estate_site_visits,Real Estate,10081,case 'real_estate_site_visits':
+real_estate_enquiries,Real Estate,10082,case 'real_estate_enquiries':
+real_estate_new_booking,Real Estate,10083,case 'real_estate_new_booking':
+real_estate_agreements,Real Estate,10084,case 'real_estate_agreements':
+real_estate_cancellations,Real Estate,10085,case 'real_estate_cancellations':
+real_estate_possession,Sales,10086,case 'real_estate_possession':
+real_estate_installments,Real Estate,10087,case 'real_estate_installments':
+real_estate_refunds,Real Estate,10088,case 'real_estate_refunds':
+real_estate_commissions,Real Estate,10089,case 'real_estate_commissions':
+real_estate_property_documents,Print / Documents,10090,case 'real_estate_property_documents':
+real_estate_customer_documents,Print / Documents,10091,case 'real_estate_customer_documents':
+real_estate_document_agreements,Print / Documents,10092,case 'real_estate_document_agreements':
+manufacturing_boms,Manufacturing,10093,case 'manufacturing_boms':
+manufacturing_work_orders,Sales,10094,case 'manufacturing_work_orders':
+manufacturing_production_orders,Sales,10095,case 'manufacturing_production_orders':
+manufacturing_production_cancel,Manufacturing,10096,case 'manufacturing_production_cancel':
+manufacturing_job_work,Manufacturing,10097,case 'manufacturing_job_work':
+manufacturing_quality_checks,Manufacturing,10098,case 'manufacturing_quality_checks':
+manufacturing_reports,Manufacturing,10099,case 'manufacturing_reports':
+source_document_view,Print / Documents,10100,case 'source_document_view':
+reports,Masters / Common,10101,case 'reports':
+daily_dispatch_summary,Inventory,10102,case 'daily_dispatch_summary':
+loading_sheet,Masters / Common,10103,case 'loading_sheet':
+route_loading_sheet,Inventory,10104,case 'route_loading_sheet':
+pending_dispatch,Inventory,10105,case 'pending_dispatch':
+dispatch_sheet,Inventory,10106,case 'dispatch_sheet':
+customer_dispatch_sheet,Inventory,10107,case 'customer_dispatch_sheet':
+dispatch_status_update,Inventory,10108,case 'dispatch_status_update':
+dispatch_original_open,Inventory,10109,case 'dispatch_original_open':
+dispatch_return_entry,Inventory,10110,case 'dispatch_return_entry':
+dispatch_return_summary,Inventory,10111,case 'dispatch_return_summary':
+dispatch_summary,Inventory,10112,case 'dispatch_summary':
+item_movement,Inventory,10113,case 'item_movement':
+warranty_reports,Masters / Common,10114,case 'warranty_reports':
+real_estate_sales_reports,Sales,10115,case 'real_estate_sales_reports':
+real_estate_collection_reports,Real Estate,10116,case 'real_estate_collection_reports':
+real_estate_inventory_reports,Real Estate,10117,case 'real_estate_inventory_reports':
+real_estate_commission_reports,Real Estate,10118,case 'real_estate_commission_reports':
+real_estate_financial_reports,Real Estate,10119,case 'real_estate_financial_reports':
+gst_return,GST / Compliance,10120,case 'gst_return':
+gst_adjustment,GST / Compliance,10121,case 'gst_adjustment':
+gst_itc_reconciliation,GST / Compliance,10122,case 'gst_itc_reconciliation':
+gstr9_annual_return,GST / Compliance,10123,case 'gstr9_annual_return':
+einvoices,GST / Compliance,10124,case 'einvoices':
+eway_bills,GST / Compliance,10125,case 'eway_bills':
+profit_loss,Masters / Common,10126,case 'profit_loss':
+day_book,Masters / Common,10127,case 'day_book':
+audit,Masters / Common,10128,case 'audit':
+users,Administration,10129,case 'users':
+employees,Masters / Common,10130,case 'employees':
+role_permissions,Administration,10131,case 'role_permissions':
+financial_years,Masters / Common,10132,case 'financial_years':
+print_settings,Administration,10133,case 'print_settings':
+lan_setup,Masters / Common,10134,case 'lan_setup':
+backup,Administration,10135,case 'backup':
+sales,Sales,20802,case 'sales':
+purchases,Purchase,20815,case 'purchases':
+sales_returns,Sales,20828,case 'sales_returns':
+purchase_returns,Purchase,20841,case 'purchase_returns':
+receipts,Accounts,20854,case 'receipts':
+payments,Accounts,20866,case 'payments':
+expenses,Accounts,20878,case 'expenses':
+journal_entries,Accounts,20893,case 'journal_entries':
+stock_valuation_adjustments,Inventory,20908,case 'stock_valuation_adjustments':
+production_runs,Manufacturing,20919,case 'production_runs':
+gst_adjustments,GST / Compliance,20935,case 'gst_adjustments':
+financial_years_year_end,Masters / Common,20952,case 'financial_years_year_end':
+customers,Masters / Common,20962,case 'customers':
+suppliers,Masters / Common,20975,case 'suppliers':
+items,Inventory,20987,case 'items':
+account_ledgers,Accounts,20998,case 'account_ledgers':

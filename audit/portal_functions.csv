@@ -1,0 +1,969 @@
+function,module,line,snippet
+prm_default_config_path,Masters / Common,44,function prm_default_config_path(
+prm_load_external_config,Masters / Common,48,function prm_load_external_config(
+mysql_dsn,Masters / Common,87,function mysql_dsn(
+pdo_options,Masters / Common,104,function pdo_options(
+root_db,Masters / Common,112,function root_db(
+db,Masters / Common,117,function db(
+ensure_runtime_directories,Masters / Common,125,function ensure_runtime_directories(
+table_exists_for_setup,Masters / Common,136,function table_exists_for_setup(
+ensure_product_pack_schema,Masters / Common,144,function ensure_product_pack_schema(
+ensure_release_tracking_schema,Masters / Common,208,function ensure_release_tracking_schema(
+ensure_transaction_schema_compatibility,Masters / Common,228,function ensure_transaction_schema_compatibility(
+business_type_standard_matrix,Masters / Common,458,function business_type_standard_matrix(
+business_type_standard_config,Masters / Common,819,function business_type_standard_config(
+business_type_standard_seed_rows,Masters / Common,826,function business_type_standard_seed_rows(
+ensure_business_type_standardization_compatibility,Masters / Common,841,function ensure_business_type_standardization_compatibility(
+setup,Masters / Common,896,function setup(
+ledger_group_report_sections,Accounts,2705,function ledger_group_report_sections(
+ledger_group_natures,Accounts,2717,function ledger_group_natures(
+ledger_group_default_rows,Accounts,2728,function ledger_group_default_rows(
+ledger_group_guess_section,Accounts,2755,function ledger_group_guess_section(
+ledger_group_nature_for_section,Accounts,2766,function ledger_group_nature_for_section(
+seed_ledger_groups,Accounts,2774,function seed_ledger_groups(
+ensure_column,Masters / Common,2790,function ensure_column(
+ensure_index,Masters / Common,2794,function ensure_index(
+ensure_performance_indexes,Masters / Common,2808,function ensure_performance_indexes(
+h,Masters / Common,2846,function h(
+money,Masters / Common,2847,function money(
+clean_qty,Masters / Common,2848,function clean_qty(
+product_pack_display_name,Masters / Common,2849,function product_pack_display_name(
+migrate_default_product_packs,Masters / Common,2853,function migrate_default_product_packs(
+product_pack_by_id,Masters / Common,2887,function product_pack_by_id(
+default_product_pack,Masters / Common,2891,function default_product_pack(
+posted_pack_id_for_line,Sales,2895,function posted_pack_id_for_line(
+product_pack_snapshot,Masters / Common,2904,function product_pack_snapshot(
+transaction_line_pack_id,Masters / Common,2930,function transaction_line_pack_id(
+transaction_line_pack_snapshot,Masters / Common,2934,function transaction_line_pack_snapshot(
+product_pack_rate_for_level,Masters / Common,2942,function product_pack_rate_for_level(
+sync_item_stock_from_packs,Inventory,2954,function sync_item_stock_from_packs(
+pack_stock_qty,Inventory,2959,function pack_stock_qty(
+pack_stock_locations_for_message,Inventory,2967,function pack_stock_locations_for_message(
+adjust_product_pack_stock,Inventory,2975,function adjust_product_pack_stock(
+safe_stored_file_label,Masters / Common,2988,function safe_stored_file_label(
+document_archive_empty,Print / Documents,2992,function document_archive_empty(
+document_archive_sanitize_segment,Print / Documents,2995,function document_archive_sanitize_segment(
+document_archive_ensure_dir,Print / Documents,3003,function document_archive_ensure_dir(
+document_archive_root,Print / Documents,3008,function document_archive_root(
+document_archive_month_folder,Print / Documents,3022,function document_archive_month_folder(
+document_archive_category,Print / Documents,3027,function document_archive_category(
+document_archive_report_name_from_filename,Print / Documents,3051,function document_archive_report_name_from_filename(
+document_archive_meta_for_download,Print / Documents,3056,function document_archive_meta_for_download(
+document_archive_folder,Print / Documents,3071,function document_archive_folder(
+document_archive_base_name,Print / Documents,3091,function document_archive_base_name(
+document_archive_unique_path,Print / Documents,3095,function document_archive_unique_path(
+document_archive_total_size,Print / Documents,3105,function document_archive_total_size(
+document_archive_format_size,Print / Documents,3110,function document_archive_format_size(
+document_archive_log,Print / Documents,3115,function document_archive_log(
+document_archive_result,Print / Documents,3146,function document_archive_result(
+document_archive_meta_source_time,Print / Documents,3160,function document_archive_meta_source_time(
+document_archive_recent_print_pdf,Print / Documents,3169,function document_archive_recent_print_pdf(
+document_archive_recent_print_result,Print / Documents,3192,function document_archive_recent_print_result(
+document_archive_store_content,Print / Documents,3198,function document_archive_store_content(
+document_archive_store_existing_file,Print / Documents,3213,function document_archive_store_existing_file(
+document_archive_file_uri,Print / Documents,3230,function document_archive_file_uri(
+document_archive_base64_url_encode,Print / Documents,3242,function document_archive_base64_url_encode(
+document_archive_base64_url_decode,Print / Documents,3245,function document_archive_base64_url_decode(
+document_archive_file_signature,Print / Documents,3252,function document_archive_file_signature(
+document_archive_file_url,Print / Documents,3256,function document_archive_file_url(
+document_archive_async_print_url,Print / Documents,3263,function document_archive_async_print_url(
+document_archive_json_response,Print / Documents,3269,function document_archive_json_response(
+document_archive_valid_pdf_path,Print / Documents,3291,function document_archive_valid_pdf_path(
+document_archive_file_page,Print / Documents,3302,function document_archive_file_page(
+document_archive_pdf_renderers,Print / Documents,3319,function document_archive_pdf_renderers(
+document_archive_pdf_renderer,Print / Documents,3344,function document_archive_pdf_renderer(
+document_archive_wait_for_file,Print / Documents,3349,function document_archive_wait_for_file(
+document_archive_remove_tree,Print / Documents,3359,function document_archive_remove_tree(
+document_archive_render_pdf_with_playwright,Print / Documents,3371,function document_archive_render_pdf_with_playwright(
+document_archive_render_pdf,Print / Documents,3420,function document_archive_render_pdf(
+document_archive_print_html,Print / Documents,3456,function document_archive_print_html(
+document_archive_pending_print_pdf,Print / Documents,3483,function document_archive_pending_print_pdf(
+document_archive_standard_print_pdf,Print / Documents,3498,function document_archive_standard_print_pdf(
+document_archive_doc_no_label,Print / Documents,3557,function document_archive_doc_no_label(
+document_archive_caption_action,Print / Documents,3569,function document_archive_caption_action(
+document_archive_share_caption,Print / Documents,3588,function document_archive_share_caption(
+document_archive_pdf_ready,Print / Documents,3610,function document_archive_pdf_ready(
+document_archive_whatsapp_options,Print / Documents,3617,function document_archive_whatsapp_options(
+document_archive_notice,Print / Documents,3636,function document_archive_notice(
+amount_in_words,Masters / Common,3662,function amount_in_words(
+whatsapp_phone,Masters / Common,3707,function whatsapp_phone(
+whatsapp_link,Masters / Common,3712,function whatsapp_link(
+whatsapp_send_button,Masters / Common,3716,function whatsapp_send_button(
+whatsapp_config_pairs,Masters / Common,3737,function whatsapp_config_pairs(
+whatsapp_api_config,Masters / Common,3748,function whatsapp_api_config(
+whatsapp_api_request,Masters / Common,3773,function whatsapp_api_request(
+whatsapp_api_send_document,Print / Documents,3794,function whatsapp_api_send_document(
+local_node_executables,Masters / Common,3836,function local_node_executables(
+whatsapp_browser_prepare_document,Print / Documents,3858,function whatsapp_browser_prepare_document(
+powershell_encoded_command,Masters / Common,3904,function powershell_encoded_command(
+whatsapp_local_prepare_document,Print / Documents,3914,function whatsapp_local_prepare_document(
+document_archive_whatsapp_send_page,Print / Documents,4005,function document_archive_whatsapp_send_page(
+sale_whatsapp_message,Sales,4046,function sale_whatsapp_message(
+order_doc_whatsapp_message,Sales,4095,function order_doc_whatsapp_message(
+purchase_whatsapp_message,Purchase,4124,function purchase_whatsapp_message(
+stock_out_whatsapp_message,Inventory,4147,function stock_out_whatsapp_message(
+valid_gstin,GST / Compliance,4169,function valid_gstin(
+normalize_gstin,GST / Compliance,4172,function normalize_gstin(
+valid_optional_gstin,GST / Compliance,4175,function valid_optional_gstin(
+gst_treatment_labels,GST / Compliance,4179,function gst_treatment_labels(
+normalize_gst_treatment,GST / Compliance,4193,function normalize_gst_treatment(
+gst_treatment_options,GST / Compliance,4209,function gst_treatment_options(
+party_gst_transaction_type,GST / Compliance,4217,function party_gst_transaction_type(
+normalize_fssai_no,Masters / Common,4224,function normalize_fssai_no(
+valid_fssai_no,Masters / Common,4227,function valid_fssai_no(
+normalize_pan,Masters / Common,4231,function normalize_pan(
+valid_pan,Masters / Common,4234,function valid_pan(
+normalize_phone_no,Masters / Common,4238,function normalize_phone_no(
+valid_phone_no,Masters / Common,4241,function valid_phone_no(
+valid_email_address,Masters / Common,4245,function valid_email_address(
+normalize_pincode,Masters / Common,4249,function normalize_pincode(
+valid_pincode,Masters / Common,4252,function valid_pincode(
+normalize_ifsc,Masters / Common,4256,function normalize_ifsc(
+valid_ifsc,Masters / Common,4259,function valid_ifsc(
+normalize_vehicle_no,Masters / Common,4263,function normalize_vehicle_no(
+valid_vehicle_no,Masters / Common,4266,function valid_vehicle_no(
+normalize_hsn_sac,Masters / Common,4270,function normalize_hsn_sac(
+valid_hsn_sac,Masters / Common,4273,function valid_hsn_sac(
+valid_date_value,Masters / Common,4277,function valid_date_value(
+valid_non_negative_number,Masters / Common,4283,function valid_non_negative_number(
+import_row_is_blank,Masters / Common,4287,function import_row_is_blank(
+import_bool_value,Masters / Common,4293,function import_bool_value(
+item_type_options_map,Inventory,4296,function item_type_options_map(
+item_status_options_map,Inventory,4299,function item_status_options_map(
+item_valuation_method_map,Inventory,4302,function item_valuation_method_map(
+normalize_item_type,Inventory,4309,function normalize_item_type(
+normalize_item_status,Inventory,4316,function normalize_item_status(
+normalize_valuation_method,Masters / Common,4323,function normalize_valuation_method(
+simple_options,Masters / Common,4327,function simple_options(
+erp_trim,Masters / Common,4335,function erp_trim(
+valid_erp_code_value,Masters / Common,4338,function valid_erp_code_value(
+valid_erp_text_value,Masters / Common,4344,function valid_erp_text_value(
+gst_rate_exists,GST / Compliance,4350,function gst_rate_exists(
+unit_exists,Masters / Common,4353,function unit_exists(
+item_duplicate_by_field,Inventory,4360,function item_duplicate_by_field(
+supplier_item_code_duplicate,Inventory,4367,function supplier_item_code_duplicate(
+similar_item_match,Inventory,4375,function similar_item_match(
+item_duplicate_check_page,Inventory,4386,function item_duplicate_check_page(
+next_unique_barcode,Masters / Common,4414,function next_unique_barcode(
+item_requires_batch,Inventory,4422,function item_requires_batch(
+item_requires_expiry,Inventory,4425,function item_requires_expiry(
+assert_purchase_batch_rules,Purchase,4428,function assert_purchase_batch_rules(
+assert_issue_batch_rules,Inventory,4437,function assert_issue_batch_rules(
+import_master_row_errors,Masters / Common,4451,function import_master_row_errors(
+assert_import_master_rows_valid,Masters / Common,4489,function assert_import_master_rows_valid(
+business_fssai_required_codes,Masters / Common,4496,function business_fssai_required_codes(
+business_requires_fssai,Masters / Common,4499,function business_requires_fssai(
+business_fssai_requirement_label,Masters / Common,4502,function business_fssai_requirement_label(
+rows,Masters / Common,4507,function rows(
+one,Masters / Common,4508,function one(
+doc_exists,Masters / Common,4509,function doc_exists(
+go,Masters / Common,4520,function go(
+audit,Masters / Common,4521,function audit(
+record_print_open,Print / Documents,4538,function record_print_open(
+flash,Masters / Common,4564,function flash(
+user_error_message,Administration,4568,function user_error_message(
+setting_get,Administration,4576,function setting_get(
+setting_set,Administration,4586,function setting_set(
+app_short_cache_remember,Masters / Common,4602,function app_short_cache_remember(
+dashboard_cache_clear,Masters / Common,4627,function dashboard_cache_clear(
+dashboard_cache_clear_for_action,Masters / Common,4639,function dashboard_cache_clear_for_action(
+setting_yes,Administration,4649,function setting_yes(
+allow_negative_stock,Inventory,4652,function allow_negative_stock(
+print_settings,Administration,4655,function print_settings(
+print_body_class,Print / Documents,4669,function print_body_class(
+page_print_body_classes,Print / Documents,4680,function page_print_body_classes(
+page_print_page_css,Print / Documents,4695,function page_print_page_css(
+current_print_format_label,Print / Documents,4702,function current_print_format_label(
+print_action_label,Print / Documents,4709,function print_action_label(
+print_format_badge,Print / Documents,4713,function print_format_badge(
+page_body_class,Masters / Common,4718,function page_body_class(
+backup_table_names,Administration,4754,function backup_table_names(
+complete_backup_table_names,Administration,4757,function complete_backup_table_names(
+make_backup_payload,Administration,4760,function make_backup_payload(
+backup_log,Administration,4768,function backup_log(
+encrypt_backup_payload,Administration,4776,function encrypt_backup_payload(
+decrypt_backup_payload,Administration,4802,function decrypt_backup_payload(
+create_backup_file,Administration,4824,function create_backup_file(
+data_maintenance_dir,Masters / Common,4858,function data_maintenance_dir(
+data_maintenance_user_label,Administration,4867,function data_maintenance_user_label(
+require_data_maintenance_password,Masters / Common,4872,function require_data_maintenance_password(
+data_maintenance_report_write,Masters / Common,4883,function data_maintenance_report_write(
+data_maintenance_log_insert,Masters / Common,4892,function data_maintenance_log_insert(
+data_maintenance_log_update,Masters / Common,4898,function data_maintenance_log_update(
+data_maintenance_archive_definitions,Print / Documents,4903,function data_maintenance_archive_definitions(
+data_maintenance_selected_modules,Masters / Common,5020,function data_maintenance_selected_modules(
+data_maintenance_validate_dates,Masters / Common,5030,function data_maintenance_validate_dates(
+data_maintenance_group_where,Masters / Common,5042,function data_maintenance_group_where(
+data_maintenance_count_group,Masters / Common,5050,function data_maintenance_count_group(
+data_maintenance_archive_preview,Print / Documents,5063,function data_maintenance_archive_preview(
+data_maintenance_fetch_group_rows,Masters / Common,5096,function data_maintenance_fetch_group_rows(
+data_maintenance_table_columns,Masters / Common,5109,function data_maintenance_table_columns(
+xlsx_escape,Masters / Common,5113,function xlsx_escape(
+xlsx_col_name,Masters / Common,5117,function xlsx_col_name(
+xlsx_sheet_xml,Masters / Common,5127,function xlsx_sheet_xml(
+write_xlsx_workbook,Masters / Common,5173,function write_xlsx_workbook(
+data_maintenance_rows_for_xlsx,Masters / Common,5224,function data_maintenance_rows_for_xlsx(
+data_maintenance_export_archive,Print / Documents,5233,function data_maintenance_export_archive(
+data_maintenance_create_opening_snapshots,Masters / Common,5279,function data_maintenance_create_opening_snapshots(
+data_maintenance_delete_archive_rows,Print / Documents,5312,function data_maintenance_delete_archive_rows(
+data_maintenance_clear_demo_data,Masters / Common,5335,function data_maintenance_clear_demo_data(
+run_auto_backup_if_due,Administration,5410,function run_auto_backup_if_due(
+company_cache_clear,Administration,5425,function company_cache_clear(
+company,Administration,5436,function company(
+need_login,Masters / Common,5443,function need_login(
+is_local_browser_request,Masters / Common,5444,function is_local_browser_request(
+launcher_stop_services_async,Masters / Common,5448,function launcher_stop_services_async(
+financial_year_label_for_date,Masters / Common,5467,function financial_year_label_for_date(
+financial_year_for_date,Masters / Common,5474,function financial_year_for_date(
+financial_period_type_options,Masters / Common,5486,function financial_period_type_options(
+financial_period_for_date,Masters / Common,5494,function financial_period_for_date(
+require_unlocked_accounting_period,Masters / Common,5501,function require_unlocked_accounting_period(
+require_unlocked_financial_date,Masters / Common,5511,function require_unlocked_financial_date(
+generate_financial_periods,Masters / Common,5519,function generate_financial_periods(
+year_end_close_voucher,Accounts,5546,function year_end_close_voucher(
+post_year_end_close,Sales,5551,function post_year_end_close(
+closing_type_labels,Masters / Common,5598,function closing_type_labels(
+normalize_closing_type,Masters / Common,5607,function normalize_closing_type(
+closing_type_options,Masters / Common,5617,function closing_type_options(
+itr_form_options,Masters / Common,5626,function itr_form_options(
+normalize_itr_form,Masters / Common,5639,function normalize_itr_form(
+itr_form_select_options,Masters / Common,5645,function itr_form_select_options(
+itr_form_label,Masters / Common,5654,function itr_form_label(
+assessment_year_label_for_period,Masters / Common,5659,function assessment_year_label_for_period(
+ca_export_schema_version,Masters / Common,5666,function ca_export_schema_version(
+ca_export_period_label,Masters / Common,5670,function ca_export_period_label(
+ca_itr_recommended_reports,Masters / Common,5679,function ca_itr_recommended_reports(
+ca_itr_selected_sheets,Masters / Common,5695,function ca_itr_selected_sheets(
+closing_financial_year_options,Masters / Common,5698,function closing_financial_year_options(
+closing_default_dates,Masters / Common,5713,function closing_default_dates(
+closing_period_label,Masters / Common,5740,function closing_period_label(
+closing_user_is_authorized,Administration,5748,function closing_user_is_authorized(
+closing_cash_bank_balances,Accounts,5753,function closing_cash_bank_balances(
+closing_summary_data,Masters / Common,5765,function closing_summary_data(
+closing_trial_balance_difference,Masters / Common,5802,function closing_trial_balance_difference(
+closing_summary_rows,Masters / Common,5809,function closing_summary_rows(
+closing_sales_register_rows,Sales,5830,function closing_sales_register_rows(
+closing_purchase_register_rows,Purchase,5838,function closing_purchase_register_rows(
+closing_hsn_summary_rows,Masters / Common,5846,function closing_hsn_summary_rows(
+closing_stock_summary_rows,Inventory,5853,function closing_stock_summary_rows(
+closing_trial_balance_rows_for_export,Masters / Common,5861,function closing_trial_balance_rows_for_export(
+closing_balance_sheet_rows_for_export,Masters / Common,5867,function closing_balance_sheet_rows_for_export(
+closing_profit_loss_rows_for_export,Masters / Common,5877,function closing_profit_loss_rows_for_export(
+closing_gst_summary_rows_for_export,GST / Compliance,5888,function closing_gst_summary_rows_for_export(
+closing_outstanding_rows_for_export,Masters / Common,5895,function closing_outstanding_rows_for_export(
+closing_ledger_balance_rows_for_export,Accounts,5903,function closing_ledger_balance_rows_for_export(
+ca_excel_report_catalog,Masters / Common,5909,function ca_excel_report_catalog(
+ca_excel_selected_sheets,Masters / Common,5926,function ca_excel_selected_sheets(
+ca_export_sheets,Masters / Common,5955,function ca_export_sheets(
+ca_assessment_year_code_for_period,Masters / Common,5963,function ca_assessment_year_code_for_period(
+ca_financial_year_code_for_period,Masters / Common,5967,function ca_financial_year_code_for_period(
+ca_export_setting_bool,Administration,5978,function ca_export_setting_bool(
+ca_export_setting_amount,Administration,5983,function ca_export_setting_amount(
+ca_default_distributor_itr,Masters / Common,5987,function ca_default_distributor_itr(
+ca_distributor_export_enabled,Masters / Common,5991,function ca_distributor_export_enabled(
+ca_export_period_type_code,Masters / Common,5995,function ca_export_period_type_code(
+ca_stock_valuation_method_code,Inventory,6004,function ca_stock_valuation_method_code(
+ca_stock_valuation_method_label,Inventory,6008,function ca_stock_valuation_method_label(
+ca_inventory_valuation_index,Masters / Common,6012,function ca_inventory_valuation_index(
+ca_distributor_item_rows,Inventory,6020,function ca_distributor_item_rows(
+ca_distributor_expense_buckets,Accounts,6079,function ca_distributor_expense_buckets(
+ca_distributor_bank_summary,Accounts,6098,function ca_distributor_bank_summary(
+ca_document_flags_for_export,Print / Documents,6109,function ca_document_flags_for_export(
+ca_distributor_itr_payload,Masters / Common,6123,function ca_distributor_itr_payload(
+ca_export_payload,Masters / Common,6196,function ca_export_payload(
+ca_json_source_catalog,Masters / Common,6250,function ca_json_source_catalog(
+ca_json_value_at_path,Masters / Common,6292,function ca_json_value_at_path(
+ca_json_source_values,Masters / Common,6301,function ca_json_source_values(
+ca_json_template_paths,Masters / Common,6307,function ca_json_template_paths(
+ca_json_path_segments,Masters / Common,6319,function ca_json_path_segments(
+ca_json_set_path,Masters / Common,6326,function ca_json_set_path(
+ca_json_required_sources,Masters / Common,6340,function ca_json_required_sources(
+ca_json_mapping_status_payload,Masters / Common,6352,function ca_json_mapping_status_payload(
+ca_json_validate_standard_payload,Masters / Common,6392,function ca_json_validate_standard_payload(
+ca_json_upload_template,Masters / Common,6405,function ca_json_upload_template(
+ca_json_save_mapping,Masters / Common,6432,function ca_json_save_mapping(
+ca_json_custom_payload,Masters / Common,6456,function ca_json_custom_payload(
+ca_json_export_download,Masters / Common,6470,function ca_json_export_download(
+ca_excel_export_download,Masters / Common,6521,function ca_excel_export_download(
+unique_file_path,Masters / Common,6561,function unique_file_path(
+ca_send_email_attachment,Masters / Common,6572,function ca_send_email_attachment(
+create_ca_export_file,Masters / Common,6594,function create_ca_export_file(
+closing_copy_dir,Masters / Common,6640,function closing_copy_dir(
+create_closing_backup,Administration,6656,function create_closing_backup(
+closing_validation_issues,Masters / Common,6689,function closing_validation_issues(
+closing_mark_period_closed,Masters / Common,6710,function closing_mark_period_closed(
+closing_unlock_period,Masters / Common,6722,function closing_unlock_period(
+perform_closing_workflow,Masters / Common,6732,function perform_closing_workflow(
+reopen_closing_period,Masters / Common,6765,function reopen_closing_period(
+gst_return_types,GST / Compliance,6779,function gst_return_types(
+normalize_gst_return_type,GST / Compliance,6785,function normalize_gst_return_type(
+gst_return_type_options,GST / Compliance,6789,function gst_return_type_options(
+gst_return_filing_status_label,GST / Compliance,6797,function gst_return_filing_status_label(
+gst_return_filing_for_period,GST / Compliance,6802,function gst_return_filing_for_period(
+gst_locked_period_for_date,GST / Compliance,6808,function gst_locked_period_for_date(
+require_unlocked_gst_date,GST / Compliance,6815,function require_unlocked_gst_date(
+gst_return_filing_totals,GST / Compliance,6821,function gst_return_filing_totals(
+gst_return_filing_save,GST / Compliance,6848,function gst_return_filing_save(
+gst_return_filing_unlock,GST / Compliance,6870,function gst_return_filing_unlock(
+gst_tax_heads,GST / Compliance,6875,function gst_tax_heads(
+gst_adjustment_period_totals,GST / Compliance,6883,function gst_adjustment_period_totals(
+gst_adjustment_suggestions,GST / Compliance,6897,function gst_adjustment_suggestions(
+gst_adjustment_amounts_from_input,GST / Compliance,6928,function gst_adjustment_amounts_from_input(
+post_gst_adjustment,Sales,6943,function post_gst_adjustment(
+cancel_gst_adjustment,GST / Compliance,7013,function cancel_gst_adjustment(
+gst_adjustment_rows,GST / Compliance,7032,function gst_adjustment_rows(
+posting_amount,Sales,7042,function posting_amount(
+posting_qty,Sales,7045,function posting_qty(
+posting_money_ledger,Sales,7048,function posting_money_ledger(
+posting_party_ledger,Sales,7058,function posting_party_ledger(
+seed_branches,Masters / Common,7067,function seed_branches(
+branch_by_id,Masters / Common,7077,function branch_by_id(
+default_branch,Masters / Common,7082,function default_branch(
+branch_options,Masters / Common,7088,function branch_options(
+posting_branch_from_source,Sales,7098,function posting_branch_from_source(
+posting_branch_from_header,Sales,7114,function posting_branch_from_header(
+seed_cost_centers,Masters / Common,7132,function seed_cost_centers(
+cost_center_by_id,Masters / Common,7137,function cost_center_by_id(
+cost_center_options,Masters / Common,7142,function cost_center_options(
+posted_branch_values,Sales,7151,function posted_branch_values(
+posted_cost_center_values,Sales,7156,function posted_cost_center_values(
+employee_rows,Masters / Common,7161,function employee_rows(
+default_employee,Masters / Common,7165,function default_employee(
+employee_by_id,Masters / Common,7169,function employee_by_id(
+employee_values_from_row,Masters / Common,7174,function employee_values_from_row(
+posted_employee_values,Sales,7188,function posted_employee_values(
+employee_options,Masters / Common,7199,function employee_options(
+posting_cost_center_from_line,Sales,7221,function posting_cost_center_from_line(
+posting_add_line,Sales,7236,function posting_add_line(
+erp_has_auxiliary_posting_rows,Sales,7256,function erp_has_auxiliary_posting_rows(
+erp_post_voucher,Sales,7276,function erp_post_voucher(
+erp_reverse_voucher_for_source,Accounts,7396,function erp_reverse_voucher_for_source(
+post_sales_invoice,Sales,7458,function post_sales_invoice(
+post_purchase_invoice,Sales,7521,function post_purchase_invoice(
+post_sales_return,Sales,7584,function post_sales_return(
+post_purchase_return,Sales,7647,function post_purchase_return(
+post_stock_quantity_voucher,Sales,7709,function post_stock_quantity_voucher(
+stock_item_rate,Inventory,7742,function stock_item_rate(
+post_stock_adjustment_voucher,Sales,7746,function post_stock_adjustment_voucher(
+post_stock_out_voucher,Sales,7769,function post_stock_out_voucher(
+post_stock_transfer_voucher,Sales,7795,function post_stock_transfer_voucher(
+post_receipt_voucher,Sales,7828,function post_receipt_voucher(
+post_payment_voucher,Sales,7849,function post_payment_voucher(
+post_expense_voucher,Sales,7870,function post_expense_voucher(
+journal_details_lines,Accounts,7893,function journal_details_lines(
+post_journal_voucher,Sales,7911,function post_journal_voucher(
+opening_balance_contra_ledger,Accounts,7941,function opening_balance_contra_ledger(
+opening_balance_voucher_exists,Accounts,7944,function opening_balance_voucher_exists(
+post_opening_balance_entry,Sales,7951,function post_opening_balance_entry(
+post_opening_balance_vouchers,Sales,7972,function post_opening_balance_vouchers(
+opening_balance_conversion_status,Masters / Common,8040,function opening_balance_conversion_status(
+default_warehouse_id,Inventory,8055,function default_warehouse_id(
+warehouse_options,Inventory,8061,function warehouse_options(
+line_warehouse_control,Inventory,8072,function line_warehouse_control(
+item_row_options_control,Inventory,8077,function item_row_options_control(
+default_price_level_for_business_type,Masters / Common,8104,function default_price_level_for_business_type(
+price_level_options_html,Masters / Common,8109,function price_level_options_html(
+posted_line_warehouse_id,Sales,8121,function posted_line_warehouse_id(
+warehouse_with_available_stock,Inventory,8131,function warehouse_with_available_stock(
+resolve_issue_line_warehouse,Inventory,8141,function resolve_issue_line_warehouse(
+line_warehouse_for_existing_row,Inventory,8162,function line_warehouse_for_existing_row(
+adjust_warehouse_stock,Inventory,8168,function adjust_warehouse_stock(
+warehouse_stock_qty,Inventory,8172,function warehouse_stock_qty(
+warehouse_name_for_message,Inventory,8181,function warehouse_name_for_message(
+warehouse_display_name,Inventory,8186,function warehouse_display_name(
+warehouse_stock_locations_for_message,Inventory,8192,function warehouse_stock_locations_for_message(
+normalize_expiry,Masters / Common,8199,function normalize_expiry(
+find_or_create_batch,Inventory,8203,function find_or_create_batch(
+batch_info,Inventory,8215,function batch_info(
+adjust_batch_stock,Inventory,8219,function adjust_batch_stock(
+billable_quantity,Masters / Common,8223,function billable_quantity(
+assert_transaction_item_values,Inventory,8226,function assert_transaction_item_values(
+assert_warehouse_stock_available,Inventory,8247,function assert_warehouse_stock_available(
+assert_pack_stock_available,Inventory,8258,function assert_pack_stock_available(
+assert_sale_stock_available,Sales,8270,function assert_sale_stock_available(
+assert_issue_stock_available,Inventory,8293,function assert_issue_stock_available(
+assert_stock_posting_batch_integrity,Sales,8329,function assert_stock_posting_batch_integrity(
+batch_options,Inventory,8346,function batch_options(
+current_user,Administration,8362,function current_user(
+current_user_stamp,Administration,8366,function current_user_stamp(
+document_ownership_tables,Print / Documents,8373,function document_ownership_tables(
+stamp_document_owner,Print / Documents,8379,function stamp_document_owner(
+user_role,Administration,8390,function user_role(
+normalize_role,Administration,8394,function normalize_role(
+role_labels,Administration,8397,function role_labels(
+default_role_permissions,Administration,8411,function default_role_permissions(
+role_can,Administration,8425,function role_can(
+require_permission,Administration,8451,function require_permission(
+require_any_permission,Administration,8464,function require_any_permission(
+machine_code_raw,Masters / Common,8476,function machine_code_raw(
+machine_hash,Masters / Common,8480,function machine_hash(
+install_code,Masters / Common,8483,function install_code(
+license_status_codes,Administration,8486,function license_status_codes(
+normalize_license_status,Administration,8489,function normalize_license_status(
+license_status_label,Administration,8493,function license_status_label(
+valid_client_license_key,Administration,8496,function valid_client_license_key(
+strong_client_license_key,Administration,8499,function strong_client_license_key(
+activation_base64url_encode,Masters / Common,8502,function activation_base64url_encode(
+activation_base64url_decode,Masters / Common,8505,function activation_base64url_decode(
+activation_key_pem_from_config,Masters / Common,8511,function activation_key_pem_from_config(
+activation_public_key_pem,Masters / Common,8520,function activation_public_key_pem(
+signed_license_public_key_pem,Administration,8524,function signed_license_public_key_pem(
+activation_private_key_pem,Masters / Common,8527,function activation_private_key_pem(
+activation_payload_json,Masters / Common,8531,function activation_payload_json(
+activation_payload_for_license,Administration,8537,function activation_payload_for_license(
+generate_activation_code,Masters / Common,8551,function generate_activation_code(
+verify_activation_code,Masters / Common,8561,function verify_activation_code(
+verify_signed_payload_token,Masters / Common,8583,function verify_signed_payload_token(
+signed_license_block_reason,Administration,8600,function signed_license_block_reason(
+verify_support_code,Masters / Common,8639,function verify_support_code(
+license_requires_machine_activation,Administration,8655,function license_requires_machine_activation(
+license_activation_block_reason,Administration,8658,function license_activation_block_reason(
+client_code_from_name,Masters / Common,8674,function client_code_from_name(
+generate_client_license_key,Administration,8687,function generate_client_license_key(
+upsert_company_license,Administration,8697,function upsert_company_license(
+sync_company_portal_configuration,Administration,8724,function sync_company_portal_configuration(
+sync_license_business_types_from_companies,Administration,8763,function sync_license_business_types_from_companies(
+local_license_record,Administration,8766,function local_license_record(
+license_block_reason_from_record,Administration,8778,function license_block_reason_from_record(
+developer_access_key,Administration,8797,function developer_access_key(
+developer_allowed,Administration,8812,function developer_allowed(
+require_developer,Administration,8815,function require_developer(
+normalize_code,Masters / Common,8820,function normalize_code(
+local_dev_company,Administration,8825,function local_dev_company(
+local_company_block_reason,Administration,8850,function local_company_block_reason(
+license_days_remaining,Administration,8879,function license_days_remaining(
+current_business_type_code,Masters / Common,8884,function current_business_type_code(
+code_list,Masters / Common,8888,function code_list(
+common_print_header_template,Print / Documents,8896,function common_print_header_template(
+print_template_shell_html,Print / Documents,8914,function print_template_shell_html(
+print_template_css_stub,Print / Documents,8917,function print_template_css_stub(
+distributor_a2_print_document_types,Print / Documents,8920,function distributor_a2_print_document_types(
+distributor_a2_print_required,Print / Documents,8924,function distributor_a2_print_required(
+enforce_distributor_a2_print_settings,Administration,8929,function enforce_distributor_a2_print_settings(
+print_family_seed_rows,Print / Documents,8937,function print_family_seed_rows(
+print_template_seed_rows,Print / Documents,8961,function print_template_seed_rows(
+business_default_template_code_map,Masters / Common,9104,function business_default_template_code_map(
+default_print_template_code_for_business_type,Print / Documents,9139,function default_print_template_code_for_business_type(
+print_style_for_business_type,Print / Documents,9170,function print_style_for_business_type(
+legacy_print_template_codes_for_business_type,Print / Documents,9180,function legacy_print_template_codes_for_business_type(
+print_family_business_by_template_code,Print / Documents,9199,function print_family_business_by_template_code(
+business_template_family_code,Masters / Common,9228,function business_template_family_code(
+business_invoice_columns,Masters / Common,9261,function business_invoice_columns(
+business_print_default_settings,Administration,9286,function business_print_default_settings(
+business_print_default_settings_json,Administration,9327,function business_print_default_settings_json(
+business_type_required_modules,Masters / Common,9330,function business_type_required_modules(
+business_type_module_codes,Masters / Common,9356,function business_type_module_codes(
+business_profile,Masters / Common,9361,function business_profile(
+current_business_profile,Masters / Common,9406,function current_business_profile(
+current_invoice_template_code,Masters / Common,9414,function current_invoice_template_code(
+invoice_template_family,Masters / Common,9445,function invoice_template_family(
+active_module_codes,Masters / Common,9454,function active_module_codes(
+page_module_code,Masters / Common,9477,function page_module_code(
+page_allowed_for_business,Masters / Common,9498,function page_allowed_for_business(
+business_menu_label,Masters / Common,9509,function business_menu_label(
+activated,Masters / Common,9588,function activated(
+next_no,Masters / Common,9606,function next_no(
+list_state,Masters / Common,9610,function list_state(
+pagination_bar,Masters / Common,9627,function pagination_bar(
+action_link,Masters / Common,9650,function action_link(
+transaction_row_attrs,Masters / Common,9653,function transaction_row_attrs(
+transaction_action_cell,Masters / Common,9657,function transaction_action_cell(
+order_doc_edit_route,Sales,9660,function order_doc_edit_route(
+order_doc_can_edit,Sales,9669,function order_doc_can_edit(
+order_doc_action_cell,Sales,9673,function order_doc_action_cell(
+source_document_view_map,Print / Documents,9704,function source_document_view_map(
+source_document_view_url,Print / Documents,9715,function source_document_view_url(
+source_document_action_cell,Print / Documents,9718,function source_document_action_cell(
+source_document_view_page,Print / Documents,9729,function source_document_view_page(
+render_money_voucher_print_document,Accounts,9785,function render_money_voucher_print_document(
+money_voucher_print_page,Accounts,9818,function money_voucher_print_page(
+csrf_token,Masters / Common,9852,function csrf_token(
+csrf_field,Masters / Common,9858,function csrf_field(
+csrf_meta,Masters / Common,9861,function csrf_meta(
+inject_csrf_into_forms,Masters / Common,9864,function inject_csrf_into_forms(
+enforce_same_origin_post,Sales,9877,function enforce_same_origin_post(
+enforce_csrf_post,Sales,9892,function enforce_csrf_post(
+require_state_changing_post,Sales,9903,function require_state_changing_post(
+asset_version,Masters / Common,10146,function asset_version(
+login_page,Masters / Common,10156,function login_page(
+save_company_logo,Administration,10197,function save_company_logo(
+activate_page,Masters / Common,10212,function activate_page(
+developer_login_page,Administration,10302,function developer_login_page(
+license_blocked_page,Administration,10347,function license_blocked_page(
+default_menu_groups,Masters / Common,10362,function default_menu_groups(
+business_specific_menu_groups,Masters / Common,10386,function business_specific_menu_groups(
+business_menu_groups,Masters / Common,10584,function business_menu_groups(
+erp_posting_menu_groups,Sales,10588,function erp_posting_menu_groups(
+layout,Masters / Common,10658,function layout(
+print_dev_footer,Print / Documents,10727,function print_dev_footer(
+render_print_header_partial,Print / Documents,10733,function render_print_header_partial(
+render_company_document_header,Administration,10764,function render_company_document_header(
+dashboard_display_settings,Administration,10792,function dashboard_display_settings(
+dashboard_settings_page,Administration,10804,function dashboard_settings_page(
+portal_search_routes,Inventory,10839,function portal_search_routes(
+portal_search_page,Masters / Common,10860,function portal_search_page(
+dashboard,Masters / Common,10918,function dashboard(
+client_company_protected_post_fields,Sales,11303,function client_company_protected_post_fields(
+company_page,Administration,11312,function company_page(
+financial_years_page,Masters / Common,11535,function financial_years_page(
+closing_management_page,Masters / Common,11691,function closing_management_page(
+dispatch_box_unit_sql,Inventory,11893,function dispatch_box_unit_sql(
+dispatch_status_options,Inventory,11897,function dispatch_status_options(
+dispatch_normalize_status,Inventory,11910,function dispatch_normalize_status(
+dispatch_status_label,Inventory,11918,function dispatch_status_label(
+dispatch_sql_status_filter,Inventory,11929,function dispatch_sql_status_filter(
+dispatch_source_table,Inventory,11933,function dispatch_source_table(
+dispatch_source_label,Inventory,11943,function dispatch_source_label(
+dispatch_source_primary_no,Inventory,11952,function dispatch_source_primary_no(
+dispatch_customer_sheet_url,Inventory,11960,function dispatch_customer_sheet_url(
+dispatch_original_doc_url,Inventory,11967,function dispatch_original_doc_url(
+dispatch_loading_sheet_no,Inventory,11978,function dispatch_loading_sheet_no(
+distributor_dispatch_reports_enabled,Inventory,11992,function distributor_dispatch_reports_enabled(
+dispatch_warehouse_name,Inventory,11996,function dispatch_warehouse_name(
+dispatch_enrich_line_row,Inventory,12005,function dispatch_enrich_line_row(
+distributor_dispatch_vehicle,Inventory,12022,function distributor_dispatch_vehicle(
+distributor_dispatch_driver,Inventory,12026,function distributor_dispatch_driver(
+distributor_dispatch_vehicle_missing,Inventory,12031,function distributor_dispatch_vehicle_missing(
+distributor_dispatch_completed,Inventory,12036,function distributor_dispatch_completed(
+distributor_dispatch_pending,Inventory,12041,function distributor_dispatch_pending(
+distributor_dispatch_exception_class,Inventory,12046,function distributor_dispatch_exception_class(
+distributor_dispatch_label_list,Inventory,12053,function distributor_dispatch_label_list(
+distributor_dispatch_status_summary,Inventory,12062,function distributor_dispatch_status_summary(
+distributor_dispatch_total_weight,Inventory,12073,function distributor_dispatch_total_weight(
+distributor_dispatch_group_summary,Inventory,12077,function distributor_dispatch_group_summary(
+distributor_dispatch_filter_label,Inventory,12124,function distributor_dispatch_filter_label(
+distributor_dispatch_date_label,Inventory,12129,function distributor_dispatch_date_label(
+distributor_dispatch_header_meta,Inventory,12135,function distributor_dispatch_header_meta(
+distributor_dispatch_metric_cards,Inventory,12150,function distributor_dispatch_metric_cards(
+distributor_dispatch_signature_grid,Inventory,12158,function distributor_dispatch_signature_grid(
+dispatch_xlsx_download,Inventory,12164,function dispatch_xlsx_download(
+dispatch_report_rows,Inventory,12183,function dispatch_report_rows(
+dispatch_item_summary_rows,Inventory,12314,function dispatch_item_summary_rows(
+dispatch_line_rows,Inventory,12401,function dispatch_line_rows(
+dispatch_summary_rows,Inventory,12457,function dispatch_summary_rows(
+dispatch_group_summary,Inventory,12461,function dispatch_group_summary(
+dispatch_totals,Inventory,12477,function dispatch_totals(
+dispatch_filter_state,Inventory,12505,function dispatch_filter_state(
+dispatch_state_query,Inventory,12550,function dispatch_state_query(
+dispatch_sort_rows,Inventory,12558,function dispatch_sort_rows(
+dispatch_row_matches,Inventory,12571,function dispatch_row_matches(
+dispatch_document_rows_for_state,Inventory,12592,function dispatch_document_rows_for_state(
+dispatch_line_rows_for_state,Inventory,12627,function dispatch_line_rows_for_state(
+dispatch_item_rows_for_state,Inventory,12640,function dispatch_item_rows_for_state(
+dispatch_doc_url,Inventory,12694,function dispatch_doc_url(
+dispatch_popup_row_attrs,Inventory,12698,function dispatch_popup_row_attrs(
+dispatch_normalize_page,Inventory,12703,function dispatch_normalize_page(
+dispatch_page_class,Inventory,12708,function dispatch_page_class(
+dispatch_modal_shell,Inventory,12713,function dispatch_modal_shell(
+dispatch_filter_form,Inventory,12720,function dispatch_filter_form(
+dispatch_default_whatsapp_phone,Inventory,12748,function dispatch_default_whatsapp_phone(
+dispatch_action_bar,Inventory,12755,function dispatch_action_bar(
+daily_dispatch_summary_page,Inventory,12772,function daily_dispatch_summary_page(
+loading_sheet_page,Masters / Common,12857,function loading_sheet_page(
+route_loading_sheet_page,Inventory,12915,function route_loading_sheet_page(
+pending_dispatch_page,Inventory,12948,function pending_dispatch_page(
+dispatch_source_record,Inventory,12974,function dispatch_source_record(
+dispatch_source_date,Inventory,12985,function dispatch_source_date(
+dispatch_document_row,Inventory,12989,function dispatch_document_row(
+dispatch_lines_for_document,Inventory,13003,function dispatch_lines_for_document(
+dispatch_return_totals_for_document,Inventory,13015,function dispatch_return_totals_for_document(
+dispatch_return_history_for_document,Inventory,13028,function dispatch_return_history_for_document(
+dispatch_vehicle_is_editable,Inventory,13035,function dispatch_vehicle_is_editable(
+dispatch_update_document_status,Inventory,13039,function dispatch_update_document_status(
+create_sales_return_from_dispatch,Sales,13083,function create_sales_return_from_dispatch(
+dispatch_customer_sheet_page,Inventory,13151,function dispatch_customer_sheet_page(
+dispatch_status_update_page,Inventory,13239,function dispatch_status_update_page(
+dispatch_original_open_page,Inventory,13263,function dispatch_original_open_page(
+dispatch_return_entry_page,Inventory,13277,function dispatch_return_entry_page(
+dispatch_return_summary_page,Inventory,13407,function dispatch_return_summary_page(
+dispatch_sheet_page,Inventory,13444,function dispatch_sheet_page(
+print_settings_page,Administration,13523,function print_settings_page(
+party_page_config,Masters / Common,13599,function party_page_config(
+party_page,Masters / Common,13749,function party_page(
+normalize_import_header,Masters / Common,13910,function normalize_import_header(
+rows_to_assoc_by_header,Masters / Common,13940,function rows_to_assoc_by_header(
+xlsx_cell_index,Masters / Common,13955,function xlsx_cell_index(
+xlsx_shared_strings,Masters / Common,13963,function xlsx_shared_strings(
+xlsx_rows_from_file,Masters / Common,13977,function xlsx_rows_from_file(
+html_table_rows_from_file,Masters / Common,14018,function html_table_rows_from_file(
+import_assoc_rows_from_upload,Masters / Common,14035,function import_assoc_rows_from_upload(
+csv_assoc_rows_from_upload,Masters / Common,14065,function csv_assoc_rows_from_upload(
+import_master_rows,Masters / Common,14068,function import_master_rows(
+developer_database_import_rows,Administration,14207,function developer_database_import_rows(
+master_import_export_page,Masters / Common,14230,function master_import_export_page(
+restaurant_categories_page,Restaurant / Pharmacy,14345,function restaurant_categories_page(
+restaurant_tables_page,Restaurant / Pharmacy,14432,function restaurant_tables_page(
+business_master_page,Masters / Common,14497,function business_master_page(
+business_master_options,Masters / Common,14588,function business_master_options(
+next_business_record_no,Masters / Common,14598,function next_business_record_no(
+business_workflow_fields,Masters / Common,14604,function business_workflow_fields(
+business_register_value,Masters / Common,14707,function business_register_value(
+business_register_page,Masters / Common,14712,function business_register_page(
+business_register_report_page,Masters / Common,14797,function business_register_report_page(
+real_estate_units_page,Real Estate,14825,function real_estate_units_page(
+batch_tracking_page,Inventory,14880,function batch_tracking_page(
+product_pack_rows_for_form,Masters / Common,14898,function product_pack_rows_for_form(
+parse_posted_product_pack_rows,Sales,14932,function parse_posted_product_pack_rows(
+validate_product_pack_rows,Masters / Common,14975,function validate_product_pack_rows(
+save_product_pack_rows,Masters / Common,15024,function save_product_pack_rows(
+mirror_default_pack_to_item,Inventory,15067,function mirror_default_pack_to_item(
+sync_default_pack_from_item,Inventory,15090,function sync_default_pack_from_item(
+render_product_pack_grid,Masters / Common,15115,function render_product_pack_grid(
+items_page,Inventory,15160,function items_page(
+unit_options,Masters / Common,15349,function unit_options(
+unit_select,Masters / Common,15362,function unit_select(
+transaction_grid_import_controls,Masters / Common,15366,function transaction_grid_import_controls(
+render_transaction_cart_gate,Masters / Common,15391,function render_transaction_cart_gate(
+tax_slab_options,Masters / Common,15398,function tax_slab_options(
+tax_slabs_page,Masters / Common,15415,function tax_slabs_page(
+schemes_page,Masters / Common,15471,function schemes_page(
+units_page,Masters / Common,15560,function units_page(
+item_options,Inventory,15627,function item_options(
+item_filter_options,Inventory,15710,function item_filter_options(
+next_barcode,Masters / Common,15720,function next_barcode(
+code39_svg,Masters / Common,15725,function code39_svg(
+barcode_labels_page,Masters / Common,15755,function barcode_labels_page(
+bill_rows,Masters / Common,15793,function bill_rows(
+order_doc_meta,Sales,15879,function order_doc_meta(
+order_doc_all_warehouses_allowed,Sales,15889,function order_doc_all_warehouses_allowed(
+order_doc_new,Sales,15893,function order_doc_new(
+save_order_doc,Sales,15930,function save_order_doc(
+order_doc_edit,Sales,16009,function order_doc_edit(
+save_order_doc_update,Sales,16061,function save_order_doc_update(
+purchase_plan_order,Sales,16157,function purchase_plan_order(
+order_docs_page,Sales,16259,function order_docs_page(
+order_doc_print,Sales,16286,function order_doc_print(
+order_doc_status,Sales,16377,function order_doc_status(
+order_doc_convert_sale,Sales,16389,function order_doc_convert_sale(
+order_doc_convert_purchase,Sales,16480,function order_doc_convert_purchase(
+sale_new,Sales,16634,function sale_new(
+save_sale,Sales,16721,function save_sale(
+sales_page,Sales,16803,function sales_page(
+invoice_template_meta,Masters / Common,16823,function invoice_template_meta(
+print_document_types,Print / Documents,16828,function print_document_types(
+print_paper_types,Print / Documents,16846,function print_paper_types(
+template_settings,Administration,16852,function template_settings(
+current_template_settings,Administration,16869,function current_template_settings(
+render_company_header_extras,Administration,16872,function render_company_header_extras(
+save_template_reference_upload,Masters / Common,16880,function save_template_reference_upload(
+print_size_class_from_settings,Administration,16894,function print_size_class_from_settings(
+invoice_print_document_settings,Administration,16904,function invoice_print_document_settings(
+company_logo_src,Administration,16911,function company_logo_src(
+company_initials,Administration,16914,function company_initials(
+print_single_line,Print / Documents,16924,function print_single_line(
+render_invoice_party_box,Masters / Common,16927,function render_invoice_party_box(
+document_owner_print_lines,Print / Documents,16933,function document_owner_print_lines(
+document_owner_short,Print / Documents,16955,function document_owner_short(
+invoice_hsn_list,Masters / Common,16965,function invoice_hsn_list(
+invoice_tax_summary,Masters / Common,16969,function invoice_tax_summary(
+invoice_tax_visible_columns,Masters / Common,16984,function invoice_tax_visible_columns(
+invoice_tax_percentages,Masters / Common,16987,function invoice_tax_percentages(
+render_invoice_tax_summary_table,Masters / Common,16995,function render_invoice_tax_summary_table(
+invoice_taxable_total_check,Masters / Common,17065,function invoice_taxable_total_check(
+render_distributor_taxable_total_before_totals,Masters / Common,17085,function render_distributor_taxable_total_before_totals(
+render_item_entry_summary_container,Inventory,17100,function render_item_entry_summary_container(
+invoice_print_column_labels,Print / Documents,17172,function invoice_print_column_labels(
+business_invoice_standard_columns,Masters / Common,17205,function business_invoice_standard_columns(
+business_invoice_disallowed_columns,Masters / Common,17209,function business_invoice_disallowed_columns(
+invoice_print_columns,Print / Documents,17216,function invoice_print_columns(
+invoice_print_column_value,Print / Documents,17241,function invoice_print_column_value(
+render_invoice_items_table,Inventory,17274,function render_invoice_items_table(
+invoice_smart_size_class,Masters / Common,17310,function invoice_smart_size_class(
+render_amount_words_row,Masters / Common,17321,function render_amount_words_row(
+invoice_bill_to_title,Masters / Common,17324,function invoice_bill_to_title(
+invoice_address_compare_key,Masters / Common,17329,function invoice_address_compare_key(
+invoice_ship_to_line,Masters / Common,17332,function invoice_ship_to_line(
+invoice_ship_to_address,Masters / Common,17339,function invoice_ship_to_address(
+document_round_off_value,Print / Documents,17345,function document_round_off_value(
+invoice_print_doc_status,Print / Documents,17351,function invoice_print_doc_status(
+invoice_print_employee_name,Print / Documents,17358,function invoice_print_employee_name(
+distributor_print_refinement_document_types,Print / Documents,17365,function distributor_print_refinement_document_types(
+invoice_print_family_for_document,Print / Documents,17368,function invoice_print_family_for_document(
+render_erp_invoice_document,Print / Documents,17378,function render_erp_invoice_document(
+render_sales_invoice_template,Sales,17502,function render_sales_invoice_template(
+sale_print,Sales,17616,function sale_print(
+sale_cancel,Sales,17741,function sale_cancel(
+sale_return_page,Sales,17778,function sale_return_page(
+save_sales_return,Sales,17834,function save_sales_return(
+sales_returns_page,Sales,17898,function sales_returns_page(
+sale_return_print,Sales,17918,function sale_return_print(
+sale_return_cancel,Sales,17991,function sale_return_cancel(
+purchase_new,Purchase,18025,function purchase_new(
+stock_out_rows,Inventory,18077,function stock_out_rows(
+stock_out_new,Inventory,18127,function stock_out_new(
+save_stock_out,Inventory,18166,function save_stock_out(
+stock_outs_page,Inventory,18266,function stock_outs_page(
+stock_out_print,Inventory,18290,function stock_out_print(
+stock_out_cancel,Inventory,18395,function stock_out_cancel(
+route_settlement_data,Inventory,18433,function route_settlement_data(
+route_settlement_page,Inventory,18465,function route_settlement_page(
+render_route_settlement_print_document,Inventory,18538,function render_route_settlement_print_document(
+route_settlement_print,Inventory,18564,function route_settlement_print(
+save_purchase,Purchase,18592,function save_purchase(
+purchases_page,Purchase,18670,function purchases_page(
+print_bills_resolve_doc_type,Print / Documents,18690,function print_bills_resolve_doc_type(
+print_bills_filter_state,Print / Documents,18704,function print_bills_filter_state(
+print_bills_filter_parts,Print / Documents,18738,function print_bills_filter_parts(
+print_bills_order_by,Sales,18770,function print_bills_order_by(
+print_bills_select_sql,Print / Documents,18783,function print_bills_select_sql(
+print_bills_table,Print / Documents,18790,function print_bills_table(
+print_bills_stats,Print / Documents,18794,function print_bills_stats(
+print_bills_party_options,Print / Documents,18801,function print_bills_party_options(
+print_bills_pay_modes,Print / Documents,18808,function print_bills_pay_modes(
+print_bills_area_options,Print / Documents,18813,function print_bills_area_options(
+create_print_batch,Inventory,18817,function create_print_batch(
+print_bills_page,Print / Documents,18825,function print_bills_page(
+print_bills_bulk_page,Print / Documents,18929,function print_bills_bulk_page(
+purchase_print,Purchase,19088,function purchase_print(
+purchase_cancel,Purchase,19197,function purchase_cancel(
+purchase_return_page,Purchase,19236,function purchase_return_page(
+save_purchase_return,Purchase,19292,function save_purchase_return(
+purchase_returns_page,Purchase,19358,function purchase_returns_page(
+purchase_return_print,Purchase,19378,function purchase_return_print(
+purchase_return_cancel,Purchase,19450,function purchase_return_cancel(
+stock_page,Inventory,19482,function stock_page(
+stock_alerts_page,Inventory,19545,function stock_alerts_page(
+expiry_action_rows,Masters / Common,19682,function expiry_action_rows(
+stock_expiry_page,Inventory,19709,function stock_expiry_page(
+stock_log_page,Inventory,19785,function stock_log_page(
+negative_stock_rows,Inventory,19812,function negative_stock_rows(
+negative_stock_report_page,Inventory,19856,function negative_stock_report_page(
+stock_adjust_page,Inventory,19876,function stock_adjust_page(
+warehouses_page,Inventory,19953,function warehouses_page(
+transfer_rows,Masters / Common,19986,function transfer_rows(
+stock_transfer_new,Inventory,20004,function stock_transfer_new(
+save_stock_transfer,Inventory,20023,function save_stock_transfer(
+stock_transfers_page,Inventory,20086,function stock_transfers_page(
+stock_transfer_cancel,Inventory,20107,function stock_transfer_cancel(
+production_bom_options,Manufacturing,20149,function production_bom_options(
+production_bom_rows,Manufacturing,20158,function production_bom_rows(
+manufacturing_boms_page,Manufacturing,20177,function manufacturing_boms_page(
+post_production_run,Sales,20248,function post_production_run(
+save_production_run,Manufacturing,20294,function save_production_run(
+manufacturing_production_orders_page,Sales,20351,function manufacturing_production_orders_page(
+manufacturing_production_cancel,Manufacturing,20400,function manufacturing_production_cancel(
+receipt_page,Accounts,20430,function receipt_page(
+receipt_cancel,Accounts,20494,function receipt_cancel(
+payment_page,Accounts,20517,function payment_page(
+payment_cancel,Accounts,20581,function payment_cancel(
+expense_page,Accounts,20604,function expense_page(
+expense_cancel,Accounts,20676,function expense_cancel(
+money_modes,Masters / Common,20697,function money_modes(
+ledger_options,Accounts,20700,function ledger_options(
+erp_posting_ledger_options,Sales,20715,function erp_posting_ledger_options(
+erp_voucher_type_options,Accounts,20735,function erp_voucher_type_options(
+erp_voucher_source_url,Accounts,20745,function erp_voucher_source_url(
+erp_voucher_source_action,Accounts,20786,function erp_voucher_source_action(
+erp_voucher_source_snapshot,Accounts,20792,function erp_voucher_source_snapshot(
+erp_voucher_approval_statuses,Accounts,21014,function erp_voucher_approval_statuses(
+erp_voucher_approval_options,Accounts,21023,function erp_voucher_approval_options(
+erp_voucher_output_policy_options,Accounts,21031,function erp_voucher_output_policy_options(
+erp_voucher_output_policy,Accounts,21038,function erp_voucher_output_policy(
+erp_voucher_output_policy_select,Accounts,21044,function erp_voucher_output_policy_select(
+erp_voucher_output_blocked,Accounts,21052,function erp_voucher_output_blocked(
+voucher_maker_checker_required,Accounts,21057,function voucher_maker_checker_required(
+default_voucher_approval_rules,Accounts,21061,function default_voucher_approval_rules(
+seed_voucher_approval_rules,Accounts,21076,function seed_voucher_approval_rules(
+voucher_approval_rules,Accounts,21084,function voucher_approval_rules(
+voucher_approval_rule_for_role,Accounts,21112,function voucher_approval_rule_for_role(
+voucher_approval_limit_label,Accounts,21128,function voucher_approval_limit_label(
+voucher_approval_required_rule,Accounts,21134,function voucher_approval_required_rule(
+voucher_approval_requirement_label,Accounts,21149,function voucher_approval_requirement_label(
+voucher_approval_escalation_text,Accounts,21161,function voucher_approval_escalation_text(
+voucher_approval_actor_denial_reason,Accounts,21170,function voucher_approval_actor_denial_reason(
+voucher_approval_actor_can_approve,Accounts,21198,function voucher_approval_actor_can_approve(
+erp_voucher_document_data,Accounts,21202,function erp_voucher_document_data(
+erp_voucher_detail_page,Accounts,21225,function erp_voucher_detail_page(
+erp_voucher_print_page,Accounts,21347,function erp_voucher_print_page(
+voucher_approval_page,Accounts,21459,function voucher_approval_page(
+erp_unposted_source_definitions,Sales,21656,function erp_unposted_source_definitions(
+erp_unposted_source_where,Sales,21669,function erp_unposted_source_where(
+erp_unposted_source_counts,Sales,21681,function erp_unposted_source_counts(
+erp_repair_unposted_source_vouchers,Sales,21691,function erp_repair_unposted_source_vouchers(
+erp_control_check_page,Masters / Common,21724,function erp_control_check_page(
+erp_voucher_register_page,Accounts,21834,function erp_voucher_register_page(
+erp_ledger_report_page,Accounts,21894,function erp_ledger_report_page(
+erp_day_book_page,Masters / Common,21949,function erp_day_book_page(
+erp_gst_postings_page,Sales,21992,function erp_gst_postings_page(
+erp_stock_postings_page,Sales,22042,function erp_stock_postings_page(
+inventory_valuation_methods,Masters / Common,22084,function inventory_valuation_methods(
+inventory_valuation_method_options,Masters / Common,22088,function inventory_valuation_method_options(
+inventory_valuation_rows,Masters / Common,22096,function inventory_valuation_rows(
+inventory_valuation_page,Masters / Common,22211,function inventory_valuation_page(
+ledger_group_options,Accounts,22251,function ledger_group_options(
+ledger_group_section_options,Accounts,22265,function ledger_group_section_options(
+ledger_group_nature_options,Accounts,22273,function ledger_group_nature_options(
+ledger_group_parent_options,Accounts,22281,function ledger_group_parent_options(
+ledger_groups_page,Accounts,22290,function ledger_groups_page(
+account_ledgers_page,Accounts,22361,function account_ledgers_page(
+branches_page,Masters / Common,22428,function branches_page(
+cost_centers_page,Masters / Common,22561,function cost_centers_page(
+journal_page,Accounts,22656,function journal_page(
+journal_cancel,Accounts,22781,function journal_cancel(
+cash_bank_book_selected_ledgers,Accounts,22801,function cash_bank_book_selected_ledgers(
+cash_bank_book_opening,Accounts,22807,function cash_bank_book_opening(
+cash_bank_book_rows,Accounts,22814,function cash_bank_book_rows(
+cash_bank_book_page,Accounts,22853,function cash_bank_book_page(
+cash_bank_book_with_balance,Accounts,22892,function cash_bank_book_with_balance(
+bank_reconciliation_ledgers,Accounts,22903,function bank_reconciliation_ledgers(
+bank_reconciliation_statuses,Accounts,22912,function bank_reconciliation_statuses(
+bank_reconciliation_status_options,Accounts,22916,function bank_reconciliation_status_options(
+bank_reconciliation_ledger_options,Accounts,22924,function bank_reconciliation_ledger_options(
+bank_reconciliation_rows,Accounts,22932,function bank_reconciliation_rows(
+bank_reconciliation_page,Accounts,22951,function bank_reconciliation_page(
+cash_flow_ledgers,Accounts,23055,function cash_flow_ledgers(
+cash_flow_category_for_counter,Accounts,23064,function cash_flow_category_for_counter(
+cash_flow_statement_data,Accounts,23075,function cash_flow_statement_data(
+cash_flow_statement_page,Accounts,23127,function cash_flow_statement_page(
+fund_flow_amount_from_trial_row,Masters / Common,23189,function fund_flow_amount_from_trial_row(
+fund_flow_is_cash_bank_ledger,Accounts,23200,function fund_flow_is_cash_bank_ledger(
+fund_flow_statement_data,Masters / Common,23204,function fund_flow_statement_data(
+fund_flow_statement_page,Masters / Common,23304,function fund_flow_statement_page(
+add_trial_amount,Masters / Common,23353,function add_trial_amount(
+erp_ledger_group_map,Accounts,23360,function erp_ledger_group_map(
+erp_ledger_group_master_map,Accounts,23370,function erp_ledger_group_master_map(
+erp_ledger_group_report_section,Accounts,23383,function erp_ledger_group_report_section(
+erp_ledger_group_name,Accounts,23391,function erp_ledger_group_name(
+erp_statement_section,Masters / Common,23409,function erp_statement_section(
+erp_posting_statement_rows,Sales,23425,function erp_posting_statement_rows(
+erp_trial_balance_rows,Masters / Common,23448,function erp_trial_balance_rows(
+erp_period_statement_rows,Masters / Common,23452,function erp_period_statement_rows(
+erp_profit_loss_summary,Masters / Common,23456,function erp_profit_loss_summary(
+erp_stock_register_value,Inventory,23483,function erp_stock_register_value(
+erp_stock_ledger_value,Inventory,23487,function erp_stock_ledger_value(
+post_stock_ledger_adjustment,Sales,23491,function post_stock_ledger_adjustment(
+erp_balance_sheet_snapshot,Masters / Common,23549,function erp_balance_sheet_snapshot(
+trial_balance_page,Masters / Common,23590,function trial_balance_page(
+day_book_entries,Masters / Common,23620,function day_book_entries(
+day_book_page,Masters / Common,23678,function day_book_page(
+posted_ledger_status_sql,Sales,23711,function posted_ledger_status_sql(
+party_table_for_kind,Masters / Common,23716,function party_table_for_kind(
+party_ledger_name_from_party,Accounts,23720,function party_ledger_name_from_party(
+party_ledger_net,Accounts,23724,function party_ledger_net(
+party_balance_text,Masters / Common,23735,function party_balance_text(
+party_outstanding_amount,Masters / Common,23740,function party_outstanding_amount(
+party_outstanding_nature,Masters / Common,23744,function party_outstanding_nature(
+party_outstanding_rows,Masters / Common,23749,function party_outstanding_rows(
+party_ledger_page,Accounts,23773,function party_ledger_page(
+outstanding_page,Masters / Common,23851,function outstanding_page(
+aging_add_bucket,Masters / Common,23880,function aging_add_bucket(
+party_aging_rows,Masters / Common,23889,function party_aging_rows(
+outstanding_aging_page,Masters / Common,23928,function outstanding_aging_page(
+audit_page,Masters / Common,23968,function audit_page(
+sale_options_for_compliance,Sales,23991,function sale_options_for_compliance(
+sale_api_payload,Sales,24000,function sale_api_payload(
+einvoice_options_for_api,GST / Compliance,24005,function einvoice_options_for_api(
+eway_options_for_api,GST / Compliance,24014,function eway_options_for_api(
+gst_api_prefix,GST / Compliance,24023,function gst_api_prefix(
+gst_api_title,GST / Compliance,24026,function gst_api_title(
+gst_api_default_path,GST / Compliance,24029,function gst_api_default_path(
+gst_api_settings,GST / Compliance,24046,function gst_api_settings(
+gst_api_join_url,GST / Compliance,24076,function gst_api_join_url(
+gst_api_action_code,GST / Compliance,24081,function gst_api_action_code(
+gst_api_endpoint_path,GST / Compliance,24091,function gst_api_endpoint_path(
+gst_api_mask_payload,GST / Compliance,24099,function gst_api_mask_payload(
+gst_api_log,GST / Compliance,24114,function gst_api_log(
+gst_api_headers,GST / Compliance,24133,function gst_api_headers(
+gst_api_http_post,Sales,24144,function gst_api_http_post(
+gst_api_public_encrypt,GST / Compliance,24167,function gst_api_public_encrypt(
+gst_api_key_bytes,GST / Compliance,24175,function gst_api_key_bytes(
+gst_api_aes_encrypt_payload,GST / Compliance,24181,function gst_api_aes_encrypt_payload(
+gst_api_aes_decrypt_text,GST / Compliance,24189,function gst_api_aes_decrypt_text(
+gst_api_aes_decrypt_payload,GST / Compliance,24195,function gst_api_aes_decrypt_payload(
+gst_api_decode_body,GST / Compliance,24203,function gst_api_decode_body(
+gst_api_find_value,GST / Compliance,24212,function gst_api_find_value(
+gst_api_response_data,GST / Compliance,24226,function gst_api_response_data(
+gst_api_success,GST / Compliance,24233,function gst_api_success(
+gst_api_message,GST / Compliance,24241,function gst_api_message(
+gst_api_build_request,GST / Compliance,24247,function gst_api_build_request(
+gst_api_call,GST / Compliance,24256,function gst_api_call(
+gst_api_authenticate,GST / Compliance,24273,function gst_api_authenticate(
+gst_api_save_secret,GST / Compliance,24307,function gst_api_save_secret(
+gst_api_save_settings,GST / Compliance,24311,function gst_api_save_settings(
+handle_gst_api_settings_post,Sales,24330,function handle_gst_api_settings_post(
+gst_api_unit_code,GST / Compliance,24347,function gst_api_unit_code(
+gst_api_pin,GST / Compliance,24360,function gst_api_pin(
+gst_api_addr,GST / Compliance,24366,function gst_api_addr(
+gst_api_date_mysql,GST / Compliance,24370,function gst_api_date_mysql(
+gst_api_sale_context,Sales,24376,function gst_api_sale_context(
+gst_api_validate_sale,Sales,24384,function gst_api_validate_sale(
+einvoice_irn_payload,GST / Compliance,24395,function einvoice_irn_payload(
+eway_bill_payload,GST / Compliance,24483,function eway_bill_payload(
+einvoice_cancel_payload,GST / Compliance,24558,function einvoice_cancel_payload(
+eway_cancel_payload,GST / Compliance,24566,function eway_cancel_payload(
+eway_vehicle_update_payload,GST / Compliance,24574,function eway_vehicle_update_payload(
+gst_api_settings_card,GST / Compliance,24593,function gst_api_settings_card(
+gst_api_logs_card,GST / Compliance,24631,function gst_api_logs_card(
+einvoices_page,GST / Compliance,24656,function einvoices_page(
+eway_bills_page,GST / Compliance,24778,function eway_bills_page(
+csv_download,Masters / Common,24930,function csv_download(
+xls_download,Masters / Common,24949,function xls_download(
+gst_summary_zero,GST / Compliance,24972,function gst_summary_zero(
+gst_summary_add,GST / Compliance,24975,function gst_summary_add(
+gst_posting_split_totals,Sales,24982,function gst_posting_split_totals(
+gst_posting_hsn_summary,Sales,25001,function gst_posting_hsn_summary(
+gst_hsn_b2b_b2c_summary,GST / Compliance,25014,function gst_hsn_b2b_b2c_summary(
+gst_posting_tax_rate_summary,Sales,25037,function gst_posting_tax_rate_summary(
+gst_posting_source_mismatches,Sales,25049,function gst_posting_source_mismatches(
+gst_return_whatsapp_message,GST / Compliance,25081,function gst_return_whatsapp_message(
+gst_adjustment_page,GST / Compliance,25125,function gst_adjustment_page(
+tally_report_company_name,Administration,25253,function tally_report_company_name(
+tally_report_period_text,Masters / Common,25258,function tally_report_period_text(
+tally_report_as_on_text,Masters / Common,25261,function tally_report_as_on_text(
+tally_group_rows,Masters / Common,25264,function tally_group_rows(
+tally_stock_detail_rows,Inventory,25277,function tally_stock_detail_rows(
+tally_rows_amount,Masters / Common,25288,function tally_rows_amount(
+render_tally_statement_group,Masters / Common,25293,function render_tally_statement_group(
+profit_loss_page,Masters / Common,25321,function profit_loss_page(
+erp_profit_loss_page,Masters / Common,25545,function erp_profit_loss_page(
+stock_ledger_adjustment_page,Inventory,25549,function stock_ledger_adjustment_page(
+erp_balance_sheet_page,Masters / Common,25606,function erp_balance_sheet_page(
+gst_state_code,GST / Compliance,25728,function gst_state_code(
+transaction_same_state,Masters / Common,25743,function transaction_same_state(
+gst_split_amount,GST / Compliance,25753,function gst_split_amount(
+gst_period_from_date,GST / Compliance,25759,function gst_period_from_date(
+gst_round,GST / Compliance,25762,function gst_round(
+gstr1_item_details,Inventory,25765,function gstr1_item_details(
+gstr1_doc_issue,GST / Compliance,25783,function gstr1_doc_issue(
+gstr1_utility_payload,GST / Compliance,25799,function gstr1_utility_payload(
+gst_itc_source_options,GST / Compliance,25896,function gst_itc_source_options(
+gst_itc_status_options,GST / Compliance,25904,function gst_itc_status_options(
+gst_itc_invoice_key,GST / Compliance,25912,function gst_itc_invoice_key(
+gst_itc_number,GST / Compliance,25915,function gst_itc_number(
+gst_itc_date,GST / Compliance,25921,function gst_itc_date(
+gst_itc_row_value,GST / Compliance,25935,function gst_itc_row_value(
+gst_itc_find_purchase,Purchase,25942,function gst_itc_find_purchase(
+gst_itc_match_status,GST / Compliance,25960,function gst_itc_match_status(
+gst_itc_import_rows,GST / Compliance,25970,function gst_itc_import_rows(
+gst_itc_reconciliation_rows,GST / Compliance,26011,function gst_itc_reconciliation_rows(
+gst_itc_missing_portal_rows,GST / Compliance,26023,function gst_itc_missing_portal_rows(
+gst_itc_reconciliation_page,GST / Compliance,26035,function gst_itc_reconciliation_page(
+gstr9_financial_year_options,GST / Compliance,26118,function gstr9_financial_year_options(
+gstr9_period_status_rows,GST / Compliance,26126,function gstr9_period_status_rows(
+gstr9_annual_return_page,GST / Compliance,26148,function gstr9_annual_return_page(
+gst_return_page,GST / Compliance,26267,function gst_return_page(
+item_movement_rows,Inventory,26623,function item_movement_rows(
+item_movement_page,Inventory,26660,function item_movement_page(
+reports_page,Masters / Common,26734,function reports_page(
+users_page,Administration,26831,function users_page(
+permission_catalog,Administration,26867,function permission_catalog(
+role_permissions_page,Administration,26881,function role_permissions_page(
+dev_company_modules,Administration,26953,function dev_company_modules(
+plan_feature_codes,Masters / Common,26960,function plan_feature_codes(
+business_plan_feature_codes,Masters / Common,26964,function business_plan_feature_codes(
+sync_dev_company_modules_for_business,Administration,26970,function sync_dev_company_modules_for_business(
+apply_print_defaults_for_business,Print / Documents,26975,function apply_print_defaults_for_business(
+apply_invoice_template_to_business_type,Masters / Common,26992,function apply_invoice_template_to_business_type(
+apply_business_type_to_current_company,Administration,27016,function apply_business_type_to_current_company(
+dev_sync_local_company_from_dev,Administration,27031,function dev_sync_local_company_from_dev(
+developer_dashboard_tabs,Administration,27064,function developer_dashboard_tabs(
+business_type_ui_field_alias,Masters / Common,27076,function business_type_ui_field_alias(
+business_type_normalized_ui_fields,Masters / Common,27096,function business_type_normalized_ui_fields(
+business_type_required_ui_fields,Masters / Common,27099,function business_type_required_ui_fields(
+business_type_ui_field_surface,Masters / Common,27108,function business_type_ui_field_surface(
+business_type_menu_status,Masters / Common,27138,function business_type_menu_status(
+business_type_ui_audit_rows,Masters / Common,27143,function business_type_ui_audit_rows(
+developer_dashboard_handle_post,Sales,27182,function developer_dashboard_handle_post(
+developer_dashboard_page,Administration,27719,function developer_dashboard_page(
+lan_setup_page,Masters / Common,28403,function lan_setup_page(
+backup_page,Administration,28452,function backup_page(
