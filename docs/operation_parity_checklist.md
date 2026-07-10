@@ -1,6 +1,7 @@
 # PRM_GST Operation Parity Checklist
 
-Generated: 2026-07-10 13:56:31
+Generated baseline: 2026-07-10 13:56:31
+Deep business-flow audit updated: 2026-07-11
 
 This report compares the desktop top-menu operation labels against the PRM_GST menu set collected from the portal screenshots and source scan.
 
@@ -158,16 +159,17 @@ This report compares the desktop top-menu operation labels against the PRM_GST m
 
 | Option | Desktop Status | Route Key |
 | --- | --- | --- |
-| Sales Reports | Preview/list: Sales Reports | `sales_list` |
-| Purchase Reports | Preview/list: Purchase Reports | `purchase_list` |
+| Sales Reports | Preview/list: Sales Reports | `sales_register` |
+| Purchase Reports | Preview/list: Purchase Reports | `purchase_register` |
 | Stock Reports | Preview/list: Stock Reports | `stock` |
 | Item Movement | Preview/list: Item Movement | `item_movement` |
 | GST Reports | Preview/list: GST Reports | `gst_reports` |
+| HSN Summary | Additional completed desktop report | `hsn_summary` |
 | GST Return | Preview/list: GST Return | `gst_return` |
 | E-Invoice | Preview/list: E-Invoice | `einvoice` |
 | E-Way Bill | Preview/list: E-Way Bill | `eway_bill` |
 | Profit & Loss | Preview/list: Profit & Loss | `erp_profit_loss` |
-| Day Book | Preview/list: Day Book | `vouchers` |
+| Day Book | Preview/list: Day Book | `day_book` |
 | Audit Log | Preview/list: Audit Log | `audit_log` |
 | Daily Dispatch Summary | Preview/list: Daily Dispatch Summary | `daily_dispatch_summary` |
 | Item Loading Sheet | Preview/list: Item Loading Sheet | `item_loading_sheet` |
@@ -210,4 +212,10 @@ This report compares the desktop top-menu operation labels against the PRM_GST m
 ## Summary
 
 - Missing labels: 0
-- Preview/list pages still needing deeper workflows: 59
+- Original preview/list/report operations deep-audited: 59
+- Fully functional: 44
+- Live route with missing drill-down: 7
+- Live route with data/integration limitation: 8
+- Additional completed report: HSN Summary
+- Authoritative classification and business impact:
+  `docs/BUSINESS_FLOW_MATRIX.md`

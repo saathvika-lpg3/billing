@@ -42,8 +42,8 @@ from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGr
 
 REPORT_CATALOG = [
     ("Sales / Purchase", "Sales List", "sales_list"),
-    ("Sales / Purchase", "Sales Reports", "sales_list"),
-    ("Sales / Purchase", "Purchase Reports", "purchase_list"),
+    ("Sales / Purchase", "Sales Register", "sales_register"),
+    ("Sales / Purchase", "Purchase Register", "purchase_register"),
     ("Dispatch", "Daily Dispatch Summary", "daily_dispatch_summary"),
     ("Dispatch", "Item Loading Sheet", "item_loading_sheet"),
     ("Dispatch", "Route Loading Sheet", "route_loading_sheet"),
@@ -56,6 +56,7 @@ REPORT_CATALOG = [
     ("Inventory", "Stock Postings", "stock_postings_report"),
     ("Inventory", "Inventory Valuation", "inventory_valuation"),
     ("GST", "GST Reports", "gst_reports"),
+    ("GST", "HSN Summary", "hsn_summary"),
     ("GST", "GST Return", "gst_return"),
     ("GST", "GST Postings", "gst_reports"),
     ("GST", "GST Adjustment", "gst_adjustment"),
@@ -64,7 +65,7 @@ REPORT_CATALOG = [
     ("GST", "E-Invoice", "einvoice"),
     ("GST", "E-Way Bill", "eway_bill"),
     ("Accounts", "Profit & Loss", "erp_profit_loss"),
-    ("Accounts", "Day Book", "vouchers"),
+    ("Accounts", "Day Book", "day_book"),
     ("Accounts", "Account Closing", "account_closing"),
     ("Accounts", "Balance Sheet", "balance_sheet"),
     ("Accounts", "Trial Balance", "trial_balance"),

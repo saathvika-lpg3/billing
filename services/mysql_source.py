@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import logging
 import sqlite3
 import sys
 from dataclasses import dataclass
@@ -11,6 +12,7 @@ from typing import Any
 
 
 _ACCOUNTING_CHECKED_PATHS: set[str] = set()
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -214,13 +216,17 @@ class MySqlSource:
                     "CREATE INDEX IF NOT EXISTS idx_gst_postings_source ON gst_postings(source_table,source_id)",
                     "CREATE INDEX IF NOT EXISTS idx_voucher_headers_source ON voucher_headers(source_table,source_id,status)",
                     "CREATE INDEX IF NOT EXISTS idx_stock_log_reference ON stock_log(ref_no,kind,entry_date)",
+                    "CREATE INDEX IF NOT EXISTS idx_sales_status_date ON sales(status,bill_date)",
+                    "CREATE INDEX IF NOT EXISTS idx_purchases_status_date ON purchases(status,bill_date)",
+                    "CREATE INDEX IF NOT EXISTS idx_sales_returns_status_date ON sales_returns(status,return_date)",
+                    "CREATE INDEX IF NOT EXISTS idx_purchase_returns_status_date ON purchase_returns(status,return_date)",
                 ):
                     try:
                         conn.execute(stmt)
-                    except sqlite3.Error:
-                        continue
-        except Exception:
-            pass
+                    except sqlite3.Error as exc:
+                        logger.warning("Schema index migration failed: %s | %s", stmt, exc)
+        except Exception as exc:
+            logger.warning("SQLite schema verification failed for %s: %s", self.sqlite_path, exc)
         _ACCOUNTING_CHECKED_PATHS.add(key)
 
     @staticmethod
@@ -848,11 +854,13 @@ class MySqlSource:
             "employees": "SELECT id,name,email,role,locked,last_login FROM users ORDER BY id DESC LIMIT %s",
             "schemes": "SELECT sr.id,i.name item_name,sr.min_qty,sr.free_qty,sr.sale_rate,sr.start_date,sr.end_date,sr.is_active FROM scheme_rules sr LEFT JOIN items i ON i.id=sr.item_id ORDER BY sr.id DESC LIMIT %s",
             "sales_list": "SELECT id,bill_no,bill_date,customer_name,grand_total,taxable,gst_total,pay_mode,status FROM sales ORDER BY id DESC LIMIT %s",
+            "sales_register": "SELECT id,bill_no,bill_date,customer_name,grand_total,taxable,gst_total,pay_mode,status FROM sales WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted') ORDER BY bill_date DESC,id DESC LIMIT %s",
             "quotation_list": "SELECT id,doc_no,doc_date,party_name,grand_total,status FROM order_documents WHERE doc_type='quotation' ORDER BY id DESC LIMIT %s",
             "order_list": "SELECT id,doc_no,doc_date,party_name,grand_total,status FROM order_documents WHERE doc_type='sales_order' ORDER BY id DESC LIMIT %s",
             "dc_list": "SELECT id,doc_no,doc_date,party_name,grand_total,status FROM order_documents WHERE doc_type='delivery_challan' ORDER BY id DESC LIMIT %s",
             "return_list": "SELECT id,return_no,return_date,customer_name,grand_total,status FROM sales_returns ORDER BY id DESC LIMIT %s",
             "purchase_list": "SELECT id,bill_no,bill_date,supplier_name,grand_total,taxable,gst_total,status FROM purchases ORDER BY id DESC LIMIT %s",
+            "purchase_register": "SELECT id,bill_no,bill_date,supplier_name,grand_total,taxable,gst_total,pay_mode,status FROM purchases WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted') ORDER BY bill_date DESC,id DESC LIMIT %s",
             "po_list": "SELECT id,doc_no,doc_date,party_name,grand_total,status FROM order_documents WHERE doc_type='purchase_order' ORDER BY id DESC LIMIT %s",
             "debit_notes": "SELECT id,return_no,return_date,supplier_name,grand_total,status FROM purchase_returns ORDER BY id DESC LIMIT %s",
             "stock": "SELECT i.id,i.name,i.hsn,i.unit,i.stock,i.min_stock,i.status,s.name supplier_name FROM items i LEFT JOIN suppliers s ON s.id=i.supplier_id ORDER BY i.name LIMIT %s",
@@ -870,7 +878,7 @@ class MySqlSource:
             "receipts": "SELECT id,receipt_no,receipt_date,customer_name,amount,mode,status FROM receipts ORDER BY id DESC LIMIT %s",
             "payments": "SELECT id,payment_no,payment_date,supplier_name,amount,mode,status FROM payments ORDER BY id DESC LIMIT %s",
             "expenses": "SELECT id,expense_no,expense_date,ledger_name,amount,mode,status FROM expenses ORDER BY id DESC LIMIT %s",
-            "cash_bank": "SELECT id,voucher_date,ledger_name,debit,credit,source_ref,status FROM ledger_postings WHERE ledger_name LIKE '%Cash%' OR ledger_name LIKE '%Bank%' ORDER BY voucher_date DESC,id DESC LIMIT %s",
+            "cash_bank": "SELECT id,voucher_date,ledger_name,debit,credit,source_ref,status FROM ledger_postings WHERE (ledger_name LIKE '%Cash%' OR ledger_name LIKE '%Bank%') AND LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') ORDER BY voucher_date DESC,id DESC LIMIT %s",
             "journal": "SELECT id,entry_no,entry_date,voucher_type,debit_ledger,credit_ledger,amount,narration,status FROM journal_entries ORDER BY id DESC LIMIT %s",
             "ledgers": "SELECT id,name,group_name,opening_dr,opening_cr,is_system FROM account_ledgers ORDER BY group_name,name LIMIT %s",
             "ledger_groups": "SELECT id,code,name,parent_code,nature,report_section,is_active FROM ledger_groups WHERE COALESCE(is_active,1)=1 ORDER BY sort_order,name LIMIT %s",
@@ -886,27 +894,29 @@ class MySqlSource:
             "fund_flow": "SELECT ledger_name,ROUND(SUM(COALESCE(debit,0)-COALESCE(credit,0)),2) net_movement FROM ledger_postings WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') GROUP BY ledger_name HAVING net_movement<>0 ORDER BY ABS(net_movement) DESC LIMIT %s",
             "erp_ledger": "SELECT id,voucher_date,ledger_name,debit,credit,party_type,source_table,source_ref,status FROM ledger_postings ORDER BY voucher_date DESC,id DESC LIMIT %s",
             "erp_day_book": "SELECT id,voucher_no,voucher_date,voucher_type_code,party_name,narration,total_debit,total_credit,status FROM voucher_headers ORDER BY voucher_date DESC,id DESC LIMIT %s",
+            "day_book": "SELECT id,voucher_no,voucher_date,voucher_type_code,party_name,narration,total_debit,total_credit,status FROM voucher_headers WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') ORDER BY voucher_date DESC,id DESC LIMIT %s",
             "account_closing": "SELECT id,company_name,financial_year_label,closing_type,period_label,from_date,to_date,status,closed_at FROM closing_periods ORDER BY id DESC LIMIT %s",
             "control_check": "SELECT 'Ledger balance difference' check_name,ROUND(SUM(COALESCE(debit,0)),2) debit,ROUND(SUM(COALESCE(credit,0)),2) credit,ROUND(SUM(COALESCE(debit,0)-COALESCE(credit,0)),2) difference FROM ledger_postings WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') UNION ALL SELECT 'Stock value movement',ROUND(SUM(COALESCE(value_in,0)),2),ROUND(SUM(COALESCE(value_out,0)),2),ROUND(SUM(COALESCE(value_in,0)-COALESCE(value_out,0)),2) FROM stock_postings LIMIT %s",
             "stock_ledger_adj": "SELECT id,adjustment_no,adjustment_date,stock_register_value,stock_ledger_value,difference_amount,narration,created_at FROM stock_valuation_adjustments ORDER BY id DESC LIMIT %s",
             "branches": "SELECT id,name,code,gstin,state,is_default,is_active FROM branches ORDER BY id DESC LIMIT %s",
             "cost_centers": "SELECT id,name,is_active FROM cost_centers ORDER BY id DESC LIMIT %s",
             "gst_return": "SELECT id,return_type,period_from,period_to,taxable_value,net_cgst,net_sgst,net_igst,status FROM gst_return_filings ORDER BY id DESC LIMIT %s",
-            "gst_reports": "SELECT id,voucher_date,source_table,source_ref,party_type,hsn_sac,tax_rate,taxable,cgst,sgst,igst,input_output,status FROM gst_postings ORDER BY voucher_date DESC,id DESC LIMIT %s",
+            "gst_reports": "SELECT id,voucher_date,source_table,source_ref,party_type,hsn_sac,tax_rate,taxable,cgst,sgst,igst,input_output,status FROM gst_postings WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') ORDER BY voucher_date DESC,id DESC LIMIT %s",
+            "hsn_summary": "SELECT voucher_date,COALESCE(NULLIF(hsn_sac,''),'Unspecified') hsn_sac,tax_rate,input_output,ROUND(SUM(taxable),2) taxable,ROUND(SUM(cgst),2) cgst,ROUND(SUM(sgst),2) sgst,ROUND(SUM(igst),2) igst,ROUND(SUM(cgst+sgst+igst),2) gst_total FROM gst_postings WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') GROUP BY voucher_date,COALESCE(NULLIF(hsn_sac,''),'Unspecified'),tax_rate,input_output ORDER BY voucher_date DESC,hsn_sac,tax_rate LIMIT %s",
             "einvoice": "SELECT id,invoice_no,ack_date,irn,ack_no,status,created_at FROM einvoices ORDER BY id DESC LIMIT %s",
             "eway_bill": "SELECT id,invoice_no,eway_no,eway_date,valid_until,vehicle_no,status FROM eway_bills ORDER BY id DESC LIMIT %s",
             "daily_dispatch_summary": "SELECT id,challan_no,challan_date,area,vehicle_no,driver_name,salesman_name,total_qty,total_free,dispatch_status,status FROM stock_outs ORDER BY challan_date DESC,id DESC LIMIT %s",
-            "item_loading_sheet": "SELECT so.challan_date,so.challan_no,so.area,so.vehicle_no,si.item_name,si.unit,si.mrp,si.qty,si.free_qty,si.total_qty,so.dispatch_status FROM stock_out_items si JOIN stock_outs so ON so.id=si.stock_out_id ORDER BY so.challan_date DESC,si.item_name LIMIT %s",
-            "route_loading_sheet": "SELECT so.area,si.item_name,si.unit,ROUND(SUM(COALESCE(si.qty,0)),3) qty,ROUND(SUM(COALESCE(si.free_qty,0)),3) free_qty,ROUND(SUM(COALESCE(si.total_qty,0)),3) total_qty FROM stock_out_items si JOIN stock_outs so ON so.id=si.stock_out_id GROUP BY so.area,si.item_name,si.unit ORDER BY so.area,si.item_name LIMIT %s",
-            "pending_dispatch": "SELECT id,challan_no,challan_date,area,vehicle_no,total_qty,dispatch_status,status FROM stock_outs WHERE COALESCE(dispatch_status,'Pending Dispatch')<>'Completed' ORDER BY challan_date DESC,id DESC LIMIT %s",
-            "loading_sheet": "SELECT id,challan_no,challan_date,area,vehicle_no,driver_name,total_qty,total_free,dispatch_status FROM stock_outs ORDER BY challan_date DESC,id DESC LIMIT %s",
-            "customer_loading_sheet": "SELECT id,bill_no,bill_date,customer_name,customer_area,grand_total,dispatch_status,status FROM sales ORDER BY bill_date DESC,id DESC LIMIT %s",
+            "item_loading_sheet": "SELECT so.challan_date,so.challan_no,so.area,so.vehicle_no,si.item_name,si.unit,si.mrp,si.qty,si.free_qty,si.total_qty,so.dispatch_status FROM stock_out_items si JOIN stock_outs so ON so.id=si.stock_out_id WHERE LOWER(COALESCE(so.status,'active')) NOT IN ('cancelled','void','deleted') ORDER BY so.challan_date DESC,si.item_name LIMIT %s",
+            "route_loading_sheet": "SELECT so.challan_date,so.area,si.item_name,si.unit,ROUND(SUM(COALESCE(si.qty,0)),3) qty,ROUND(SUM(COALESCE(si.free_qty,0)),3) free_qty,ROUND(SUM(COALESCE(si.total_qty,0)),3) total_qty FROM stock_out_items si JOIN stock_outs so ON so.id=si.stock_out_id WHERE LOWER(COALESCE(so.status,'active')) NOT IN ('cancelled','void','deleted') GROUP BY so.challan_date,so.area,si.item_name,si.unit ORDER BY so.challan_date DESC,so.area,si.item_name LIMIT %s",
+            "pending_dispatch": "SELECT id,challan_no,challan_date,area,vehicle_no,total_qty,dispatch_status,status FROM stock_outs WHERE COALESCE(dispatch_status,'Pending Dispatch')<>'Completed' AND LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted') ORDER BY challan_date DESC,id DESC LIMIT %s",
+            "loading_sheet": "SELECT id,challan_no,challan_date,area,vehicle_no,driver_name,total_qty,total_free,dispatch_status FROM stock_outs WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted') ORDER BY challan_date DESC,id DESC LIMIT %s",
+            "customer_loading_sheet": "SELECT id,bill_no,bill_date,customer_name,customer_area,grand_total,dispatch_status,status FROM sales WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted') ORDER BY bill_date DESC,id DESC LIMIT %s",
             "dispatch_return_summary": "SELECT id,return_no,return_date,source_ref,customer_name,route,vehicle,total_dispatched_qty,total_returned_qty,total_value,status FROM dispatch_returns ORDER BY return_date DESC,id DESC LIMIT %s",
             "inventory_valuation": "SELECT id,name,unit,stock,standard_cost,ROUND(COALESCE(stock,0)*COALESCE(standard_cost,0),2) stock_value,status FROM items ORDER BY stock_value DESC LIMIT %s",
             "gst_adjustment": "SELECT id,adjustment_no,adjustment_date,return_type,period_from,period_to,adjustment_type,mode,branch_name,total_amount,status FROM gst_adjustments ORDER BY id DESC LIMIT %s",
             "itc_reconciliation": "SELECT id,source_type,return_period,supplier_gstin,supplier_name,invoice_no,invoice_date,taxable,cgst,sgst,igst,total,match_status,difference_gst FROM gst_itc_reconciliations ORDER BY id DESC LIMIT %s",
-            "gstr9_annual": "SELECT id,label,start_date,end_date,is_locked,locked_at FROM financial_years ORDER BY id DESC LIMIT %s",
-            "stock_postings_report": "SELECT id,voucher_date,item_name,qty_in,qty_out,rate,value_in,value_out,source_table,source_ref,status FROM stock_postings ORDER BY voucher_date DESC,id DESC LIMIT %s",
+            "gstr9_annual": "SELECT fy.id,fy.label,fy.start_date,fy.end_date,ROUND(COALESCE(SUM(CASE WHEN gp.input_output='output' THEN gp.taxable ELSE 0 END),0),2) outward_taxable,ROUND(COALESCE(SUM(CASE WHEN gp.input_output='output' THEN gp.cgst+gp.sgst+gp.igst ELSE 0 END),0),2) output_gst,ROUND(COALESCE(SUM(CASE WHEN gp.input_output='input' THEN gp.taxable ELSE 0 END),0),2) inward_taxable,ROUND(COALESCE(SUM(CASE WHEN gp.input_output='input' THEN gp.cgst+gp.sgst+gp.igst ELSE 0 END),0),2) input_gst FROM financial_years fy LEFT JOIN gst_postings gp ON gp.voucher_date BETWEEN fy.start_date AND fy.end_date AND LOWER(COALESCE(gp.status,'active')) NOT IN ('cancelled','void','deleted','superseded') GROUP BY fy.id,fy.label,fy.start_date,fy.end_date ORDER BY fy.start_date DESC LIMIT %s",
+            "stock_postings_report": "SELECT sl.id,sl.entry_date voucher_date,COALESCE(i.name,'') item_name,sl.qty_in,sl.qty_out,0 rate,0 value_in,0 value_out,sl.kind source_table,sl.ref_no source_ref,'Active' status FROM stock_log sl LEFT JOIN items i ON i.id=sl.item_id ORDER BY sl.entry_date DESC,sl.id DESC LIMIT %s",
             "audit_log": "SELECT id,user_name,action,ref_type,ref_no,created_at FROM audit_logs ORDER BY id DESC LIMIT %s",
             "product_labels": "SELECT i.id item_id,i.name item_name,COALESCE(pp.display_name,i.unit,'PCS') pack_name,COALESCE(pp.barcode,i.barcode,'') barcode,COALESCE(pp.mrp,i.mrp,0) mrp,COALESCE(pp.sale_rate,i.sale_rate,0) sale_rate,COALESCE(pp.current_stock_qty,i.stock,0) stock_qty,COALESCE(pp.is_active,1) is_active FROM items i LEFT JOIN product_packs pp ON pp.product_id=i.id ORDER BY i.name,pp.id LIMIT %s",
             "print_bills": "SELECT id,bill_no,bill_date,customer_name,grand_total,status,created_at FROM sales ORDER BY id DESC LIMIT %s",
@@ -969,6 +979,76 @@ class MySqlSource:
         sql = queries.get(key)
         if not sql:
             return []
+        date_fields = {
+            "sales_list": "bill_date",
+            "sales_register": "bill_date",
+            "quotation_list": "doc_date",
+            "order_list": "doc_date",
+            "dc_list": "doc_date",
+            "return_list": "return_date",
+            "purchase_list": "bill_date",
+            "purchase_register": "bill_date",
+            "po_list": "doc_date",
+            "debit_notes": "return_date",
+            "stock_entry": "entry_date",
+            "item_movement": "entry_date",
+            "transfer_list": "transfer_date",
+            "stock_adjustment": "adj_date",
+            "expiry_wastage": "expiry_date",
+            "stock_outs": "challan_date",
+            "load_challans": "challan_date",
+            "daily_dispatch_summary": "challan_date",
+            "item_loading_sheet": "challan_date",
+            "route_loading_sheet": "challan_date",
+            "pending_dispatch": "challan_date",
+            "loading_sheet": "challan_date",
+            "customer_loading_sheet": "bill_date",
+            "dispatch_return_summary": "return_date",
+            "route_settlement": "settlement_date",
+            "receipts": "receipt_date",
+            "payments": "payment_date",
+            "expenses": "expense_date",
+            "cash_bank": "voucher_date",
+            "journal": "entry_date",
+            "customer_ledger": "voucher_date",
+            "supplier_ledger": "voucher_date",
+            "vouchers": "voucher_date",
+            "voucher_review": "voucher_date",
+            "bank_reconciliation": "voucher_date",
+            "cash_flow": "voucher_date",
+            "erp_ledger": "voucher_date",
+            "erp_day_book": "voucher_date",
+            "day_book": "voucher_date",
+            "gst_return": "period_to",
+            "gst_reports": "voucher_date",
+            "hsn_summary": "voucher_date",
+            "einvoice": "ack_date",
+            "eway_bill": "eway_date",
+            "gst_adjustment": "adjustment_date",
+            "itc_reconciliation": "invoice_date",
+            "stock_postings_report": "voucher_date",
+            "audit_log": "created_at",
+            "print_batches": "created_at",
+            "print_logs": "created_at",
+        }
+        date_field = date_fields.get(key)
+        if date_field and (from_date or to_date):
+            suffix = " LIMIT %s"
+            base_sql = sql[:-len(suffix)] if sql.endswith(suffix) else sql
+            clauses: list[str] = []
+            params: list[Any] = []
+            if from_date:
+                clauses.append(f"DATE({date_field})>=DATE(%s)")
+                params.append(from_date)
+            if to_date:
+                clauses.append(f"DATE({date_field})<=DATE(%s)")
+                params.append(to_date)
+            filtered_sql = (
+                f"SELECT * FROM ({base_sql}) report_rows WHERE {' AND '.join(clauses)} "
+                f"ORDER BY DATE({date_field}) DESC LIMIT %s"
+            )
+            params.append(int(limit))
+            return self.rows(filtered_sql, tuple(params))
         return self.rows(sql, (int(limit),))
 
     def erp_profit_loss_rows(

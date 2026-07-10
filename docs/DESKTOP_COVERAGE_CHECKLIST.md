@@ -80,7 +80,7 @@ Staged: 0
 | Reports | Purchase Reports | Report Center | Done | Live purchase rows with CSV/PDF export. |
 | Reports | Stock Reports | Report Center | Done | Live stock rows with PDF export. |
 | Reports | Item Movement | Report Center | Done | Live stock movement rows. |
-| Reports | GST Reports | Report Center | Done | Live GST postings. |
+| Reports | GST Reports | Report Center | Done | Active date-filtered GST postings plus HSN Summary; cancelled/superseded postings excluded. |
 | Reports | GST Return | Report Center | Done | Live GST return filings. |
 | Reports | E-Invoice | Report Center | Done | Live e-invoice rows and offline GST JSON preparation. |
 | Reports | E-Way Bill | Report Center | Done | Live e-way bill rows and offline GST JSON preparation. |
@@ -99,7 +99,7 @@ Staged: 0
 | Reports | Inventory Valuation | Report Center | Done | Live inventory valuation. |
 | Reports | GST Adjustment | Report Center | Done | Live GST adjustment rows. |
 | Reports | ITC Reconciliation | Report Center | Done | Live ITC reconciliation rows. |
-| Reports | GSTR-9 Annual | Report Center | Done | Live financial-year basis rows. |
+| Reports | GSTR-9 Annual | Report Center | Done | Active GST posting totals grouped by financial year. |
 | Administration | Developer Admin | Administration Hub | Done | Live license/developer rows. |
 | Administration | Users | Employee / User Master | Done | Desktop staff user master. |
 | Administration | Permissions | Administration Hub | Done | Live role permissions with desktop editor posting. |

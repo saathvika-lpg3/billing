@@ -4,6 +4,46 @@ This task-specific status file was created because the requested
 `CURRENT_STATUS.md` did not exist. The canonical long-form project status also
 remains updated in `PRM_CURRENT_STATUS.md`.
 
+## 2026-07-11 ERP Business-Flow Completion Audit
+
+- Continued from Git checkpoint `71a4aab` on branch
+  `business-flow-audit-20260710`; preserved the first completed tranche in local
+  safety commit `acfb396`.
+- Added atomic validation, unique-number checks, closed-year checks, negative
+  stock protection, item/pack/warehouse reference checks, party outstanding
+  updates, round-off ledger posting and non-posting Draft/Hold behavior.
+- Added safe Sales and Purchase edit/repost behavior. The live Sales List and
+  Purchase List now open saved transactions for edit; the prior stock,
+  outstanding, ledger and GST effects are reversed and retained as
+  `Superseded` before one active version is posted.
+- Added reason-required cancellation for Sales, Purchase, both returns,
+  Receipt, Payment, Expense, Journal/Contra and Stock Transfer. Cancellation
+  retains source documents and creates auditable stock reversal movements.
+- Fixed Sales/Purchase screens to persist the selected warehouse ID instead of
+  silently saving warehouse `0`.
+- Added active Sales/Purchase Registers, active Day Book, date-aware report
+  filtering, active GST/HSN reporting, live `stock_log`-based Stock Postings,
+  and financial-year GST aggregation for GSTR-9 Annual.
+- Added `docs/BUSINESS_FLOW_MATRIX.md`, classifying all original 59
+  preview/list/report operations: 44 fully functional, 7 missing drill-down,
+  and 8 live-data/integration-incomplete. HSN Summary is an additional
+  completed report.
+- Added a read-only 12-check integrity auditor and generated
+  `audit/business_flow_audit.json`. A clean deterministic fixture passes all
+  12 checks. The inherited live/demo database remains explicitly failed for
+  legacy issues including a `0.33` ledger difference, two unbalanced voucher
+  groups, one duplicate active source voucher, one negative-stock item and
+  older documents/postings that predate the current lifecycle contract.
+- Automated evidence in the current environment: lifecycle module `11 passed`;
+  broader non-UI regression `90 passed, 1 deselected`; native PyQt/print chunk
+  reached `22 passed` before 15 setup errors caused by an inaccessible Windows
+  temp directory. `pytest.ini` now directs temp artifacts to the ignored
+  workspace `tmp/pytest` path for the next native run.
+- No unconditional production-readiness claim is made. Invoice-level payment
+  allocations/aging, batch-ID movement, canonical base-UOM conversion,
+  cancellable Stock Entry/Adjustment headers and landed cost remain documented
+  limitations.
+
 ## 2026-07-10 GitHub Baseline And ERP Audit Cycle
 
 - Verified GitHub Desktop is running on the workstation and used local Git for

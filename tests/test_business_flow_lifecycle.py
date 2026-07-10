@@ -3,11 +3,13 @@ from __future__ import annotations
 import shutil
 import sqlite3
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
 
 from services.sales_calculator import SalesCalculator, SalesLine
+from services.business_flow_audit_service import BusinessFlowAuditService
 from services.mysql_source import MySqlSource
 from services.transaction_repository import TransactionRepository
 
@@ -19,6 +21,23 @@ def copy_db(tmp_path: Path) -> Path:
     target = tmp_path / "business_flow.db"
     shutil.copy2(SOURCE_DB, target)
     return target
+
+
+@contextmanager
+def sqlite_source(db_path: Path):
+    previous = os.environ.get("PRM_SQLITE_DB")
+    os.environ["PRM_SQLITE_DB"] = str(db_path)
+    source = None
+    try:
+        source = MySqlSource()
+        yield source
+    finally:
+        if source is not None:
+            source.close_database_resources()
+        if previous is None:
+            os.environ.pop("PRM_SQLITE_DB", None)
+        else:
+            os.environ["PRM_SQLITE_DB"] = previous
 
 
 def add_customer_and_item(db_path: Path, *, stock: float = 20) -> tuple[int, int]:
@@ -195,6 +214,10 @@ def test_credit_sale_free_quantity_roundoff_and_cancel_reconcile(tmp_path: Path)
 
     with pytest.raises(ValueError, match="already cancelled"):
         repository.cancel_transaction("sales", sale_id, "Duplicate cancellation")
+    with sqlite_source(db_path) as source:
+        assert any(row.get("bill_no") == "LIFE-SALE-001" for row in source.operation_rows("sales_list", 1000))
+        assert not any(row.get("bill_no") == "LIFE-SALE-001" for row in source.operation_rows("sales_register", 1000))
+        assert not any(row.get("source_ref") == "LIFE-SALE-001" for row in source.operation_rows("gst_reports", 1000))
 
 
 def test_sales_edit_reverses_old_effects_without_active_duplicates(tmp_path: Path) -> None:
@@ -520,21 +543,19 @@ def test_interstate_multi_rate_discount_gst_matches_document_and_reports(tmp_pat
     assert document == (totals["taxable"], totals["gst_total"], 0, 0, totals["igst"])
     assert posting == (totals["taxable"], 0, 0, totals["igst"])
 
-    previous = os.environ.get("PRM_SQLITE_DB")
-    os.environ["PRM_SQLITE_DB"] = str(db_path)
-    try:
-        source = MySqlSource()
-        sales_rows = source.operation_rows("sales_list", 1000)
-        gst_rows = source.operation_rows("gst_reports", 1000)
+    with sqlite_source(db_path) as source:
+        sales_rows = source.operation_rows("sales_register", 1000, "2026-07-10", "2026-07-10")
+        outside_period = source.operation_rows("sales_register", 1000, "2026-07-11", "2026-07-11")
+        gst_rows = source.operation_rows("gst_reports", 1000, "2026-07-10", "2026-07-10")
+        hsn_rows = source.operation_rows("hsn_summary", 1000, "2026-07-10", "2026-07-10")
         trial_rows = source.operation_rows("trial_balance", 1000)
-    finally:
-        if previous is None:
-            os.environ.pop("PRM_SQLITE_DB", None)
-        else:
-            os.environ["PRM_SQLITE_DB"] = previous
     assert any(row.get("bill_no") == "LIFE-GST-001" for row in sales_rows)
+    assert not any(row.get("bill_no") == "LIFE-GST-001" for row in outside_period)
     report_gst = [row for row in gst_rows if row.get("source_ref") == "LIFE-GST-001"]
     assert round(sum(float(row["igst"] or 0) for row in report_gst), 2) == totals["igst"]
+    report_hsn = [row for row in hsn_rows if row.get("hsn_sac") in {"1905", "2106"}]
+    assert {row["hsn_sac"] for row in report_hsn} == {"1905", "2106"}
+    assert round(sum(float(row["igst"] or 0) for row in report_hsn), 2) == totals["igst"]
     with sqlite3.connect(db_path) as conn:
         active_debit, active_credit = conn.execute(
             """
@@ -665,3 +686,45 @@ def test_stock_adjustment_prevents_negative_and_rolls_back(tmp_path: Path) -> No
     with sqlite3.connect(db_path) as conn:
         assert conn.execute("SELECT stock FROM items WHERE id=?", (item_id,)).fetchone()[0] == 7
         assert conn.execute("SELECT COUNT(*) FROM stock_adjustments WHERE adj_no='LIFE-ADJ-002'").fetchone()[0] == 0
+
+
+def test_clean_fixture_business_flow_diagnostics_pass(tmp_path: Path) -> None:
+    db_path = copy_db(tmp_path)
+    with sqlite3.connect(db_path) as conn:
+        for table in (
+            "ledger_postings",
+            "voucher_headers",
+            "gst_postings",
+            "stock_log",
+            "stock_transfer_items",
+            "stock_transfers",
+            "stock_adjustments",
+            "sales_return_items",
+            "sales_returns",
+            "purchase_return_items",
+            "purchase_returns",
+            "sales_items",
+            "sales",
+            "purchase_items",
+            "purchases",
+            "receipts",
+            "payments",
+            "expenses",
+            "journal_entries",
+        ):
+            conn.execute(f"DELETE FROM {table}")
+        conn.execute("UPDATE items SET stock=0")
+        conn.execute("UPDATE product_packs SET current_stock_qty=0")
+        conn.execute("UPDATE warehouse_stock SET stock=0")
+        conn.execute("UPDATE product_pack_warehouse_stock SET stock=0")
+        conn.execute("UPDATE customers SET balance=0")
+        conn.execute("UPDATE suppliers SET balance=0")
+
+    customer_id, item_id = add_customer_and_item(db_path, stock=10)
+    repository = TransactionRepository(db_path)
+    header, lines, totals = sale_payload(customer_id, item_id, qty=2)
+    repository.save_sales(header, lines, totals)
+
+    result = BusinessFlowAuditService(db_path).run()
+    assert result["overall_status"] == "PASSED"
+    assert result["summary"] == {"PASSED": 12, "FAILED": 0, "WARNING": 0}

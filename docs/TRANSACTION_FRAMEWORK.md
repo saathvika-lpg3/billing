@@ -7,6 +7,27 @@ sales, purchase, inventory, dispatch and account transaction screens. It lives
 in `widgets/erp_components.py` and preserves each view's existing services,
 repositories, GST logic, save logic and print logic.
 
+## 2026-07-11 Lifecycle Contract
+
+- Sales and Purchase List rows can open the saved transaction editor. Saving
+  an edit reverses stock/outstanding, marks the prior voucher/ledger/GST rows
+  `Superseded`, then posts one active version in the same SQLite transaction.
+- Cancellation requires a reason and retains the source document. Sales,
+  Purchase, Returns, Receipt, Payment, Expense, Journal/Contra and Stock
+  Transfer reverse their applicable stock, party balance, GST and ledger effect.
+- Draft/Hold account vouchers and draft transfers are non-posting.
+- Selected warehouse IDs from Sales/Purchase screens are part of the saved
+  header; warehouse movement no longer silently falls back to ID `0`.
+- Validation rejects missing document identity/date/party/item, malformed or
+  inconsistent totals, duplicate numbers, locked financial years, invalid
+  item/pack/warehouse references, invalid quantities/GST/discount, same-store
+  transfers and unavailable stock. A failed save rolls back all effects.
+- Active financial/GST reports exclude Cancelled/Void/Deleted/Superseded rows;
+  auditable lists retain statuses.
+- `services.business_flow_audit_service.BusinessFlowAuditService` owns read-only
+  lifecycle diagnostics. Do not insert balancing rows from diagnostics.
+- See `docs/BUSINESS_FLOW_MATRIX.md` for complete flow/status/limitation evidence.
+
 ## Shared Components
 
 - `TransactionPageLayout`: fixed page order for header, toolbar, sections, grid and summary.

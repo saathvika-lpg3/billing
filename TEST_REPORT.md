@@ -1,5 +1,60 @@
 # Test Report
 
+## 2026-07-11 ERP Business-Flow Audit Cycle
+
+### Checkpoints
+
+- Starting source checkpoint: `71a4aab` on
+  `business-flow-audit-20260710`; `origin/main` was also `71a4aab`.
+- Requested intermediate local commit: `acfb396 Checkpoint ERP business-flow lifecycle audit`.
+- Received-state focused lifecycle test: `4 passed`.
+
+### Added deterministic coverage
+
+- Credit Sale -> stock -> ledger -> GST -> outstanding -> cancel -> active reports.
+- Sales edit reverses old effects and leaves one active voucher version.
+- Sales Return and Purchase Return cancellation restore stock, GST and party balance.
+- Credit Purchase -> edit -> return -> payment -> cancellation chain.
+- Receipt and Payment partial/advance balance behavior and cancellation.
+- Stock Transfer equal out/in, unchanged global stock and cancellation.
+- Stock Adjustment negative-stock rollback.
+- Draft voucher non-posting and Journal/Contra balance/cancellation.
+- Interstate 5%/18% GST, discount, HSN, GST posting and report agreement.
+- Duplicate number, insufficient stock and locked-year atomic rollback.
+- Clean isolated business-flow database: all 12 integrity diagnostics pass.
+
+### Current results
+
+- `tests/test_business_flow_lifecycle.py`: **11 passed**.
+- Broader non-UI suite under the trusted bundled runtime: **90 passed, 1 deselected**.
+- Native PyQt/print chunk: **22 passed** before 15 fixture setup errors. The
+  errors were all `PermissionError` for the Windows system pytest temp root,
+  not application assertion failures. `pytest.ini` now places temp data under
+  ignored `tmp/pytest` for native rerun.
+- Pre-cycle verified baseline supplied with the task: **162 passed**.
+
+### Live read-only audit
+
+- `audit/business_flow_audit.json`: 5 passed / 7 failed checks on inherited
+  live/demo data.
+- Ledger difference: credit exceeds debit by **0.33**.
+- Two inherited voucher groups are internally unbalanced; one source document
+  has duplicate active voucher headers; one item has negative stock.
+- Older data also contains documents/postings created before the current
+  document-voucher-GST lifecycle. No fabricated balancing rows were inserted.
+- The same auditor reports **12/12 passed** on the clean deterministic fixture,
+  distinguishing code behavior from inherited data.
+
+### Performance smoke
+
+- Product lookup (70 pack rows): 28.58 ms.
+- Sales Register: 5.17 ms; Purchase Register: 5.62 ms.
+- Stock movement: 9.08 ms; GST report: 8.36 ms.
+- Trial Balance: 5.28 ms; P&L: 16.49 ms; Balance Sheet: 28.15 ms.
+- Full 12-check integrity audit: 27.76 ms.
+
+See `docs/BUSINESS_FLOW_MATRIX.md` for the flow and 59-operation evidence.
+
 ## 2026-07-10 GitHub Baseline And ERP Audit Cycle
 
 ### Scope

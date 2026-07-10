@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-07-11
+
+### ERP Business-Flow Audit And Lifecycle Reconciliation
+
+- Added atomic Sales/Purchase/Return/Account/Inventory validation, unique
+  document numbers, locked-year protection and negative-stock rollback.
+- Added correct free-quantity stock semantics, party outstanding updates,
+  balanced positive/negative round-off postings and accurate voucher totals.
+- Added Sales/Purchase edit with retained superseded posting history and live
+  list-to-edit navigation.
+- Added reason-required cancellation/reversal for Sales, Purchase, both return
+  types, Receipt, Payment, Expense, Journal/Contra and Stock Transfer.
+- Fixed selected Sales/Purchase warehouse IDs so warehouse stock follows the
+  live screen selection.
+- Added active date-filtered Sales/Purchase Registers and Day Book; excluded
+  cancelled/superseded financial and GST rows; added HSN Summary; rewired Stock
+  Postings to `stock_log`; and made GSTR-9 Annual derive from GST postings.
+- Added query indexes for active ledger/GST/voucher/stock/document report paths
+  with logged migration failures instead of silent suppression.
+- Added a read-only 12-check business-flow auditor, deterministic lifecycle
+  tests, `docs/BUSINESS_FLOW_MATRIX.md`, and a workspace-local pytest temp path.
+- Preserved the first tranche in local checkpoint commit `acfb396`.
+
 ## 2026-07-10
 
 ### GitHub Baseline And ERP Audit Cycle

@@ -493,8 +493,8 @@ ACCOUNTS_OPERATIONS = [
 ]
 
 REPORTS_OPERATIONS = [
-    ModuleOperation("Sales Reports", "sales_list", category="Sales / Purchase"),
-    ModuleOperation("Purchase Reports", "purchase_list", category="Sales / Purchase"),
+    ModuleOperation("Sales Reports", "sales_register", category="Sales / Purchase"),
+    ModuleOperation("Purchase Reports", "purchase_register", category="Sales / Purchase"),
     ModuleOperation("Daily Dispatch Summary", "daily_dispatch_summary", category="Dispatch"),
     ModuleOperation("Item Loading Sheet", "item_loading_sheet", category="Dispatch"),
     ModuleOperation("Route Loading Sheet", "route_loading_sheet", category="Dispatch"),
@@ -508,6 +508,7 @@ REPORTS_OPERATIONS = [
     ModuleOperation("Stock Postings", "stock_postings_report", category="Inventory"),
     ModuleOperation("Inventory Valuation", "inventory_valuation", category="Inventory"),
     ModuleOperation("GST Reports", "gst_reports", category="GST"),
+    ModuleOperation("HSN Summary", "hsn_summary", category="GST"),
     ModuleOperation("GST Return", "gst_return", category="GST"),
     ModuleOperation("GST Postings", "gst_reports", category="GST"),
     ModuleOperation("GST Adjustment", "gst_adjustment", category="GST"),
@@ -516,7 +517,7 @@ REPORTS_OPERATIONS = [
     ModuleOperation("E-Invoice", "einvoice", category="GST"),
     ModuleOperation("E-Way Bill", "eway_bill", category="GST"),
     ModuleOperation("Profit & Loss", "erp_profit_loss", category="Accounts"),
-    ModuleOperation("Day Book", "vouchers", category="Accounts"),
+    ModuleOperation("Day Book", "day_book", category="Accounts"),
     ModuleOperation("Account Closing", "account_closing", "Preview", "reports:account_closing", "Accounts"),
     ModuleOperation("Balance Sheet", "balance_sheet", category="Accounts"),
     ModuleOperation("Trial Balance", "trial_balance", category="Accounts"),
