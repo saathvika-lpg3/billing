@@ -43,6 +43,11 @@ remains updated in `PRM_CURRENT_STATUS.md`.
   allocations/aging, batch-ID movement, canonical base-UOM conversion,
   cancellable Stock Entry/Adjustment headers and landed cost remain documented
   limitations.
+- Manual launch result: `app.py` started the real QApplication and license
+  validation path from `D:\PRM_GST_DESKTOP`, then exited because the installed
+  client license is bound to another machine. Licensing was not changed or
+  bypassed; main-window manual testing is blocked until the client supplies a
+  current-machine `.prmlic` file.
 
 ## 2026-07-10 GitHub Baseline And ERP Audit Cycle
 

@@ -53,6 +53,17 @@
 - Trial Balance: 5.28 ms; P&L: 16.49 ms; Balance Sheet: 28.15 ms.
 - Full 12-check integrity audit: 27.76 ms.
 
+### Actual application launch
+
+- **BLOCKED by external license state.** The real D: drive `app.py` process
+  started successfully, created QApplication, loaded the application icon and
+  validated the license record, then the license service rejected activation
+  because the installed `.prmlic` is bound to another machine.
+- The process exited at the license gate before login/main-window manual smoke.
+  No licensing code or `.prmlic` content was changed or bypassed.
+- Required unblock: install the client's valid current-machine `.prmlic`, then
+  repeat the Sales/Purchase/Receipt/Payment/Transfer/statement smoke checklist.
+
 See `docs/BUSINESS_FLOW_MATRIX.md` for the flow and 59-operation evidence.
 
 ## 2026-07-10 GitHub Baseline And ERP Audit Cycle
