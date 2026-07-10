@@ -90,11 +90,23 @@ def test_sales_transaction_posts_bill_stock_gst_and_ledger(tmp_path: Path) -> No
         item_count = conn.execute("SELECT COUNT(*) FROM sales_items WHERE sale_id=?", (sale_id,)).fetchone()[0]
         gst_count = conn.execute("SELECT COUNT(*) FROM gst_postings WHERE source_table='sales' AND source_id=?", (sale_id,)).fetchone()[0]
         ledger_count = conn.execute("SELECT COUNT(*) FROM ledger_postings WHERE source_table='sales' AND source_id=?", (sale_id,)).fetchone()[0]
+        debit, credit = conn.execute(
+            "SELECT ROUND(SUM(debit),2),ROUND(SUM(credit),2) FROM ledger_postings WHERE source_table='sales' AND source_id=?",
+            (sale_id,),
+        ).fetchone()
 
     assert sale_count == 1
     assert item_count == 1
     assert gst_count == 1
-    assert ledger_count == 3
+    assert ledger_count == 4
+    expected_posting_total = round(max(totals["grand_total"], totals["taxable"] + totals["gst_total"]), 2)
+    assert debit == credit == expected_posting_total
+    with sqlite3.connect(db_path) as conn:
+        voucher_debit, voucher_credit = conn.execute(
+            "SELECT total_debit,total_credit FROM voucher_headers WHERE source_table='sales' AND source_id=?",
+            (sale_id,),
+        ).fetchone()
+    assert voucher_debit == voucher_credit == expected_posting_total
 
 
 def test_sales_calculator_uses_billable_quantity_after_free_qty() -> None:
@@ -687,6 +699,12 @@ def test_payment_entry_posts_payment_voucher_and_ledger(tmp_path: Path) -> None:
 def test_inventory_stock_entry_creates_stock_log(tmp_path: Path) -> None:
     db_path = copy_db(tmp_path)
     repository = TransactionRepository(db_path=db_path)
+    with sqlite3.connect(db_path) as conn:
+        item_id = int(
+            conn.execute(
+                "INSERT INTO items(code,name,unit,stock,status) VALUES('STK-TEST-ITEM','Stock Test','PCS',0,'Active')"
+            ).lastrowid
+        )
     header = {
         "doc_no": "STK-TEST-001",
         "doc_date": "2026-07-02",
@@ -696,7 +714,7 @@ def test_inventory_stock_entry_creates_stock_log(tmp_path: Path) -> None:
     }
     rows = [
         {
-            "item_id": 0,
+            "item_id": item_id,
             "pack_id": 0,
             "item_name": "Stock Test",
             "pack_name": "1 PCS",

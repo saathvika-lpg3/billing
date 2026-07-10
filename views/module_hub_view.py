@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
     QFrame,
     QGridLayout,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QMessageBox,
@@ -30,6 +31,7 @@ from config.app_config import AppConfig
 from services.mysql_source import MySqlSource
 from services.pdf_print import write_report_pdf
 from services.print_preview import show_print_preview
+from services.transaction_repository import TransactionRepository
 from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
 
 
@@ -58,6 +60,7 @@ class ModuleHubView(QWidget):
         subtitle: str,
         operations: list[ModuleOperation],
         open_page: Callable[[str], None] | None = None,
+        edit_document: Callable[[str, int], None] | None = None,
     ) -> None:
         super().__init__()
         self.config = config
@@ -66,6 +69,7 @@ class ModuleHubView(QWidget):
         self.subtitle = subtitle
         self.operations = operations
         self.open_page_callback = open_page
+        self.edit_document_callback = edit_document
         self.current_operation = operations[0] if operations else ModuleOperation("No operations", "none")
         self.rows: list[dict[str, Any]] = []
         self.visible_rows: list[dict[str, Any]] = []
@@ -149,6 +153,8 @@ class ModuleHubView(QWidget):
             [
                 ("Refresh", lambda: self.open_operation(self.current_operation)),
                 ("Show Options", self.show_options),
+                ("Edit Selected", self.edit_selected_document),
+                ("Cancel Selected", self.cancel_selected_document),
                 ("Print", self.print_visible_rows),
                 ("Export CSV", self.export_csv),
                 ("Export PDF", self.export_pdf),
@@ -164,6 +170,7 @@ class ModuleHubView(QWidget):
         self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.table.doubleClicked.connect(self._open_selected_on_double_click)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         self.table.verticalHeader().setDefaultSectionSize(26)
         layout.addWidget(self.table, stretch=1)
@@ -190,6 +197,71 @@ class ModuleHubView(QWidget):
 
     def show_options(self) -> None:
         self.operation_panel.setVisible(True)
+
+    def edit_selected_document(self) -> None:
+        source_by_operation = {"sales_list": "sales", "purchase_list": "purchases"}
+        source_table = source_by_operation.get(str(self.current_operation.key))
+        if not source_table or not self.edit_document_callback:
+            QMessageBox.information(self, self.title, "Editing is available from Sales List and Purchase List.")
+            return
+        selected = self._selected_rows()
+        if len(selected) != 1:
+            QMessageBox.information(self, self.title, "Select one saved transaction to edit.")
+            return
+        row = selected[0]
+        if str(row.get("status") or "").strip().lower() in {"cancelled", "void", "deleted"}:
+            QMessageBox.information(self, self.title, "Cancelled transactions cannot be edited.")
+            return
+        try:
+            self.edit_document_callback(source_table, int(row.get("id") or 0))
+        except Exception as exc:
+            QMessageBox.warning(self, self.title, f"Transaction could not be opened for edit:\n{exc}")
+
+    def _open_selected_on_double_click(self, _index: Any) -> None:
+        if str(self.current_operation.key) in {"sales_list", "purchase_list"}:
+            self.edit_selected_document()
+
+    def cancel_selected_document(self) -> None:
+        source_by_operation = {
+            "sales_list": "sales",
+            "purchase_list": "purchases",
+            "return_list": "sales_returns",
+            "debit_notes": "purchase_returns",
+            "receipts": "receipts",
+            "payments": "payments",
+            "expenses": "expenses",
+            "journal": "journal_entries",
+            "transfer_list": "stock_transfers",
+        }
+        source_table = source_by_operation.get(str(self.current_operation.key))
+        if not source_table:
+            QMessageBox.information(self, self.title, "Cancellation is not available for this list.")
+            return
+        selected = self._selected_rows()
+        if len(selected) != 1:
+            QMessageBox.information(self, self.title, "Select one saved transaction to cancel.")
+            return
+        row = selected[0]
+        if str(row.get("status") or "").strip().lower() == "cancelled":
+            QMessageBox.information(self, self.title, "The selected transaction is already cancelled.")
+            return
+        reason, accepted = QInputDialog.getText(self, "Cancel Transaction", "Cancellation reason:")
+        if not accepted or not reason.strip():
+            return
+        confirmation = QMessageBox.question(
+            self,
+            "Confirm Cancellation",
+            "Cancel this transaction and reverse its stock, GST, ledger and outstanding effects?",
+        )
+        if confirmation != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            TransactionRepository(self.source.sqlite_path).cancel_transaction(source_table, int(row.get("id") or 0), reason)
+        except Exception as exc:
+            QMessageBox.warning(self, self.title, f"Transaction could not be cancelled:\n{exc}")
+            return
+        self.open_operation(self.current_operation)
+        QMessageBox.information(self, self.title, "Transaction cancelled and reversed successfully.")
 
     def _redraw_table(self) -> None:
         query = self.search.text().strip().lower()

@@ -1,0 +1,120 @@
+{
+  "database": "D:\\PRM_GST_DESKTOP\\database\\prm_billing_inventory.db",
+  "overall_status": "FAILED",
+  "summary": {
+    "PASSED": 5,
+    "FAILED": 7,
+    "WARNING": 0
+  },
+  "checks": [
+    {
+      "category": "Accounts",
+      "check": "Active ledger debit equals credit",
+      "status": "FAILED",
+      "count": 1,
+      "amount": -0.33,
+      "classification": "legacy_or_live_data",
+      "details": "Debit 1973789.18; credit 1973789.51; difference -0.33."
+    },
+    {
+      "category": "Accounts",
+      "check": "Every active voucher is internally balanced",
+      "status": "FAILED",
+      "count": 2,
+      "amount": 0.33,
+      "classification": "legacy_or_live_data",
+      "details": "Counts active voucher groups whose ledger rows do not balance within one paisa."
+    },
+    {
+      "category": "Lifecycle",
+      "check": "No duplicate active voucher per source document",
+      "status": "FAILED",
+      "count": 1,
+      "amount": 0.0,
+      "classification": "legacy_or_live_data",
+      "details": "Superseded and cancelled voucher versions are excluded."
+    },
+    {
+      "category": "Accounts",
+      "check": "No orphan ledger postings",
+      "status": "PASSED",
+      "count": 0,
+      "amount": 0.0,
+      "classification": "none",
+      "details": "Every ledger posting must reference an existing voucher header."
+    },
+    {
+      "category": "Lifecycle",
+      "check": "Cancelled documents have no active ledger posting",
+      "status": "FAILED",
+      "count": 12,
+      "amount": 0.0,
+      "classification": "legacy_or_live_data",
+      "details": "Checks every posted sales, purchase, return, receipt, payment, expense and journal source."
+    },
+    {
+      "category": "Lifecycle",
+      "check": "Posted documents have an active voucher",
+      "status": "FAILED",
+      "count": 15,
+      "amount": 0.0,
+      "classification": "legacy_or_live_data",
+      "details": "Draft and hold documents are intentionally non-posting."
+    },
+    {
+      "category": "GST",
+      "check": "Document GST totals match active GST postings",
+      "status": "FAILED",
+      "count": 22,
+      "amount": 3283.45,
+      "classification": "legacy_or_live_data",
+      "details": "Returns are reconciled as negative GST postings."
+    },
+    {
+      "category": "Inventory",
+      "check": "No negative global item stock",
+      "status": "FAILED",
+      "count": 1,
+      "amount": 1.0,
+      "classification": "legacy_or_live_data",
+      "details": "Negative legacy stock is reported, never hidden or auto-corrected."
+    },
+    {
+      "category": "Inventory",
+      "check": "No negative warehouse or warehouse-pack stock",
+      "status": "PASSED",
+      "count": 0,
+      "amount": 0.0,
+      "classification": "none",
+      "details": "Checks both item-level and pack-level warehouse balances."
+    },
+    {
+      "category": "Inventory",
+      "check": "Stock transfers have equal in and out movement",
+      "status": "PASSED",
+      "count": 0,
+      "amount": 0.0,
+      "classification": "none",
+      "details": "Includes cancellation reversal movements under the original reference."
+    },
+    {
+      "category": "Validation",
+      "check": "Document numbers are unique within each transaction type",
+      "status": "PASSED",
+      "count": 0,
+      "amount": 0.0,
+      "classification": "none",
+      "details": "Cancelled numbers remain reserved and are included in the duplicate check."
+    },
+    {
+      "category": "Validation",
+      "check": "No active posting exists in a locked financial year",
+      "status": "PASSED",
+      "count": 0,
+      "amount": 0.0,
+      "classification": "none",
+      "details": "Existing locked-period postings are surfaced as a live-data issue."
+    }
+  ],
+  "generated_at": "2026-07-11T01:07:03"
+}

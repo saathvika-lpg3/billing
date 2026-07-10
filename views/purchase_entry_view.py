@@ -34,7 +34,7 @@ from services.business_rules import validate_item_line
 from services.mysql_source import MySqlSource
 from services.pdf_print import document_share_caption, write_transaction_pdf
 from services.print_preview import show_print_preview
-from services.sales_calculator import SalesCalculator, SalesLine, money
+from services.sales_calculator import ComputedLine, SalesCalculator, SalesLine, money
 from services.share_service import (
     communication_message,
     document_message_context,
@@ -66,13 +66,18 @@ class PurchaseEntryView(QWidget):
         super().__init__()
         self.config = config
         self.source = MySqlSource()
-        self.repository = TransactionRepository()
+        self.repository = TransactionRepository(self.source.sqlite_path)
         self.company: dict[str, Any] = {}
         self.suppliers: list[dict[str, Any]] = []
         self.products: list[dict[str, Any]] = []
+        self.warehouses: list[dict[str, Any]] = []
+        self.branches: list[dict[str, Any]] = []
         self.supplier_by_label: dict[str, dict[str, Any]] = {}
         self.product_by_label: dict[str, dict[str, Any]] = {}
+        self.warehouse_by_name: dict[str, dict[str, Any]] = {}
+        self.branch_by_name: dict[str, dict[str, Any]] = {}
         self.computed_lines = []
+        self.editing_purchase_id: int | None = None
         self.units: list[str] = []
         self._updating_table = False
         self._build()
@@ -313,8 +318,8 @@ class PurchaseEntryView(QWidget):
             self.company = self.source.company()
             self.suppliers = self.source.suppliers()
             self.products = self.source.product_choices()
-            warehouses = self.source.warehouses()
-            branches = self.source.branches()
+            self.warehouses = self.source.warehouses()
+            self.branches = self.source.branches()
         except Exception as exc:
             self.source_status.setText(f"Source unavailable: {exc}")
             return
@@ -340,8 +345,10 @@ class PurchaseEntryView(QWidget):
         if area_completer:
             area_completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
             area_completer.setFilterMode(Qt.MatchFlag.MatchContains)
-        self.warehouse.addItems([w.get("name", "") for w in warehouses] or ["Main Store"])
-        self.branch.addItems([b.get("name", "") for b in branches] or ["Main Branch"])
+        self.warehouse_by_name = {str(row.get("name") or ""): row for row in self.warehouses}
+        self.branch_by_name = {str(row.get("name") or ""): row for row in self.branches}
+        self.warehouse.addItems(list(self.warehouse_by_name) or ["Main Store"])
+        self.branch.addItems(list(self.branch_by_name) or ["Main Branch"])
         product_labels = [self._product_label(p) for p in self.products]
         self.product_by_label = dict(zip(product_labels, self.products))
         self.product.addItems(product_labels)
@@ -509,8 +516,10 @@ class PurchaseEntryView(QWidget):
             self.total_summary.setText(f"Grand Total: {money(totals['grand_total'])}")
 
     def clear_bill(self) -> None:
+        self.editing_purchase_id = None
         self.computed_lines.clear()
         self._redraw_lines()
+        self.source_status.setText(f"{len(self.suppliers)} suppliers | {len(self.products)} packs")
 
     def _line_table_item_changed(self, item: QTableWidgetItem) -> None:
         if getattr(self, "_updating_table", False):
@@ -564,15 +573,33 @@ class PurchaseEntryView(QWidget):
         path = drafts / f"purchase_entry_saved_{datetime.now():%Y%m%d_%H%M%S}.json"
         path.write_text(json.dumps(payload, indent=2, ensure_ascii=True), encoding="utf-8")
         try:
-            purchase_id = self.repository.save_purchase(payload["header"], self.computed_lines, totals)
+            if self.editing_purchase_id is None:
+                purchase_id = self.repository.save_purchase(payload["header"], self.computed_lines, totals)
+                action = "saved"
+            else:
+                purchase_id = self.repository.edit_purchase(
+                    self.editing_purchase_id,
+                    payload["header"],
+                    self.computed_lines,
+                    totals,
+                )
+                action = "updated"
         except Exception as exc:
             QMessageBox.warning(self, "Purchase Save", f"Purchase could not be saved:\n{exc}")
             return
-        QMessageBox.information(self, "Purchase Saved", f"Purchase saved to local database.\nPurchase ID: {purchase_id}\nAudit copy:\n{path}")
+        self.editing_purchase_id = purchase_id
+        self.source_status.setText(f"Editing saved purchase #{purchase_id}")
+        QMessageBox.information(
+            self,
+            "Purchase Saved",
+            f"Purchase {action} in the local database.\nPurchase ID: {purchase_id}\nAudit copy:\n{path}",
+        )
 
     def _transaction_payload(self, totals: dict[str, float]) -> dict[str, Any]:
         supplier = self._selected_supplier() or {}
         supplier_name = str(supplier.get("name") or self.supplier.currentText())
+        warehouse_name = self.warehouse.currentText()
+        warehouse = self.warehouse_by_name.get(warehouse_name, {})
         header = {
             "bill_no": self.bill_no.text(),
             "bill_date": self.bill_date.date().toString("yyyy-MM-dd"),
@@ -583,7 +610,7 @@ class PurchaseEntryView(QWidget):
             "party_id": supplier.get("id") or 0,
             "party_name": supplier_name,
             "warehouse": self.warehouse.currentText(),
-            "warehouse_id": 0,
+            "warehouse_id": warehouse.get("id") or 0,
             "payment": self.payment.currentText(),
             "branch": self.branch.currentText(),
             "area": self.area.currentText(),
@@ -596,6 +623,63 @@ class PurchaseEntryView(QWidget):
             "totals": totals,
             "lines": [row.__dict__ | {"source": row.source.__dict__} for row in self.computed_lines],
         }
+
+    def load_for_edit(self, purchase_id: int) -> None:
+        payload = self.repository.load_document_for_edit("purchases", int(purchase_id))
+        header = payload["header"]
+        self.editing_purchase_id = int(header["id"])
+        self.bill_no.setText(str(header.get("bill_no") or ""))
+        saved_date = QDate.fromString(str(header.get("bill_date") or ""), "yyyy-MM-dd")
+        if saved_date.isValid():
+            self.bill_date.setDate(saved_date)
+        supplier_id = int(header.get("supplier_id") or 0)
+        for label, supplier in self.supplier_by_label.items():
+            if int(supplier.get("id") or 0) == supplier_id:
+                self.supplier.setCurrentText(label)
+                break
+        self.payment.setCurrentText(str(header.get("pay_mode") or "Credit"))
+        warehouse_id = int(header.get("warehouse_id") or 0)
+        for name, warehouse in self.warehouse_by_name.items():
+            if int(warehouse.get("id") or 0) == warehouse_id:
+                self.warehouse.setCurrentText(name)
+                break
+        branch_name = str(header.get("branch_name") or "")
+        if branch_name:
+            self.branch.setCurrentText(branch_name)
+        self.computed_lines = [self._saved_line_for_edit(row) for row in payload["lines"]]
+        self._redraw_lines()
+        self.source_status.setText(f"Editing purchase #{purchase_id} | saving will reverse and repost once")
+
+    @staticmethod
+    def _saved_line_for_edit(row: dict[str, Any]) -> ComputedLine:
+        source = SalesLine(
+            item_name=str(row.get("item_name") or ""),
+            pack_name=str(row.get("pack_display_snapshot") or ""),
+            hsn=str(row.get("hsn") or ""),
+            unit=str(row.get("unit") or "PCS"),
+            qty=float(row.get("qty") or 0),
+            free_qty=float(row.get("free_qty") or 0),
+            mrp=float(row.get("mrp") or 0),
+            rate=float(row.get("rate") or 0),
+            scheme=0,
+            discount_amount=0,
+            gst_rate=float(row.get("gst") or 0),
+            item_id=int(row.get("item_id") or 0),
+            pack_id=int(row.get("pack_id") or 0),
+            pack_size=float(row.get("pack_size_snapshot") or 1),
+        )
+        taxable = float(row.get("taxable") or 0)
+        source.discount_amount = max(round(source.qty - source.free_qty, 3) * source.rate - taxable, 0.0)
+        return ComputedLine(
+            source=source,
+            gross=round(taxable + source.discount_amount, 2),
+            taxable=taxable,
+            cgst=float(row.get("cgst") or 0),
+            sgst=float(row.get("sgst") or 0),
+            igst=float(row.get("igst") or 0),
+            gst_total=float(row.get("gst_amt") or 0),
+            line_total=float(row.get("total") or 0),
+        )
 
     def print_draft_pdf(self) -> None:
         if not self._require_supplier():

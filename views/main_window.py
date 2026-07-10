@@ -318,6 +318,7 @@ class MainWindow(QMainWindow):
             "Quotations, orders, billing, returns, delivery challans",
             self._filter_operations("sales", SALES_OPERATIONS),
             self.open_page,
+            self.open_transaction_for_edit,
         )
         self.page_factories["document_hub"] = lambda: ModuleHubView(
             self.config,
@@ -334,6 +335,7 @@ class MainWindow(QMainWindow):
             "Purchase orders, stock buying, supplier returns",
             self._filter_operations("purchase", PURCHASE_OPERATIONS),
             self.open_page,
+            self.open_transaction_for_edit,
         )
         self.page_factories["inventory"] = lambda: ModuleHubView(
             self.config,
@@ -341,6 +343,7 @@ class MainWindow(QMainWindow):
             "Stock, transfers, alerts, warehouse movement",
             self._filter_operations("inventory", INVENTORY_OPERATIONS),
             self.open_page,
+            self.open_transaction_for_edit,
         )
         self.page_factories["accounts"] = lambda: ModuleHubView(
             self.config,
@@ -348,6 +351,7 @@ class MainWindow(QMainWindow):
             "Receipts, payments, ledgers, vouchers, statements",
             self._filter_operations("accounts", ACCOUNTS_OPERATIONS),
             self.open_page,
+            self.open_transaction_for_edit,
         )
         self.page_factories["reports"] = lambda: ReportCenterView(self.config)
         self.page_factories["administration"] = lambda: ModuleHubView(
@@ -949,6 +953,18 @@ class MainWindow(QMainWindow):
             if hasattr(page, "select_recent_record"):
                 page.select_recent_record(record_id)
             self.statusBar().showMessage(f"Open voucher: {source_type} #{record_id}")
+
+    def open_transaction_for_edit(self, source_table: str, record_id: int) -> None:
+        target_by_source = {"sales": "sales_bill", "purchases": "purchase_entry"}
+        target = target_by_source.get(str(source_table or "").strip().lower())
+        if not target:
+            raise ValueError(f"Editing is not supported for {source_table}.")
+        self.open_page(target)
+        page = self.pages.get(target)
+        if page is None or not hasattr(page, "load_for_edit"):
+            raise ValueError("The transaction editor is not available.")
+        page.load_for_edit(int(record_id))
+        self.statusBar().showMessage(f"Editing {source_table} #{record_id}")
 
     def _business_type_code(self) -> str:
         company = self.source.company()

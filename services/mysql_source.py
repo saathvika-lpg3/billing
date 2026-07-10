@@ -207,6 +207,18 @@ class MySqlSource:
                 for stmt in sqlite_sql:
                     conn.execute(stmt)
                 self._ensure_column(conn, "print_templates", "orientation", "TEXT")
+                for stmt in (
+                    "CREATE INDEX IF NOT EXISTS idx_ledger_postings_status_date ON ledger_postings(status,voucher_date,ledger_name)",
+                    "CREATE INDEX IF NOT EXISTS idx_ledger_postings_source ON ledger_postings(source_table,source_id)",
+                    "CREATE INDEX IF NOT EXISTS idx_gst_postings_status_date ON gst_postings(status,voucher_date,input_output)",
+                    "CREATE INDEX IF NOT EXISTS idx_gst_postings_source ON gst_postings(source_table,source_id)",
+                    "CREATE INDEX IF NOT EXISTS idx_voucher_headers_source ON voucher_headers(source_table,source_id,status)",
+                    "CREATE INDEX IF NOT EXISTS idx_stock_log_reference ON stock_log(ref_no,kind,entry_date)",
+                ):
+                    try:
+                        conn.execute(stmt)
+                    except sqlite3.Error:
+                        continue
         except Exception:
             pass
         _ACCOUNTING_CHECKED_PATHS.add(key)
@@ -866,16 +878,16 @@ class MySqlSource:
             "aging_report": "SELECT 'Customer' party_type,id,name,balance,ABS(balance) abs_balance,CASE WHEN COALESCE(balance,0)>0 THEN 'Receivable' ELSE 'Advance / Credit' END bucket FROM customers WHERE COALESCE(balance,0)<>0 UNION ALL SELECT 'Supplier' party_type,id,name,balance,ABS(balance) abs_balance,CASE WHEN COALESCE(balance,0)>0 THEN 'Payable' ELSE 'Advance / Debit' END bucket FROM suppliers WHERE COALESCE(balance,0)<>0 ORDER BY abs_balance DESC LIMIT %s",
             "customer_ledger": "SELECT id,voucher_date,ledger_name,debit,credit,source_table,source_ref,status FROM ledger_postings WHERE party_type='customer' ORDER BY voucher_date DESC,id DESC LIMIT %s",
             "supplier_ledger": "SELECT id,voucher_date,ledger_name,debit,credit,source_table,source_ref,status FROM ledger_postings WHERE party_type='supplier' ORDER BY voucher_date DESC,id DESC LIMIT %s",
-            "trial_balance": "SELECT ledger_name,ROUND(SUM(COALESCE(debit,0)),2) debit,ROUND(SUM(COALESCE(credit,0)),2) credit,ROUND(SUM(COALESCE(debit,0)-COALESCE(credit,0)),2) closing_balance FROM ledger_postings GROUP BY ledger_name ORDER BY ledger_name LIMIT %s",
+            "trial_balance": "SELECT ledger_name,ROUND(SUM(COALESCE(debit,0)),2) debit,ROUND(SUM(COALESCE(credit,0)),2) credit,ROUND(SUM(COALESCE(debit,0)-COALESCE(credit,0)),2) closing_balance FROM ledger_postings WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') GROUP BY ledger_name ORDER BY ledger_name LIMIT %s",
             "vouchers": "SELECT id,voucher_no,voucher_date,voucher_type_code,party_name,narration,total_debit,total_credit,status,approval_status FROM voucher_headers ORDER BY id DESC LIMIT %s",
             "voucher_review": "SELECT id,voucher_no,voucher_date,voucher_type_code,party_name,total_debit,total_credit,status,approval_status FROM voucher_headers ORDER BY approval_status,status,voucher_date DESC LIMIT %s",
             "bank_reconciliation": "SELECT id,bank_ledger,voucher_date,source_ref,debit,credit,clearance_status,cleared_date,bank_reference,notes FROM bank_reconciliations ORDER BY voucher_date DESC,id DESC LIMIT %s",
-            "cash_flow": "SELECT voucher_date,source_ref,ledger_name,ROUND(SUM(COALESCE(debit,0)),2) cash_in,ROUND(SUM(COALESCE(credit,0)),2) cash_out FROM ledger_postings WHERE ledger_name LIKE '%Cash%' OR ledger_name LIKE '%Bank%' GROUP BY voucher_date,source_ref,ledger_name ORDER BY voucher_date DESC LIMIT %s",
-            "fund_flow": "SELECT ledger_name,ROUND(SUM(COALESCE(debit,0)-COALESCE(credit,0)),2) net_movement FROM ledger_postings GROUP BY ledger_name HAVING net_movement<>0 ORDER BY ABS(net_movement) DESC LIMIT %s",
+            "cash_flow": "SELECT voucher_date,source_ref,ledger_name,ROUND(SUM(COALESCE(debit,0)),2) cash_in,ROUND(SUM(COALESCE(credit,0)),2) cash_out FROM ledger_postings WHERE (ledger_name LIKE '%Cash%' OR ledger_name LIKE '%Bank%') AND LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') GROUP BY voucher_date,source_ref,ledger_name ORDER BY voucher_date DESC LIMIT %s",
+            "fund_flow": "SELECT ledger_name,ROUND(SUM(COALESCE(debit,0)-COALESCE(credit,0)),2) net_movement FROM ledger_postings WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') GROUP BY ledger_name HAVING net_movement<>0 ORDER BY ABS(net_movement) DESC LIMIT %s",
             "erp_ledger": "SELECT id,voucher_date,ledger_name,debit,credit,party_type,source_table,source_ref,status FROM ledger_postings ORDER BY voucher_date DESC,id DESC LIMIT %s",
             "erp_day_book": "SELECT id,voucher_no,voucher_date,voucher_type_code,party_name,narration,total_debit,total_credit,status FROM voucher_headers ORDER BY voucher_date DESC,id DESC LIMIT %s",
             "account_closing": "SELECT id,company_name,financial_year_label,closing_type,period_label,from_date,to_date,status,closed_at FROM closing_periods ORDER BY id DESC LIMIT %s",
-            "control_check": "SELECT 'Ledger balance difference' check_name,ROUND(SUM(COALESCE(debit,0)),2) debit,ROUND(SUM(COALESCE(credit,0)),2) credit,ROUND(SUM(COALESCE(debit,0)-COALESCE(credit,0)),2) difference FROM ledger_postings UNION ALL SELECT 'Stock value movement',ROUND(SUM(COALESCE(value_in,0)),2),ROUND(SUM(COALESCE(value_out,0)),2),ROUND(SUM(COALESCE(value_in,0)-COALESCE(value_out,0)),2) FROM stock_postings LIMIT %s",
+            "control_check": "SELECT 'Ledger balance difference' check_name,ROUND(SUM(COALESCE(debit,0)),2) debit,ROUND(SUM(COALESCE(credit,0)),2) credit,ROUND(SUM(COALESCE(debit,0)-COALESCE(credit,0)),2) difference FROM ledger_postings WHERE LOWER(COALESCE(status,'active')) NOT IN ('cancelled','void','deleted','superseded') UNION ALL SELECT 'Stock value movement',ROUND(SUM(COALESCE(value_in,0)),2),ROUND(SUM(COALESCE(value_out,0)),2),ROUND(SUM(COALESCE(value_in,0)-COALESCE(value_out,0)),2) FROM stock_postings LIMIT %s",
             "stock_ledger_adj": "SELECT id,adjustment_no,adjustment_date,stock_register_value,stock_ledger_value,difference_amount,narration,created_at FROM stock_valuation_adjustments ORDER BY id DESC LIMIT %s",
             "branches": "SELECT id,name,code,gstin,state,is_default,is_active FROM branches ORDER BY id DESC LIMIT %s",
             "cost_centers": "SELECT id,name,is_active FROM cost_centers ORDER BY id DESC LIMIT %s",
@@ -1253,7 +1265,7 @@ class MySqlSource:
         }
 
     def _ledger_statement_rows(self, from_date: str | None = None, to_date: str | None = None) -> list[dict[str, Any]]:
-        where = ["LOWER(COALESCE(lp.status,'posted')) NOT IN ('cancelled','void','deleted')"]
+        where = ["LOWER(COALESCE(lp.status,'posted')) NOT IN ('cancelled','void','deleted','superseded')"]
         params: list[Any] = []
         if from_date:
             where.append("lp.voucher_date >= %s")

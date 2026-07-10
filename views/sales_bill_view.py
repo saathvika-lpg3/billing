@@ -39,7 +39,7 @@ from services.business_rules import validate_item_line
 from services.mysql_source import MySqlSource
 from services.pdf_print import document_share_caption, write_transaction_pdf
 from services.print_preview import show_print_preview
-from services.sales_calculator import SalesCalculator, SalesLine, money
+from services.sales_calculator import ComputedLine, SalesCalculator, SalesLine, money
 from services.share_service import (
     communication_message,
     document_message_context,
@@ -73,13 +73,18 @@ class SalesBillView(QWidget):
         super().__init__()
         self.config = config
         self.source = MySqlSource()
-        self.repository = TransactionRepository()
+        self.repository = TransactionRepository(self.source.sqlite_path)
         self.company: dict[str, Any] = {}
         self.customers: list[dict[str, Any]] = []
         self.products: list[dict[str, Any]] = []
+        self.warehouses: list[dict[str, Any]] = []
+        self.branches: list[dict[str, Any]] = []
         self.product_by_label: dict[str, dict[str, Any]] = {}
         self.customer_by_label: dict[str, dict[str, Any]] = {}
+        self.warehouse_by_name: dict[str, dict[str, Any]] = {}
+        self.branch_by_name: dict[str, dict[str, Any]] = {}
         self.computed_lines = []
+        self.editing_sale_id: int | None = None
         self.units: list[str] = []
         self._updating_table = False
         self.employee_text = ""
@@ -417,15 +422,17 @@ class SalesBillView(QWidget):
             self.customers = self.source.customers()
             self.products = self.source.product_choices()
             users = self.source.users()
-            warehouses = self.source.warehouses()
-            branches = self.source.branches()
+            self.warehouses = self.source.warehouses()
+            self.branches = self.source.branches()
             cost_centers = self.source.cost_centers()
         except Exception as exc:
             self.source_status.setText(f"Source unavailable: {exc}")
             return
         self.employee.addItems([f"{u.get('name', u.get('username', ''))} - {u.get('role','')}" for u in users] or ["Administrator"])
-        self.warehouse.addItems([w.get("name", "") for w in warehouses] or ["Main Store"])
-        self.branch.addItems([b.get("name", "") for b in branches] or ["Main Branch"])
+        self.warehouse_by_name = {str(row.get("name") or ""): row for row in self.warehouses}
+        self.branch_by_name = {str(row.get("name") or ""): row for row in self.branches}
+        self.warehouse.addItems(list(self.warehouse_by_name) or ["Main Store"])
+        self.branch.addItems(list(self.branch_by_name) or ["Main Branch"])
         self.cost_center.addItems([c.get("name", "") for c in cost_centers] or ["No Cost Center"])
         areas = sorted({str(c.get("area") or "") for c in self.customers if c.get("area")})
         self.area.addItems(["All Areas", *areas])
@@ -767,8 +774,10 @@ class SalesBillView(QWidget):
             self.total_summary.setText(f"Grand Total: {money(totals['grand_total'])}")
 
     def clear_bill(self) -> None:
+        self.editing_sale_id = None
         self.computed_lines.clear()
         self._redraw_lines()
+        self.source_status.setText(f"{len(self.customers)} customers | {len(self.products)} packs")
 
     def save_draft(self) -> None:
         if not self._require_customer():
@@ -783,15 +792,33 @@ class SalesBillView(QWidget):
         path = drafts / f"sales_bill_saved_{datetime.now():%Y%m%d_%H%M%S}.json"
         path.write_text(json.dumps(payload, indent=2, ensure_ascii=True), encoding="utf-8")
         try:
-            sale_id = self.repository.save_sales(payload["header"], self.computed_lines, totals)
+            if self.editing_sale_id is None:
+                sale_id = self.repository.save_sales(payload["header"], self.computed_lines, totals)
+                action = "saved"
+            else:
+                sale_id = self.repository.edit_sales(
+                    self.editing_sale_id,
+                    payload["header"],
+                    self.computed_lines,
+                    totals,
+                )
+                action = "updated"
         except Exception as exc:
             QMessageBox.warning(self, "Sales Bill Save", f"Bill could not be saved:\n{exc}")
             return
-        QMessageBox.information(self, "Sales Bill Saved", f"Bill saved to local database.\nSale ID: {sale_id}\nAudit copy:\n{path}")
+        self.editing_sale_id = sale_id
+        self.source_status.setText(f"Editing saved sale #{sale_id}")
+        QMessageBox.information(
+            self,
+            "Sales Bill Saved",
+            f"Bill {action} in the local database.\nSale ID: {sale_id}\nAudit copy:\n{path}",
+        )
 
     def _transaction_payload(self, totals: dict[str, float]) -> dict[str, Any]:
         customer = self._selected_customer() or {}
         customer_name = str(customer.get("name") or self.customer.currentText())
+        warehouse_name = self.warehouse_text or self.warehouse.currentText()
+        warehouse = self.warehouse_by_name.get(warehouse_name, {})
         header = {
             "bill_no": self.bill_no.text(),
             "bill_date": self.bill_date.date().toString("yyyy-MM-dd"),
@@ -806,8 +833,8 @@ class SalesBillView(QWidget):
             "price_level": self.price_level.currentText(),
             "employee": self.employee_text,
             "area": self.area_text,
-            "warehouse_id": 0,
-            "warehouse": self.warehouse_text,
+            "warehouse_id": warehouse.get("id") or 0,
+            "warehouse": warehouse_name,
             "branch": self.branch_text,
             "cost_center": self.cost_center_text,
             "shipping": self.shipping_text,
@@ -820,6 +847,69 @@ class SalesBillView(QWidget):
             "totals": totals,
             "lines": [row.__dict__ | {"source": row.source.__dict__} for row in self.computed_lines],
         }
+
+    def load_for_edit(self, sale_id: int) -> None:
+        payload = self.repository.load_document_for_edit("sales", int(sale_id))
+        header = payload["header"]
+        self.editing_sale_id = int(header["id"])
+        self.bill_no.setText(str(header.get("bill_no") or ""))
+        saved_date = QDate.fromString(str(header.get("bill_date") or ""), "yyyy-MM-dd")
+        if saved_date.isValid():
+            self.bill_date.setDate(saved_date)
+        customer_id = int(header.get("customer_id") or 0)
+        for label, customer in self.customer_by_label.items():
+            if int(customer.get("id") or 0) == customer_id:
+                self.customer.setCurrentText(label)
+                break
+        self.payment.setCurrentText(str(header.get("pay_mode") or "Credit"))
+        warehouse_id = int(header.get("warehouse_id") or 0)
+        for name, warehouse in self.warehouse_by_name.items():
+            if int(warehouse.get("id") or 0) == warehouse_id:
+                self.warehouse.setCurrentText(name)
+                self.warehouse_text = name
+                break
+        self.branch_text = str(header.get("branch_name") or "")
+        if self.branch_text:
+            self.branch.setCurrentText(self.branch_text)
+        self.cost_center_text = str(header.get("cost_center_name") or "")
+        self.employee_text = str(header.get("employee_name") or "")
+        self.shipping_text = str(header.get("shipping_address") or "")
+        self.po_no_text = str(header.get("po_no") or "")
+        self.transport_text = str(header.get("transport_details") or "")
+        self.credit_terms_text = str(header.get("credit_terms") or "")
+        self.computed_lines = [self._saved_line_for_edit(row) for row in payload["lines"]]
+        self._redraw_lines()
+        self.source_status.setText(f"Editing sale #{sale_id} | saving will reverse and repost once")
+
+    @staticmethod
+    def _saved_line_for_edit(row: dict[str, Any]) -> ComputedLine:
+        source = SalesLine(
+            item_name=str(row.get("item_name") or ""),
+            pack_name=str(row.get("pack_display_snapshot") or ""),
+            hsn=str(row.get("hsn") or ""),
+            unit=str(row.get("unit") or "PCS"),
+            qty=float(row.get("qty") or 0),
+            free_qty=float(row.get("free_qty") or 0),
+            mrp=float(row.get("mrp") or 0),
+            rate=float(row.get("rate") or 0),
+            scheme=0,
+            discount_amount=float(row.get("discount") or 0),
+            gst_rate=float(row.get("gst") or 0),
+            item_id=int(row.get("item_id") or 0),
+            pack_id=int(row.get("pack_id") or 0),
+            pack_size=float(row.get("pack_size_snapshot") or 1),
+        )
+        taxable = float(row.get("taxable") or 0)
+        return ComputedLine(
+            source=source,
+            gross=round(taxable + source.discount_amount, 2),
+            taxable=taxable,
+            cgst=float(row.get("cgst") or 0),
+            sgst=float(row.get("sgst") or 0),
+            igst=float(row.get("igst") or 0),
+            gst_total=float(row.get("gst_amt") or 0),
+            line_total=float(row.get("total") or 0),
+        )
 
     def print_draft_pdf(self) -> None:
         if not self._require_customer():
