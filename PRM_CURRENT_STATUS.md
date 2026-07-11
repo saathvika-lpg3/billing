@@ -2,6 +2,18 @@
 
 This file is updated from a real audit of the current workspace state.
 
+## Installer/license continuation - 2026-07-11
+
+- Repaired the Python desktop installer without replacing the existing license
+  system: builds now use a sanitized unbound SQLite seed, upgrades preserve the
+  client database, and all 12 mandatory `.prmlic` fields remain required.
+- Verified the supplied license, a real v1.7.4 build/install, first-machine
+  activation, admin creation and launch to the responsive login dialog.
+- Added focused installer/license regressions (6 passed), portable build paths,
+  safe PyInstaller selection and client-runtime-data exclusions. The final full
+  native suite passed 177 tests and the final v1.7.4 installer compiled. See
+  `INSTALLER.md`, `TEST_REPORT.md` and `CURRENT_STATUS.md` for evidence.
+
 ## Status summary
 - Last completed module: Code-controlled Sales, Purchase, Return, Receipt, Payment, Journal/Contra and Stock Transfer lifecycle posting/reversal is implemented with deterministic reconciliation coverage.
 - Current working module: Final certification/documentation of the 2026-07-11 business-flow audit cycle on `business-flow-audit-20260710`.

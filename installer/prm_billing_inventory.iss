@@ -1,5 +1,5 @@
 #define MyAppName "PRM Billing Inventory"
-#define MyAppVersion "1.7.3"
+#define MyAppVersion "1.7.4"
 #define MyAppPublisher "PRM Software Solutions"
 #define MyAppExeName "PRM_Billing_Inventory.exe"
 
@@ -28,7 +28,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\dist\PRM_Billing_Inventory\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Preserve an existing client database during upgrades. The separately copied
+; database is a sanitized, unbound first-install seed produced by the build.
+Source: "..\dist\PRM_Billing_Inventory\*"; DestDir: "{app}"; Excludes: "_internal\database\prm_billing_inventory.db"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\PRM_Billing_Inventory\_internal\database\prm_billing_inventory.db"; DestDir: "{app}\_internal\database"; Flags: ignoreversion onlyifdoesntexist uninsneveruninstall
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -82,11 +85,17 @@ begin
   end;
 
   if (Pos('"client_company_name"', RawText) > 0) and
+     (Pos('"phone_number"', RawText) > 0) and
+     (Pos('"area"', RawText) > 0) and
      (Pos('"license_key"', RawText) > 0) and
      (Pos('"installation_key"', RawText) > 0) and
      (Pos('"super_admin_username"', RawText) > 0) and
      (Pos('"super_admin_password"', RawText) > 0) and
-     (Pos('"developer_login_key"', RawText) > 0) then
+     (Pos('"developer_login_key"', RawText) > 0) and
+     (Pos('"plan"', RawText) > 0) and
+     (Pos('"expiry_date"', RawText) > 0) and
+     (Pos('"status"', RawText) > 0) and
+     (Pos('"business_type_code"', RawText) > 0) then
   begin
     Result := True;
     Exit;

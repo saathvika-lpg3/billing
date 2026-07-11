@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-07-11 - License-safe desktop installer 1.7.4
+
+- Replaced direct packaging of the activated developer database with a
+  deterministic, sanitized and integrity-checked first-install SQLite seed.
+- Preserved existing client databases across upgrades/uninstall cleanup.
+- Preserved mandatory `.prmlic`, signed/legacy validation and machine binding;
+  expanded installer preflight to all required client fields.
+- Made PyInstaller/build paths portable and selected a runtime with PyInstaller.
+- Removed runtime upload data and obsolete `pysqlite` packaging input.
+- Added installer seed, activation, foreign-machine blocking and packaging
+  regression tests.
+- Verified a real installation and first launch with the supplied client license.
+
 ## 2026-07-11
 
 ### ERP Business-Flow Audit And Lifecycle Reconciliation

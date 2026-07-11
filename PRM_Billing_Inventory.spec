@@ -2,15 +2,19 @@
 
 from pathlib import Path
 
-root = Path(r"D:\PRM_GST_DESKTOP")
+root = Path(SPECPATH).resolve()
+installer_database = root / "build" / "installer_payload" / "database" / "prm_billing_inventory.db"
+if not installer_database.is_file():
+    raise FileNotFoundError(
+        "Installer database seed is missing. Run tools/prepare_installer_database.py before PyInstaller."
+    )
 
 datas = [
     (str(root / "themes"), "themes"),
-    (str(root / "database" / "prm_billing_inventory.db"), "database"),
+    (str(installer_database), "database"),
     (str(root / "assets"), "assets"),
     (str(root / "audit"), "audit"),
     (str(root / "docs"), "docs"),
-    (str(root / "uploads"), "uploads"),
     (str(root / "print_templates"), "print_templates"),
     (str(root / "requirements.txt"), "."),
 ]
@@ -21,7 +25,6 @@ a = Analysis(
     binaries=[],
     datas=datas,
     hiddenimports=[
-        "pysqlite",
         "PyQt6.QtCore",
         "PyQt6.QtGui",
         "PyQt6.QtPrintSupport",

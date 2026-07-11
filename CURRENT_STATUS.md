@@ -4,6 +4,44 @@ This task-specific status file was created because the requested
 `CURRENT_STATUS.md` did not exist. The canonical long-form project status also
 remains updated in `PRM_CURRENT_STATUS.md`.
 
+## 2026-07-11 Installer And Client-License Repair
+
+- Audited the supplied `Client_License_Files` `.prmlic` without exposing its
+  credentials. It is byte-identical to `license/client.prmlic`, passes all
+  required-field/status/key-format/expiry checks, and remains valid through
+  2027-07-06.
+- Proved the installation failure was not the client file: the PyInstaller spec
+  packaged the active developer SQLite database, including a machine activation
+  from a different computer. The Inno catch-all also overwrote that database on
+  upgrades.
+- Added `tools/prepare_installer_database.py`. Every build now creates a
+  separate integrity-checked, unbound SQLite seed containing product reference
+  data/templates but zero activation, license, user, customer, supplier, item,
+  transaction, ledger, GST, app-setting, or communication-log rows.
+- Changed the installer so the mutable database is excluded from the general
+  payload and installed separately with `onlyifdoesntexist` and
+  `uninsneveruninstall`. Existing client databases therefore survive upgrades
+  and uninstall file cleanup.
+- Preserved the existing mandatory `.prmlic` browse/copy flow, legacy JSON and
+  signed PRMLIC1 support, signature verification, status/expiry validation and
+  target-machine binding. The installer preflight now checks all 12 required
+  snake-case fields.
+- Made the PyInstaller spec workspace-portable, made the build select an
+  installed Python runtime that actually contains PyInstaller, removed client
+  upload data and the obsolete `pysqlite` hidden import from packaging, and
+  corrected frozen startup logs to `<app_root>\\logs`.
+- Installer/license regressions: **6 passed**. The final complete native suite is
+  **177 passed** with no product failures.
+- Built final v1.7.4 installer SHA-256
+  `5FA609210B0ECBC4B4145D52C1DF643AC4A5FDE0391FF37248DB15E097CB8412`,
+  installed it silently using the supplied `.prmlic`, and verified the installed
+  seed started with zero activation/license/user/transaction rows. First launch
+  then created exactly one Active activation, one license row and one admin user.
+  The installed application reached the login dialog and remained responsive.
+- The final cleaned artifact rebuilt successfully after removing client uploads
+  and the obsolete optional import. Its distribution has no uploads directory,
+  no `pysqlite` warning, and retains the sanitized seed database.
+
 ## 2026-07-11 ERP Business-Flow Completion Audit
 
 - Continued from Git checkpoint `71a4aab` on branch

@@ -22,6 +22,8 @@ dist/
 installer_output/
 installer_test*/
 _installer_test/
+PRM_GST_Compact_Installer_*/
+Client_License_Files/
 
 # Generated print/report/runtime artifacts
 output/

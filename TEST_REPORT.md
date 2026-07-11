@@ -1,5 +1,28 @@
 # Test Report
 
+## 2026-07-11 Installer And License Deployment
+
+- Supplied client `.prmlic`: required fields, Active status, key format and
+  expiry validation **PASSED**. Its SHA-256 matches the project client license.
+- Root-cause reproduction **PASSED**: the old packaged database had the same
+  license key with a foreign machine hash; the license payload itself was valid.
+- Sanitized installer seed **PASSED**: SQLite integrity `ok`; 0 activation,
+  license, user and transaction rows; reference/template rows retained.
+- Focused packaging/license suite: **6 passed**.
+- Final full native suite: **177 passed** in 115.72 seconds.
+- PyInstaller executable build and Inno Setup v1.7.4 compile: **PASSED**.
+- Silent installation with the supplied `.prmlic`: **PASSED**.
+- Installed license file hash equality: **PASSED**.
+- First-start target-machine activation: **PASSED**; exactly one Active
+  activation, one license and one admin user were created.
+- Installed GUI launch: **PASSED** to the responsive login dialog; application
+  left running for operator testing.
+- Final post-cleanup PyInstaller/Inno rebuild: **PASSED**. Final artifact size is
+  51,906,062 bytes with SHA-256
+  `5FA609210B0ECBC4B4145D52C1DF643AC4A5FDE0391FF37248DB15E097CB8412`.
+- Final payload privacy check: **PASSED**; no uploads directory and no obsolete
+  `pysqlite` hidden-import warning.
+
 ## 2026-07-11 ERP Business-Flow Audit Cycle
 
 ### Checkpoints

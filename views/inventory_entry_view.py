@@ -482,7 +482,7 @@ class InventoryEntryView(QWidget):
         context = document_message_context(
             title=title,
             document_no=self.doc_no.text(),
-            party_name=self.warehouse.currentText(),
+            party_name=self.from_warehouse.currentText(),
             amount=total_qty,
             company=self._company(),
             pdf_path=path,

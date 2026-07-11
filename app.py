@@ -17,7 +17,8 @@ from views.main_window import MainWindow
 
 
 def _startup_log_file() -> Path:
-    log_dir = Path(__file__).resolve().parent / "logs"
+    root = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
+    log_dir = root / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     return log_dir / "prm_startup.log"
 
