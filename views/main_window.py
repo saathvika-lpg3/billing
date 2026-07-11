@@ -76,7 +76,7 @@ from views.simple_master_view import SimpleMasterView
 from views.stock_dashboard_view import StockDashboardView
 from views.stock_out_view import StockOutView
 from widgets.enter_key_flow import EnterKeyFlowFilter
-from widgets.erp_components import install_button_feedback_tree
+from widgets.erp_components import TransactionTotalsPanel, install_button_feedback_tree
 
 
 class FitToWidthStack(QStackedWidget):
@@ -97,7 +97,14 @@ class FitToWidthStack(QStackedWidget):
 
     def sizeHint(self) -> QSize:  # noqa: N802
         current = self.currentWidget()
-        height = current.sizeHint().height() if current else 700
+        if current and current.property("transactionFramework") is True:
+            # Transaction pages deliberately give the item grid the flexible
+            # vertical region. Prefer the page's readable minimum so a normal
+            # 1366x768 viewport compresses that grid before QScrollArea makes
+            # the totals/footer start below the fold.
+            height = current.minimumSizeHint().height()
+        else:
+            height = current.sizeHint().height() if current else 700
         return QSize(980, height)
 
 
@@ -461,6 +468,9 @@ class MainWindow(QMainWindow):
             else:
                 self.command_search.setMinimumWidth(220)
                 self.command_search.setMaximumWidth(340)
+        if self.content_scroll is not None and self.stack.currentWidget() is not None:
+            page = self.stack.currentWidget()
+            QTimer.singleShot(0, lambda: self._sync_active_page_height(page))
 
     def _refresh_sidebar_state(self) -> None:
         for page_key, button in self.sidebar_buttons.items():
@@ -867,6 +877,8 @@ class MainWindow(QMainWindow):
 
     def _page_fallback(self, key: str, exc: Exception) -> QWidget:
         page = QWidget()
+        page.setProperty("factoryFallback", True)
+        page.setProperty("failedRoute", key)
         layout = QVBoxLayout(page)
         layout.setContentsMargins(24, 24, 24, 24)
         heading = QLabel(f"{key.replace('_', ' ').title()}")
@@ -923,9 +935,54 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentWidget(self.pages[key])
         self.stack.updateGeometry()
         page = self.pages[key]
-        QTimer.singleShot(0, lambda: self._fit_page_to_width(page) if self.stack.currentWidget() is page else None)
+        QTimer.singleShot(0, lambda: self._finalize_page_fit(page))
         self._refresh_sidebar_state()
         self.statusBar().showMessage(f"Open: {key}")
+
+    def _finalize_page_fit(self, page: QWidget) -> None:
+        if self.stack.currentWidget() is not page:
+            return
+        self._fit_page_to_width(page)
+        layout = page.layout()
+        if layout is not None:
+            layout.activate()
+        self.stack.updateGeometry()
+        self._sync_active_page_height(page)
+        # Height fitting can add or remove the vertical scrollbar, changing a
+        # list table's viewport by a few pixels. Refill non-transaction columns
+        # after that geometry transition so no blank strip remains at the edge.
+        QTimer.singleShot(
+            0,
+            lambda: self._finalize_responsive_page(page),
+        )
+
+    def _finalize_responsive_page(self, page: QWidget) -> None:
+        if self.stack.currentWidget() is not page:
+            return
+        self._fit_page_to_width(page)
+        sync_page = getattr(page, "sync_responsive_layout", None)
+        if callable(sync_page):
+            sync_page()
+        for totals_panel in page.findChildren(TransactionTotalsPanel):
+            totals_panel.sync_responsive_layout()
+        self._sync_active_page_height(page)
+
+    def _sync_active_page_height(self, page: QWidget) -> None:
+        if self.content_scroll is None or self.stack.currentWidget() is not page:
+            return
+        if page.property("transactionFramework") is True:
+            # QScrollArea can retain the page's earlier preferred height after
+            # responsive cards lower their true minimum. Fit the shared stack
+            # to the viewport, but keep genuine overflow scrollable.
+            viewport_height = self.content_scroll.viewport().height()
+            target_height = max(viewport_height, page.minimumSizeHint().height())
+            self.stack.setMinimumHeight(target_height)
+            self.stack.setMaximumHeight(target_height)
+        else:
+            self.stack.setMinimumHeight(0)
+            self.stack.setMaximumHeight(16777215)
+            self.stack.adjustSize()
+        self.stack.updateGeometry()
 
     def _open_document_route(self, key: str, remember: bool = True) -> None:
         parts = key.split(":")

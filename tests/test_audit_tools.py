@@ -53,3 +53,50 @@ def test_operation_parity_accepts_profit_loss_alias() -> None:
 
     assert "ERP Profit & Loss" not in missing
     assert "Profit & Loss" in current_labels
+
+
+def test_live_ui_audit_inventory_has_release_gate_fields() -> None:
+    import tools.audit_live_ui as live_ui_audit
+
+    expected = {
+        "menu_route",
+        "view_class",
+        "view_file",
+        "shared_framework",
+        "header_implementation",
+        "toolbar_implementation",
+        "layout_type",
+        "action_buttons",
+        "signal_slot_wiring",
+        "keyboard_shortcuts",
+        "save_handler",
+        "error_handling",
+        "test_coverage",
+        "screen_fit",
+        "known_issue",
+    }
+
+    assert live_ui_audit.TARGET_SIZES == ((1366, 768), (1440, 900), (1920, 1080))
+    assert set(live_ui_audit.INVENTORY_FIELDS) == expected
+    source = (ROOT / "tools" / "audit_live_ui.py").read_text(encoding="utf-8")
+    for field in expected:
+        assert f'"{field}"' in source
+    assert "_vertical_toolbar_stacks" in source
+    assert "_grand_total_visible" in source
+
+
+def test_legacy_mysql_migration_utility_imports_and_keeps_connection_roles_distinct() -> None:
+    import inspect
+
+    from tools.migrate_mysql_to_sqlite import migrate_table, sqlite_type
+
+    assert list(inspect.signature(migrate_table).parameters) == ["mysql_conn", "sqlite_conn", "table"]
+    assert sqlite_type("bigint unsigned") == "INTEGER"
+    assert sqlite_type("decimal(12,2)") == "REAL"
+    assert sqlite_type("varchar(80)") == "TEXT"
+
+
+def test_widget_api_audit_has_no_typed_control_method_mismatches() -> None:
+    from tools.audit_widget_apis import audit
+
+    assert audit() == []

@@ -28,7 +28,8 @@ from PyQt6.QtWidgets import (
 
 from config.app_config import AppConfig
 from services.mysql_source import MySqlSource
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 
 class LabelPrintView(QWidget):
@@ -47,6 +48,7 @@ class LabelPrintView(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(4)
         root.addWidget(self._title_bar())
+        root.addWidget(self._action_toolbar())
         root.addWidget(self._entry_card())
         root.addWidget(self._table_card(), stretch=1)
 
@@ -55,16 +57,17 @@ class LabelPrintView(QWidget):
         header.setMaximumHeight(58)
         header.status_label.setText(self.source_status.text() if hasattr(self, "source_status") else "Source: loading")
         self.source_status = header.status_label
-        refresh_button = QPushButton("Refresh")
-        refresh_button.clicked.connect(self.refresh)
-        export_button = QPushButton("Export CSV")
-        export_button.clicked.connect(self.export_csv)
-        save_button = QPushButton("Save Batch")
-        save_button.clicked.connect(self.save_batch)
-        header.layout().addWidget(refresh_button)
-        header.layout().addWidget(export_button)
-        header.layout().addWidget(save_button)
         return header
+
+    def _action_toolbar(self) -> CompactActionToolbar:
+        self.action_toolbar = CompactActionToolbar(
+            [
+                ActionSpec("Save Batch", self.save_batch, "Save the current label batch.", role="primary"),
+                ActionSpec("Refresh", self.refresh, "Reload products and saved label batches."),
+                ActionSpec("Export CSV", self.export_csv, "Export the visible label rows to CSV."),
+            ]
+        )
+        return self.action_toolbar
 
     def _entry_card(self) -> QWidget:
         frame = QFrame()

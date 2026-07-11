@@ -268,6 +268,50 @@ class TotalsCard(BottomTotalsCard):
     pass
 
 
+class TransactionDetailsDeck(QFrame):
+    """Responsive row of the canonical party, document and information cards."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setObjectName("transactionHeaderGrid")
+        self.setProperty("transactionFramework", True)
+        self.setProperty("transactionRole", "details-deck")
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self._layout = QGridLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setHorizontalSpacing(7)
+        self._layout.setVerticalSpacing(6)
+        self._next_column = 0
+
+    def add_card(self, card: QWidget, stretch: int = 1) -> None:
+        column = self._next_column
+        self._layout.addWidget(card, 0, column)
+        self._layout.setColumnStretch(column, max(1, stretch))
+        self._next_column += 1
+
+
+class TransactionSummaryDeck(QFrame):
+    """Shared horizontal summary row; actions belong in the page toolbar."""
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setObjectName("transactionSummaryDeck")
+        self.setProperty("transactionFramework", True)
+        self.setProperty("transactionRole", "summary-deck")
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self._layout = QGridLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setHorizontalSpacing(5)
+        self._layout.setVerticalSpacing(5)
+        self._next_column = 0
+
+    def add_card(self, card: QWidget, stretch: int = 1) -> None:
+        column = self._next_column
+        self._layout.addWidget(card, 0, column)
+        self._layout.setColumnStretch(column, max(1, stretch))
+        self._next_column += 1
+
+
 def _money(value: float | int | str | None) -> str:
     try:
         amount = float(value or 0)
@@ -278,6 +322,8 @@ def _money(value: float | int | str | None) -> str:
 
 class TransactionTotalsPanel(BottomTotalsCard):
     """Shared transaction totals panel for item-entry documents."""
+
+    WIDE_BREAKPOINT = 720
 
     FIELD_ORDER = (
         ("total_qty", "Total Quantity"),
@@ -291,53 +337,151 @@ class TransactionTotalsPanel(BottomTotalsCard):
         ("total_amount", "Total Amount"),
         ("grand_total", "Grand Total"),
     )
+    WIDE_LABELS = {
+        "total_qty": "Qty",
+        "discount": "Disc.",
+        "taxable": "Taxable",
+        "cgst": "CGST",
+        "sgst": "SGST",
+        "igst": "IGST",
+        "gst_total": "Tax",
+        "round_off": "Round",
+        "total_amount": "Total Amount",
+        "grand_total": "Grand Total",
+    }
 
     def __init__(self, title: str = "Totals", parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        self.setProperty("totalsPanel", True)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        layout = QGridLayout(self)
-        layout.setContentsMargins(8, 5, 8, 6)
-        layout.setHorizontalSpacing(5)
-        layout.setVerticalSpacing(4)
-        title_label = QLabel(title)
-        title_label.setObjectName("cardTitle")
-        layout.addWidget(title_label, 0, 0, 1, 5)
+        self.grid_layout = QGridLayout(self)
+        self.grid_layout.setContentsMargins(8, 5, 8, 6)
+        self.grid_layout.setHorizontalSpacing(5)
+        self.grid_layout.setVerticalSpacing(4)
+        self.title_label = QLabel(title)
+        self.title_label.setObjectName("cardTitle")
         self.labels: dict[str, QLabel] = {}
+        self.values: dict[str, float] = {}
+        base_point_size = QApplication.font().pointSizeF()
+        if base_point_size <= 0:
+            base_point_size = 9.0
         for index, (key, label) in enumerate(self.FIELD_ORDER):
             row = 1 + index // 5
             column = index % 5
             value_label = QLabel(f"{label}\n{self._zero_value(key)}")
             value_label.setObjectName("grandTotalValue" if key == "grand_total" else "summaryValue")
+            value_label.setProperty("totalRole", "grand-total" if key == "grand_total" else key)
+            value_label.setAccessibleName(label)
             value_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             value_label.setWordWrap(True)
-            value_label.setMinimumHeight(42)
-            layout.addWidget(value_label, row, column)
+            value_label.setTextFormat(Qt.TextFormat.PlainText)
+            value_label.setMinimumHeight(50 if key == "grand_total" else 44)
+            label_font = value_label.font()
+            label_font.setBold(True)
+            label_font.setPointSizeF(base_point_size + (2.0 if key == "grand_total" else 0.0))
+            value_label.setFont(label_font)
+            if key == "grand_total":
+                # Keep the primary amount readable even when an incomplete or
+                # third-party theme omits the normal grand-total selector.
+                value_label.setStyleSheet(
+                    "QLabel#grandTotalValue {"
+                    " background-color: #0B1F4D;"
+                    " color: #FFFFFF;"
+                    " border: 2px solid #1D4ED8;"
+                    " border-radius: 7px;"
+                    " font-weight: 800;"
+                    f" font-size: {base_point_size + 2.0:.1f}pt;"
+                    " padding: 5px 9px;"
+                    "}"
+                )
             self.labels[key] = value_label
-        for column in range(5):
-            layout.setColumnStretch(column, 1)
+            self.values[key] = 0.0
+        self._wide_layout: bool | None = None
+        self._arrange_fields(False)
 
     def set_totals(self, lines: list[Any], totals: dict[str, float]) -> None:
-        total_qty = sum(float(getattr(getattr(row, "source", row), "qty", 0) or 0) for row in lines)
-        total_amount = float(totals.get("taxable", 0) or 0) + float(totals.get("gst_total", 0) or 0)
-        values = {
-            "total_qty": f"{total_qty:,.3f}",
-            "discount": _money(totals.get("discount", 0)),
-            "taxable": _money(totals.get("taxable", 0)),
-            "cgst": _money(totals.get("cgst", 0)),
-            "sgst": _money(totals.get("sgst", 0)),
-            "igst": _money(totals.get("igst", 0)),
-            "gst_total": _money(totals.get("gst_total", 0)),
-            "round_off": _money(totals.get("round_off", 0)),
-            "total_amount": _money(total_amount),
-            "grand_total": _money(totals.get("grand_total", 0)),
+        total_qty = round(sum(self._line_quantity(row) for row in lines), 3)
+        taxable = self._number(totals.get("taxable"))
+        gst_total = self._number(totals.get("gst_total"))
+        round_off = self._number(totals.get("round_off"))
+        total_amount = self._number(totals.get("total_amount", round(taxable + gst_total, 2)))
+        grand_source = totals.get("grand_total")
+        grand_total = self._number(
+            grand_source if grand_source is not None else round(total_amount + round_off, 2)
+        )
+        self.values = {
+            "total_qty": total_qty,
+            "discount": self._number(totals.get("discount")),
+            "taxable": taxable,
+            "cgst": self._number(totals.get("cgst")),
+            "sgst": self._number(totals.get("sgst")),
+            "igst": self._number(totals.get("igst")),
+            "gst_total": gst_total,
+            "round_off": round_off,
+            "total_amount": total_amount,
+            "grand_total": grand_total,
         }
-        for key, label in self.FIELD_ORDER:
-            self.labels[key].setText(f"{label}\n{values[key]}")
+        self._render_labels()
 
     def _zero_value(self, key: str) -> str:
         if key == "total_qty":
             return "0.000"
         return _money(0)
+
+    def _arrange_fields(self, wide: bool) -> None:
+        if self._wide_layout is wide:
+            return
+        while self.grid_layout.count():
+            self.grid_layout.takeAt(0)
+        columns = 12 if wide else 5
+        self.grid_layout.addWidget(self.title_label, 0, 0, 1, columns)
+        if wide:
+            column = 0
+            for key, _label in self.FIELD_ORDER:
+                span = 2 if key in {"total_amount", "grand_total"} else 1
+                self.grid_layout.addWidget(self.labels[key], 1, column, 1, span)
+                column += span
+        else:
+            for index, (key, _label) in enumerate(self.FIELD_ORDER):
+                self.grid_layout.addWidget(self.labels[key], 1 + index // 5, index % 5)
+        for column in range(12):
+            self.grid_layout.setColumnStretch(column, 1 if column < columns else 0)
+        self._wide_layout = wide
+        self._render_labels()
+        self.updateGeometry()
+
+    def _render_labels(self) -> None:
+        wide = self._wide_layout is True
+        for key, full_label in self.FIELD_ORDER:
+            value = f"{self.values[key]:,.3f}" if key == "total_qty" else _money(self.values[key])
+            display_label = self.WIDE_LABELS[key] if wide else full_label
+            self.labels[key].setWordWrap(not wide)
+            self.labels[key].setText(f"{display_label}\n{value}")
+            self.labels[key].setToolTip(f"{full_label}: {value}")
+            self.labels[key].setAccessibleDescription(value)
+
+    def resizeEvent(self, event: QEvent) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._arrange_fields(event.size().width() >= self.WIDE_BREAKPOINT)
+
+    def sync_responsive_layout(self) -> None:
+        """Re-evaluate wide/narrow totals after a hidden page becomes active."""
+
+        self._arrange_fields(self.width() >= self.WIDE_BREAKPOINT)
+
+    @staticmethod
+    def _number(value: Any) -> float:
+        try:
+            return float(value or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    @classmethod
+    def _line_quantity(cls, row: Any) -> float:
+        source = getattr(row, "source", row)
+        if isinstance(source, dict):
+            return cls._number(source.get("qty"))
+        return cls._number(getattr(source, "qty", 0))
 
 
 class TransactionTaxSummaryPanel(TaxSummaryCard):
@@ -360,8 +504,11 @@ class TransactionTaxSummaryPanel(TaxSummaryCard):
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.table.setMinimumHeight(82)
-        self.table.setMaximumHeight(96)
+        # Keep the tax summary compact enough for a complete transaction page at
+        # 1366x768.  Additional tax rows remain available through the table's
+        # own vertical scrolling instead of pushing Grand Total below the page.
+        self.table.setMinimumHeight(56)
+        self.table.setMaximumHeight(68)
         layout.addWidget(title_label)
         layout.addWidget(self.table)
         self.set_lines([], {})
@@ -484,6 +631,7 @@ class TransactionGridPanel(TransactionSectionCard):
     ) -> None:
         super().__init__(role, parent)
         self.grid = grid
+        grid.setProperty("compactTransactionGrid", True)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(6, 5, 6, 5)
         layout.setSpacing(3)
@@ -917,6 +1065,8 @@ class ERPGrid(QTableWidget):
         self._editable_columns_configured = True
 
     def minimumSizeHint(self) -> QSize:  # noqa: N802
+        if self.property("compactTransactionGrid") is True:
+            return QSize(0, 60)
         return QSize(0, 96)
 
     def sizeHint(self) -> QSize:  # noqa: N802

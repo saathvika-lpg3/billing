@@ -1,5 +1,23 @@
 # Transaction Entry Framework
 
+## 2026-07-11 Shared Transaction Acceptance
+
+- Sales Bill and Purchase Entry now use `TransactionDetailsDeck`,
+  `TransactionGridPanel`, `TransactionSummaryDeck`, `TransactionTotalsPanel` and
+  `TransactionTaxSummaryPanel`, matching Sales Order and Quotation.
+- The canonical toolbar order is New, Preview, Print, PDF, WhatsApp, Email,
+  Save, Close and applicable secondary actions. Missing optional handlers show a
+  clear received-action message rather than becoming dead buttons.
+- Totals are numerically bound from computed lines. Grand Total has explicit
+  high contrast, bold +2pt emphasis and accessibility metadata.
+- The totals panel uses a measured 720 px wide-layout breakpoint; narrower and
+  scaled windows use two rows without clipped values.
+- The main stack fits transaction pages to `max(viewport, page minimum)` and
+  refreshes hidden responsive widgets after route/resolution transitions.
+- Screen-fit evidence covers 1366x768, 1440x900, 1920x1080, 1093x614 and
+  911x512. Grand Total is inside the initial viewport for Sales Bill, Purchase
+  Entry, Quotation, Sales Order and Purchase Order at 1366x768.
+
 ## Purpose
 
 The transaction entry framework is the single shared PyQt6 UI foundation for

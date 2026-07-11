@@ -103,12 +103,17 @@ def test_installer_preserves_database_and_uses_sanitized_seed() -> None:
     spec = (ROOT / "PRM_Billing_Inventory.spec").read_text(encoding="utf-8")
     inno = (ROOT / "installer" / "prm_billing_inventory.iss").read_text(encoding="utf-8")
     build_script = (ROOT / "tools" / "build_desktop.ps1").read_text(encoding="utf-8")
+    installer_script = (ROOT / "tools" / "build_installer.ps1").read_text(encoding="utf-8")
 
     assert "installer_payload" in spec
     assert 'root / "database" / "prm_billing_inventory.db"' not in spec
     assert 'root / "uploads"' not in spec
     assert '"pysqlite"' not in spec
     assert "prepare_installer_database.py" in build_script
+    assert build_script.count("$LASTEXITCODE -ne 0") >= 2
+    assert "stale output" in build_script
+    assert "$LASTEXITCODE -ne 0" in installer_script
+    assert "stale PRM_Billing_Inventory_Setup.exe" in installer_script
     assert 'Excludes: "_internal\\database\\prm_billing_inventory.db"' in inno
     database_line = next(
         line
@@ -137,3 +142,36 @@ def test_installer_json_preflight_lists_all_required_snake_case_fields() -> None
     }
     for field in required:
         assert f'"{field}"' in inno
+
+
+def test_installer_release_includes_stabilized_ui_resources() -> None:
+    spec = (ROOT / "PRM_Billing_Inventory.spec").read_text(encoding="utf-8")
+    inno = (ROOT / "installer" / "prm_billing_inventory.iss").read_text(encoding="utf-8")
+    smoke_source = (ROOT / "tools" / "smoke_installed_ui.py").read_text(encoding="utf-8")
+
+    assert '#define MyAppVersion "1.7.5"' in inno
+    for packaged_folder in ("themes", "assets", "docs", "print_templates"):
+        assert f'root / "{packaged_folder}"' in spec
+    assert 'root / "audit"' not in spec
+    for runtime_file in (
+        ROOT / "widgets" / "action_toolbar.py",
+        ROOT / "widgets" / "widget_values.py",
+        ROOT / "widgets" / "erp_components.py",
+        ROOT / "views" / "product_master_view.py",
+        ROOT / "views" / "sales_bill_view.py",
+        ROOT / "views" / "purchase_entry_view.py",
+        ROOT / "themes" / "light.qss",
+        ROOT / "themes" / "dark.qss",
+        ROOT / "tools" / "smoke_installed_ui.py",
+    ):
+        assert runtime_file.is_file(), runtime_file
+    assert "TemporaryDirectory" in smoke_source
+    assert "shutil.copy2(installed_db_path, db_path)" in smoke_source
+    assert 'result["installed_database_unchanged"] = True' in smoke_source
+
+
+def test_startup_log_does_not_expose_the_client_license_key() -> None:
+    app_source = (ROOT / "app.py").read_text(encoding="utf-8")
+
+    assert "license_context.license_key" not in app_source
+    assert "status={license_context.status}" in app_source

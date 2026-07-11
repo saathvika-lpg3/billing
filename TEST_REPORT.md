@@ -1,5 +1,48 @@
 # Test Report
 
+## 2026-07-11 Fast-Track UI And Installer 1.7.5 Certification
+
+- Source checkpoint: **PASSED**; backup hash verified.
+- Python compileall and `git diff --check`: **PASSED**.
+- Typed widget-method AST audit: **PASSED**, 33 files / 0 findings.
+- Stabilization regressions: **8 passed**. Coverage includes the exact
+  QComboBox save regression, typed getter/setter matrix, Product multi-pack
+  save/reload/edit, toolbar wiring/states, theme selectors, Grand Total binding,
+  1366x768 viewport visibility and Product Master field non-overlap.
+- Consolidated focused regression batch: 85 passed before the final isolated
+  multi-resolution correction; the corrected full screen-fit gate then passed.
+- Live page audit: **59/59 routes passed**, 0 fallback pages, 0 enabled unwired
+  visible buttons, 0 missing feedback, 0 vertical toolbar stacks and 0 Grand
+  Total viewport failures at 1366x768, 1440x900 and 1920x1080.
+- Extended page-fit test: **PASSED** at 1366x768, 1440x900, 1920x1080,
+  1093x614 (125% scaling) and 911x512 (150% scaling).
+- Full pytest release gate: **190 passed in 182.32 seconds**.
+- Performance smoke: **8/8 passed**. Product open 0.1626s; 20 packs 0.1080s;
+  filter 0.0067s; save/reload 0.3277s; refresh 0.2900s; New response 0.0151s;
+  Sales Bill open 0.1283s; Purchase Entry open 0.0853s.
+- Sanitized installer seed: **PASSED**, SQLite integrity `ok`, zero user,
+  license, activation and transaction rows before installation.
+- PyInstaller and Inno Setup 6.7.3 build: **PASSED** for version 1.7.5.
+- Silent clean install: **PASSED**; executable, database, license, themes and
+  docs present; QA/development audit output absent.
+- Frozen executable startup: **PASSED** through license validation and login;
+  process remained healthy, 7 startup-success markers, 0 failure markers and 0
+  full-license-key log markers.
+- Installed-resource source-harness UI smoke: **PASSED** on a disposable copy of
+  the installed database for admin authentication, Product Master two-pack
+  save/reload, Sales Bill, Purchase Entry, Sales list, Reports, horizontal
+  toolbar, Grand Total visibility and dark/light themes. The installed database
+  remained byte-for-byte unchanged; frozen startup is certified separately.
+- Silent uninstall: **PASSED**; application executable removed while license,
+  activated database and SQLite integrity were preserved.
+- Reinstall preservation: **PASSED**; the activated client database remained
+  byte-for-byte unchanged.
+- Installer: 51,836,487 bytes; SHA-256
+  `C54E99B4B714E20D5D7DE2958415ED6FEDA35D9E39D2C694B927F965AF41BFFA`.
+- Authenticode status: **NOT SIGNED**; no commercial signing certificate was
+  supplied. This does not affect functional certification but should be resolved
+  before public distribution if trusted Windows publisher identity is required.
+
 ## 2026-07-11 Installer And License Deployment
 
 - Supplied client `.prmlic`: required fields, Active status, key format and
@@ -9,7 +52,7 @@
 - Sanitized installer seed **PASSED**: SQLite integrity `ok`; 0 activation,
   license, user and transaction rows; reference/template rows retained.
 - Focused packaging/license suite: **6 passed**.
-- Final full native suite: **177 passed** in 115.72 seconds.
+- At the v1.7.4 checkpoint, the full native suite was **177 passed** in 115.72 seconds.
 - PyInstaller executable build and Inno Setup v1.7.4 compile: **PASSED**.
 - Silent installation with the supplied `.prmlic`: **PASSED**.
 - Installed license file hash equality: **PASSED**.
@@ -17,10 +60,10 @@
   activation, one license and one admin user were created.
 - Installed GUI launch: **PASSED** to the responsive login dialog; application
   left running for operator testing.
-- Final post-cleanup PyInstaller/Inno rebuild: **PASSED**. Final artifact size is
+- v1.7.4 checkpoint post-cleanup PyInstaller/Inno rebuild: **PASSED**. Artifact size is
   51,906,062 bytes with SHA-256
   `5FA609210B0ECBC4B4145D52C1DF643AC4A5FDE0391FF37248DB15E097CB8412`.
-- Final payload privacy check: **PASSED**; no uploads directory and no obsolete
+- v1.7.4 checkpoint payload privacy check: **PASSED**; no uploads directory and no obsolete
   `pysqlite` hidden-import warning.
 
 ## 2026-07-11 ERP Business-Flow Audit Cycle

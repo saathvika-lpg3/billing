@@ -23,8 +23,9 @@ from PyQt6.QtWidgets import (
 from config.app_config import AppConfig
 from services.financial_year_service import FinancialYearService
 from services.numbering_series_service import NumberingSeriesService
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
 from widgets.form_layout_helpers import build_field_section
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 
 class NumberingSeriesAdminView(QWidget):
@@ -97,15 +98,15 @@ class NumberingSeriesAdminView(QWidget):
 
         layout.addWidget(build_field_section(fields, spacing=6, margin=0))
 
-        toolbar = ERPToolbar(
+        self.action_toolbar = CompactActionToolbar(
             [
-                ("New", self.clear_form),
-                ("Save Series", self.save_series),
-                ("Preview", self.preview_next_number),
-                ("Refresh", self.refresh),
+                ActionSpec("New", self.clear_form, "Start a new numbering series.", role="positive"),
+                ActionSpec("Save Series", self.save_series, "Save the numbering series.", role="primary"),
+                ActionSpec("Preview", self.preview_next_number, "Preview the next document number."),
+                ActionSpec("Refresh", self.refresh, "Reload numbering series."),
             ]
         )
-        layout.addWidget(toolbar)
+        layout.addWidget(self.action_toolbar)
         return frame
 
     def _field(self, label: str, widget: QWidget) -> QWidget:

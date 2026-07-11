@@ -37,7 +37,8 @@ from services.gst_payload_service import GstPayloadService
 from services.mysql_source import MySqlSource
 from services.pdf_print import write_report_pdf, write_statement_pdf
 from services.print_preview import show_print_preview
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 
 REPORT_CATALOG = [
@@ -106,8 +107,8 @@ class ReportCenterView(QWidget):
         frame = QFrame()
         frame.setObjectName("card")
         self.filter_frame = frame
-        frame.setMinimumHeight(92)
-        frame.setMaximumHeight(118)
+        frame.setMinimumHeight(122)
+        frame.setMaximumHeight(154)
         layout = QGridLayout(frame)
         layout.setContentsMargins(8, 5, 8, 5)
         layout.setHorizontalSpacing(7)
@@ -140,22 +141,6 @@ class ReportCenterView(QWidget):
         self.search.setPlaceholderText("Filter visible report rows")
         self.search.setToolTip("Type a bill number, party, ledger, item or amount to filter the current report.")
         self.search.textChanged.connect(self._reset_page_and_redraw)
-        run_button = QPushButton("Run")
-        run_button.setToolTip("Run the selected report with the selected date range.")
-        run_button.clicked.connect(self.run_report)
-        export_button = QPushButton("Export CSV")
-        export_button.setToolTip("Export the visible report rows to CSV.")
-        export_button.clicked.connect(self.export_csv)
-        print_button = QPushButton("Print")
-        print_button.setToolTip("Open a print preview for the selected or visible report rows.")
-        print_button.clicked.connect(self.print_report)
-        pdf_button = QPushButton("Export PDF")
-        pdf_button.setToolTip("Save the visible report rows as a PDF.")
-        pdf_button.clicked.connect(self.export_pdf)
-        gst_button = QPushButton("Prepare GST JSON")
-        gst_button.setMinimumWidth(120)
-        gst_button.setToolTip("Prepare GST JSON files when E-Invoice or E-Way Bill report is selected.")
-        gst_button.clicked.connect(self.prepare_gst_json)
         self.ca_export_what = QComboBox()
         self.ca_export_what.addItems([
             "CA to decide after review",
@@ -197,13 +182,13 @@ class ReportCenterView(QWidget):
         self.last_button.clicked.connect(self._last_page)
         self.page_label = QLabel("Page 1")
         self.page_label.setObjectName("caption")
-        actions = ERPToolbar(
+        self.action_toolbar = CompactActionToolbar(
             [
-                ("Run", self.run_report),
-                ("Export CSV", self.export_csv),
-                ("Print", self.print_report),
-                ("Export PDF", self.export_pdf),
-                ("Prepare GST JSON", self.prepare_gst_json),
+                ActionSpec("Run", self.run_report, "Run the selected report with the selected date range.", role="primary"),
+                ActionSpec("Print", self.print_report, "Open a print preview for selected or visible report rows."),
+                ActionSpec("Export CSV", self.export_csv, "Export the visible report rows to CSV."),
+                ActionSpec("Export PDF", self.export_pdf, "Save the visible report rows as a PDF."),
+                ActionSpec("Prepare GST JSON", self.prepare_gst_json, "Prepare GST JSON for E-Invoice or E-Way Bill reports."),
             ]
         )
         pages = QWidget()
@@ -218,15 +203,14 @@ class ReportCenterView(QWidget):
         layout.addWidget(self._field("Report Name", self.report), 0, 1)
         layout.addWidget(self._field("From Date", self.from_date), 0, 2)
         layout.addWidget(self._field("To Date", self.to_date), 0, 3)
-        layout.addWidget(actions, 0, 4)
         layout.addWidget(self._field("Search", self.search), 1, 0, 1, 2)
-        layout.addWidget(self.ca_export_panel, 2, 0, 1, 5)
-        layout.addWidget(pages, 1, 2, 1, 3)
+        layout.addWidget(pages, 1, 2, 1, 2)
+        layout.addWidget(self.action_toolbar, 2, 0, 1, 4)
+        layout.addWidget(self.ca_export_panel, 3, 0, 1, 4)
         layout.setColumnStretch(0, 1)
         layout.setColumnStretch(1, 2)
         layout.setColumnStretch(2, 1)
         layout.setColumnStretch(3, 1)
-        layout.setColumnStretch(4, 3)
         return frame
 
     def _field(self, label_text: str, widget: QWidget) -> QWidget:
@@ -664,11 +648,11 @@ class ReportCenterView(QWidget):
             return
         panel_visible = self.ca_export_panel.isVisible() if visible is None else visible
         if panel_visible:
-            self.filter_frame.setMinimumHeight(128)
-            self.filter_frame.setMaximumHeight(164)
+            self.filter_frame.setMinimumHeight(168)
+            self.filter_frame.setMaximumHeight(208)
         else:
-            self.filter_frame.setMinimumHeight(92)
-            self.filter_frame.setMaximumHeight(118)
+            self.filter_frame.setMinimumHeight(122)
+            self.filter_frame.setMaximumHeight(154)
         self.filter_frame.updateGeometry()
 
     def _filtered_rows(self) -> list[dict[str, Any]]:

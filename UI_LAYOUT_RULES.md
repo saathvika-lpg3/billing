@@ -1,11 +1,33 @@
 # UI Layout Rules
 
-Updated: 2026-07-10
+Updated: 2026-07-11
 
 These rules define the compact responsive ERP layout standard for the PyQt
 desktop application. The goal is to preserve all business controls and logic
 while preventing page-level overflow, clipped labels, clipped buttons, and
 overlapping widgets on normal desktop screens.
+
+## 2026-07-11 Locked Master, Toolbar And Totals Rules
+
+- Primary/master/list/report actions use `CompactActionToolbar`: left-to-right,
+  one row when space permits and compact wrapping only when required. Do not
+  place a FlowLayout or action group in a narrow right-side grid column.
+- Keep one canonical button instance per action. State/permission changes must
+  update the same visible button; do not create hidden state-managed duplicates.
+- Product Master at standard desktop width uses Basic Product Information and
+  Inventory & UoM side-by-side, then full-width Identification & Notes and the
+  Package/Variant grid. Re-evaluate layout when a hidden page becomes current.
+- A card's allocated height must never be below its minimum size hint. Permanent
+  tests must detect intersecting Product Master field boxes.
+- Transaction pages size the shared stack to the greater of viewport height and
+  true page minimum. The item grid yields space before totals leave the initial
+  viewport; genuine smaller-window overflow remains vertically scrollable.
+- Transaction totals use one row only at 720 px or wider; below that breakpoint
+  they return to the readable two-row, five-column layout.
+- Grand Total always includes label and currency value, bold +2pt emphasis,
+  accessible name/description and explicit high-contrast light/dark fallback.
+- Button themes must retain normal, hover, pressed, focus, checked, disabled,
+  busy, success, error, positive and destructive states.
 
 ## 2026-07-10 Locked Print/Report Addendum
 
@@ -306,10 +328,9 @@ visibility.
 - Delivery diagnostics screenshots:
   `screenshots/after_communication_delivery_diagnostics_1366x768_20260710.png`.
 
-## Stop Rule
+## Current Acceptance Rule
 
-The responsive compact layout, output-action, communication-log, live-template,
-contact-preview and delivery-diagnostics continuations are complete for the
-current task. Wait for approval before adding real production delivery
-acceptance flows or additional layout enhancements beyond bug fixes requested
-by the user.
+Do not regress the accepted horizontal toolbar, typed widget access, Product
+Master card placement, shared transaction stack sizing or Grand Total hierarchy.
+Run the stabilization, live-route and multi-resolution gates after related UI
+changes.

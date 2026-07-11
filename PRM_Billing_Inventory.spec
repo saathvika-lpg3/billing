@@ -13,7 +13,6 @@ datas = [
     (str(root / "themes"), "themes"),
     (str(installer_database), "database"),
     (str(root / "assets"), "assets"),
-    (str(root / "audit"), "audit"),
     (str(root / "docs"), "docs"),
     (str(root / "print_templates"), "print_templates"),
     (str(root / "requirements.txt"), "."),

@@ -25,3 +25,16 @@
 - Search input accepts `Return` to apply filtering immediately.
 - Mandatory fields are highlighted and receive focus on load.
 - Enter/Shift+Enter move through the main form fields, Ctrl+S saves, Ctrl+N/New clears, Ctrl+F focuses search, F4 adds a pack row, Delete removes selected pack rows, and Escape clears the form safely.
+
+## Stabilized desktop layout
+- The canonical action bar is horizontal and contains New, Save, Refresh, Copy, Advanced, Import, Export, and Close.
+- Basic, Inventory & UoM, and Identification & Notes are responsive cards; their content must never overlap when the page is reopened or the window is resized.
+- Package actions are Add Pack, Duplicate Pack, and Remove Selected. Duplicate Pack intentionally clears barcode and supplier code so unique identifiers are never copied accidentally.
+- The page reflows for 1366x768 and larger desktop screens without hiding the package grid or relying on a permanent vertical scrollbar.
+
+## Widget and persistence safety
+- Read and write values through `widgets.widget_values`; combo boxes use `currentText()`/`setCurrentText()` rather than line-edit-only APIs.
+- New clears the form without destroying the UOM models.
+- Save reloads the same product ID and does not issue a second duplicate save.
+- Sale UOM and purchase UOM are persisted separately through `MasterRepository`.
+- Multi-pack save/reload/edit is covered by the UI stabilization tests against a temporary SQLite database.

@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -20,7 +19,8 @@ from PyQt6.QtWidgets import (
 
 from config.app_config import AppConfig
 from services.mysql_source import MySqlSource
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 
 class GlobalSearchView(QWidget):
@@ -51,36 +51,36 @@ class GlobalSearchView(QWidget):
     def _search_bar(self) -> QWidget:
         frame = QFrame()
         frame.setObjectName("card")
-        frame.setMaximumHeight(58)
-        layout = QHBoxLayout(frame)
+        frame.setMaximumHeight(96)
+        layout = QVBoxLayout(frame)
         layout.setContentsMargins(8, 5, 8, 5)
-        layout.setSpacing(6)
+        layout.setSpacing(4)
+        search_row = QHBoxLayout()
+        search_row.setSpacing(6)
         self.search = QLineEdit()
         self.search.setPlaceholderText("Search bill number, party, item, phone, GSTIN, HSN...")
         self.search.setProperty("enterSubmits", True)
         self.search.returnPressed.connect(self.run_search)
-        self.first_button = QPushButton("First")
-        self.prev_button = QPushButton("Previous")
-        self.next_button = QPushButton("Next")
-        self.last_button = QPushButton("Last")
-        self.first_button.clicked.connect(lambda: self._go_to(0))
-        self.prev_button.clicked.connect(lambda: self._go_to(max(0, self.offset - self.page_size)))
-        self.next_button.clicked.connect(lambda: self._go_to(self.offset + self.page_size))
-        self.last_button.clicked.connect(self._last_page)
         self.page_label = QLabel("Ready")
         self.page_label.setObjectName("caption")
-        toolbar = ERPToolbar(
+        self.action_toolbar = CompactActionToolbar(
             [
-                ("Search", self.run_search),
-                ("First", lambda: self._go_to(0)),
-                ("Previous", lambda: self._go_to(max(0, self.offset - self.page_size))),
-                ("Next", lambda: self._go_to(self.offset + self.page_size)),
-                ("Last", self._last_page),
+                ActionSpec("Search", self.run_search, "Run the global search.", shortcut="Ctrl+Return", role="primary"),
+                ActionSpec("First", lambda: self._go_to(0), "Go to the first result page."),
+                ActionSpec("Previous", lambda: self._go_to(max(0, self.offset - self.page_size)), "Go to the previous result page."),
+                ActionSpec("Next", lambda: self._go_to(self.offset + self.page_size), "Go to the next result page."),
+                ActionSpec("Last", self._last_page, "Go to the last result page."),
             ]
         )
-        layout.addWidget(self.search, stretch=1)
-        layout.addWidget(toolbar)
-        layout.addWidget(self.page_label)
+        self.first_button = self.action_toolbar.button("First")
+        self.prev_button = self.action_toolbar.button("Previous")
+        self.next_button = self.action_toolbar.button("Next")
+        self.last_button = self.action_toolbar.button("Last")
+        search_row.addWidget(self.search, stretch=1)
+        search_row.addWidget(self.page_label)
+        layout.addLayout(search_row)
+        layout.addWidget(self.action_toolbar)
+        self._update_page_label()
         return frame
 
     def _table_card(self) -> QWidget:

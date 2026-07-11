@@ -25,7 +25,8 @@ from PyQt6.QtWidgets import (
 
 from config.app_config import AppConfig
 from services.import_service import ImportService
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 try:
     from openpyxl import load_workbook
@@ -61,24 +62,27 @@ class ExcelImportView(QWidget):
     def _control_card(self) -> QWidget:
         frame = QFrame()
         frame.setObjectName("card")
-        frame.setMaximumHeight(68)
-        layout = QHBoxLayout(frame)
+        frame.setMaximumHeight(112)
+        layout = QVBoxLayout(frame)
         layout.setContentsMargins(8, 5, 8, 5)
-        layout.setSpacing(6)
+        layout.setSpacing(4)
+        fields = QHBoxLayout()
+        fields.setSpacing(6)
         self.import_type = QComboBox()
         self.import_type.addItems(["Products", "Product Packs", "Customers", "Suppliers", "Opening Stock", "Schemes"])
         self.path_box = QLineEdit()
         self.path_box.setPlaceholderText("Choose CSV / Excel file")
-        toolbar = ERPToolbar(
+        self.action_toolbar = CompactActionToolbar(
             [
-                ("Choose File", self.choose_file),
-                ("Save Import Draft", self.save_import_draft),
-                ("Post Import", self.post_import),
+                ActionSpec("Choose File", self.choose_file, "Choose a CSV or Excel source file."),
+                ActionSpec("Save Import Draft", self.save_import_draft, "Validate and save this import as a draft.", role="primary"),
+                ActionSpec("Post Import", self.post_import, "Post the validated import into live master or stock data.", role="positive"),
             ]
         )
-        layout.addWidget(ERPFieldBox("Import Type", self.import_type))
-        layout.addWidget(ERPFieldBox("Import File", self.path_box), stretch=1)
-        layout.addWidget(toolbar)
+        fields.addWidget(ERPFieldBox("Import Type", self.import_type))
+        fields.addWidget(ERPFieldBox("Import File", self.path_box), stretch=1)
+        layout.addLayout(fields)
+        layout.addWidget(self.action_toolbar)
         return frame
 
     def _table_card(self) -> QWidget:

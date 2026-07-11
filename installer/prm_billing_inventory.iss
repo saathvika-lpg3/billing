@@ -1,5 +1,5 @@
 #define MyAppName "PRM Billing Inventory"
-#define MyAppVersion "1.7.4"
+#define MyAppVersion "1.7.5"
 #define MyAppPublisher "PRM Software Solutions"
 #define MyAppExeName "PRM_Billing_Inventory.exe"
 

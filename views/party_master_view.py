@@ -28,7 +28,8 @@ from PyQt6.QtWidgets import (
 from config.app_config import AppConfig
 from services.master_repository import MasterRepository
 from services.mysql_source import MySqlSource
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 from widgets.form_layout_helpers import build_field_section
 
 
@@ -54,6 +55,7 @@ class PartyMasterView(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(6)
         root.addWidget(self._title_bar())
+        root.addWidget(self._action_toolbar())
         root.addWidget(self._form_card())
         root.addWidget(self._list_card(), stretch=1)
 
@@ -64,15 +66,22 @@ class PartyMasterView(QWidget):
             self,
         )
         self.source_status = header.status_label
-        toolbar = ERPToolbar(
+        return header
+
+    def _action_toolbar(self) -> CompactActionToolbar:
+        self.action_toolbar = CompactActionToolbar(
             [
-                ("New", self.clear_form),
-                ("Refresh", self.refresh),
-                (f"Save {self.party_type.title()}", self.save_draft),
+                ActionSpec("New", self.clear_form, "Clear the form and start a new party.", role="positive"),
+                ActionSpec(
+                    f"Save {self.party_type.title()}",
+                    self.save_draft,
+                    f"Validate and save this {self.party_type}.",
+                    role="primary",
+                ),
+                ActionSpec("Refresh", self.refresh, f"Reload the {self.party_type} list."),
             ]
         )
-        header.layout().addWidget(toolbar)
-        return header
+        return self.action_toolbar
 
     def _prepare_control(self, widget: QWidget, minimum_width: int = 100, fixed_height: int = 32) -> QWidget:
         widget.setMinimumWidth(minimum_width)

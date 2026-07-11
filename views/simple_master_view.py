@@ -28,7 +28,8 @@ from config.app_config import AppConfig
 from services.accounting_setup_service import tally_group_names
 from services.master_repository import MasterRepository
 from services.mysql_source import MySqlSource
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid, ERPToolbar
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 from widgets.form_layout_helpers import build_field_section
 from services.ui_profile_adapter import control_attribute_map_from_profile
 
@@ -350,21 +351,29 @@ class SimpleMasterView(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(4)
         root.addWidget(self._title_bar())
+        root.addWidget(self._action_toolbar())
         root.addWidget(self._form_card())
         root.addWidget(self._list_card(), stretch=1)
 
     def _title_bar(self) -> QWidget:
         header = ERPPageHeader(self.spec.title, self.spec.subtitle)
         self.source_status = header.status_label
-        toolbar = ERPToolbar(
+        return header
+
+    def _action_toolbar(self) -> CompactActionToolbar:
+        self.action_toolbar = CompactActionToolbar(
             [
-                ("New", self.clear_form),
-                ("Refresh", self.refresh),
-                (f"Save {self.spec.title.replace(' Master', '')}", self.save_draft),
+                ActionSpec("New", self.clear_form, "Clear the form and start a new record.", role="positive"),
+                ActionSpec(
+                    f"Save {self.spec.title.replace(' Master', '')}",
+                    self.save_draft,
+                    "Validate and save this master record.",
+                    role="primary",
+                ),
+                ActionSpec("Refresh", self.refresh, "Reload the current master list."),
             ]
         )
-        header.layout().addWidget(toolbar)
-        return header
+        return self.action_toolbar
 
     def _form_card(self) -> QWidget:
         frame = QFrame()

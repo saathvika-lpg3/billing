@@ -38,7 +38,8 @@ from services.order_conversion_service import OrderConversionService
 from services.pdf_print import document_share_caption, write_transaction_pdf
 from services.print_preview import show_print_preview
 from services.share_service import open_whatsapp_share, pdf_share_note, prepare_whatsapp_document
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 
 DOCUMENT_CATALOG = [
@@ -105,7 +106,7 @@ class DocumentCenterView(QWidget):
         frame = QFrame()
         frame.setObjectName("card")
         self.filter_card = frame
-        frame.setMaximumHeight(218)
+        frame.setMaximumHeight(264)
         layout = QVBoxLayout(frame)
         layout.setContentsMargins(8, 6, 8, 6)
         layout.setSpacing(5)
@@ -147,26 +148,9 @@ class DocumentCenterView(QWidget):
         self._set_filter_control_sizes()
         self.show_button = QPushButton("Show Bills")
         self.show_button.clicked.connect(self.run_view)
-        self.export_button = QPushButton("Export CSV")
-        self.export_button.clicked.connect(self.export_csv)
-        self.convert_button = QPushButton("Convert Selected")
-        self.convert_button.clicked.connect(self.convert_selected)
-        self.accept_button = QPushButton("Mark Accepted")
-        self.accept_button.clicked.connect(lambda: self.set_selected_status("Accepted"))
-        self.ready_button = QPushButton("Mark Ready")
-        self.ready_button.clicked.connect(lambda: self.set_selected_status("Ready"))
-        self.close_button = QPushButton("Close")
-        self.close_button.clicked.connect(lambda: self.set_selected_status("Closed"))
-        self.print_button = QPushButton("Print Selected")
-        self.print_button.clicked.connect(self.print_selected_pdf)
-        self.bulk_button = QPushButton("Bulk Print Visible")
-        self.bulk_button.clicked.connect(self.bulk_print_visible)
-        self.whatsapp_button = QPushButton("WhatsApp")
-        self.whatsapp_button.clicked.connect(self.share_selected_pdf)
         self.select_all = QCheckBox("Select all visible")
         self.select_all.setToolTip("Tick or clear all visible bill rows below.")
         self.select_all.stateChanged.connect(self._toggle_select_all)
-        self._set_filter_tooltips()
         top_row = QHBoxLayout()
         top_row.setSpacing(6)
         top_row.addWidget(self._inline_field("View", self.view_selector, 210))
@@ -195,23 +179,32 @@ class DocumentCenterView(QWidget):
         search_row.addStretch(2)
         layout.addLayout(search_row)
 
-        action_toolbar = ERPToolbar(
+        self.action_toolbar = CompactActionToolbar(
             [
-                ("Export CSV", self.export_csv),
-                ("Convert Selected", self.convert_selected),
-                ("Mark Accepted", lambda: self.set_selected_status("Accepted")),
-                ("Mark Ready", lambda: self.set_selected_status("Ready")),
-                ("Close", lambda: self.set_selected_status("Closed")),
-                ("Print Selected", self.print_selected_pdf),
-                ("Bulk Print Visible", self.bulk_print_visible),
-                ("WhatsApp", self.share_selected_pdf),
+                ActionSpec("Export CSV", self.export_csv, "Export the visible rows to CSV."),
+                ActionSpec("Convert Selected", self.convert_selected, "Convert the selected order into its target transaction."),
+                ActionSpec("Mark Accepted", lambda: self.set_selected_status("Accepted"), "Mark the selected order as Accepted."),
+                ActionSpec("Mark Ready", lambda: self.set_selected_status("Ready"), "Mark the selected order as Ready."),
+                ActionSpec("Close", lambda: self.set_selected_status("Closed"), "Close the selected order without conversion.", role="destructive"),
+                ActionSpec("Print Selected", self.print_selected_pdf, "Print preview for checked or selected bills."),
+                ActionSpec("Bulk Print Visible", self.bulk_print_visible, "Create one print preview for every visible bill row."),
+                ActionSpec("WhatsApp", self.share_selected_pdf, "Prepare the checked or selected bill PDF for WhatsApp sharing.", role="positive"),
             ]
         )
+        self.export_button = self.action_toolbar.button("Export CSV")
+        self.convert_button = self.action_toolbar.button("Convert Selected")
+        self.accept_button = self.action_toolbar.button("Mark Accepted")
+        self.ready_button = self.action_toolbar.button("Mark Ready")
+        self.close_button = self.action_toolbar.button("Close")
+        self.print_button = self.action_toolbar.button("Print Selected")
+        self.bulk_button = self.action_toolbar.button("Bulk Print Visible")
+        self.whatsapp_button = self.action_toolbar.button("WhatsApp")
         action_row = QHBoxLayout()
         action_row.setSpacing(6)
         action_row.addWidget(self.select_all)
-        action_row.addWidget(action_toolbar, stretch=1)
+        action_row.addWidget(self.action_toolbar, stretch=1)
         layout.addLayout(action_row)
+        self._set_filter_tooltips()
         self._view_changed()
         return frame
 

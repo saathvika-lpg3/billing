@@ -1,8 +1,26 @@
 # PRM Current Status
 
+## Fast-track commercial UI release - 2026-07-11
+
+- Status: **release gates passed** for the Product Master crash/redesign,
+  horizontal actions, shared transaction layout, Grand Total visibility,
+  button feedback, route wiring, screen fit and installer 1.7.5.
+- Product Master now uses the shared master-entry language and typed widget
+  value utilities. The invalid QComboBox line-edit API calls were removed at
+  their source and the UoM persistence defect in `MasterRepository` was fixed.
+- Sales Bill and Buy Stock/Purchase Entry now share the same transaction decks,
+  action order, item-grid actions, totals and tax summary used by the document
+  transaction family.
+- Evidence: 59 live routes with no detected issue; 33 UI source files with zero
+  typed widget API mismatch; five-resolution screen-fit pass; full suite 190
+  passed; frozen-startup, installed-resource UI and uninstall checks passed.
+- Release artifact: `installer_output/PRM_Billing_Inventory_Setup.exe`, version
+  1.7.5, 51,836,487 bytes, SHA-256
+  `C54E99B4B714E20D5D7DE2958415ED6FEDA35D9E39D2C694B927F965AF41BFFA`.
+
 This file is updated from a real audit of the current workspace state.
 
-## Installer/license continuation - 2026-07-11
+## Historical v1.7.4 installer/license checkpoint - 2026-07-11
 
 - Repaired the Python desktop installer without replacing the existing license
   system: builds now use a sanitized unbound SQLite seed, upgrades preserve the
@@ -10,15 +28,15 @@ This file is updated from a real audit of the current workspace state.
 - Verified the supplied license, a real v1.7.4 build/install, first-machine
   activation, admin creation and launch to the responsive login dialog.
 - Added focused installer/license regressions (6 passed), portable build paths,
-  safe PyInstaller selection and client-runtime-data exclusions. The final full
-  native suite passed 177 tests and the final v1.7.4 installer compiled. See
+  safe PyInstaller selection and client-runtime-data exclusions. At this
+  checkpoint the native suite passed 177 tests and the v1.7.4 installer compiled. See
   `INSTALLER.md`, `TEST_REPORT.md` and `CURRENT_STATUS.md` for evidence.
 
 ## Status summary
 - Last completed module: Code-controlled Sales, Purchase, Return, Receipt, Payment, Journal/Contra and Stock Transfer lifecycle posting/reversal is implemented with deterministic reconciliation coverage.
-- Current working module: Final certification/documentation of the 2026-07-11 business-flow audit cycle on `business-flow-audit-20260710`.
+- Current working module: Completed 2026-07-11 UI stabilization and installer 1.7.5 certification on `business-flow-audit-20260710`.
 - Recent progress: Local safety commit `acfb396` preserves the first business-flow tranche. Live list-to-edit, reason-required cancellation, warehouse persistence, round-off posting, party outstanding, closed-year/duplicate/negative-stock validation, active financial/GST reports, HSN Summary and read-only integrity diagnostics are implemented.
-- Current automated evidence: lifecycle `11 passed`; broader non-UI regression `90 passed, 1 deselected`; clean deterministic integrity fixture `12/12 passed`. Native UI/print verification is being rerun with workspace-local pytest temp storage after the Windows system temp directory rejected access.
+- Current automated evidence: final native suite `190 passed`; live UI inventory `59/59`; widget API audit `33 files / 0 findings`; performance `8/8`; five-resolution UI fit and installer 1.7.5 certification passed.
 - Recent progress: Branch/Warehouse/Cost Center foundation masters now have schema migration support, UI definitions, branch-aware warehouse selection, save validation, and verification tests.
 - Recent progress: Added Route/Salesman/Vehicle/Transporter foundation masters, including schema/bootstrap support, generic master UI definitions, admin navigation wiring, lookup helper methods, save validation, and UI tests for combo ID persistence.
 - Recent progress: Added Bank, Tax Code and Payment Terms foundation masters, including schema/bootstrap support, generic master UI definitions, account setup navigation, save validation, and repository/UI verification.
@@ -197,7 +215,7 @@ This file is updated from a real audit of the current workspace state.
 - Relaxed party validation to preserve compatibility with legacy test fixtures and imports.
 - Confirmed `app.py` imports without GUI runtime errors during the import smoke test.
 
-## Audit findings
+## Historical baseline audit findings (superseded)
 
 ### Modules that are implemented in a working-basic form
 - App bootstrap and desktop shell: [app.py](app.py), [views/main_window.py](views/main_window.py)

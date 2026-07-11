@@ -28,7 +28,8 @@ from PyQt6.QtWidgets import (
 
 from config.app_config import AppConfig
 from services.mysql_source import MySqlSource
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 
 class SchemeMasterView(QWidget):
@@ -47,20 +48,23 @@ class SchemeMasterView(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(6)
         root.addWidget(self._title_bar())
+        root.addWidget(self._action_toolbar())
         root.addWidget(self._form_card())
         root.addWidget(self._list_card(), stretch=1)
 
     def _title_bar(self) -> QWidget:
         header = ERPPageHeader("Schemes / Offers", "FMCG scheme quantity, minimum quantity and special sale-rate rules")
         self.source_status = header.status_label
-        toolbar = ERPToolbar(
+        return header
+
+    def _action_toolbar(self) -> CompactActionToolbar:
+        self.action_toolbar = CompactActionToolbar(
             [
-                ("Refresh", self.refresh),
-                ("Save Draft", self.save_draft),
+                ActionSpec("Save Draft", self.save_draft, "Validate and save the scheme draft.", role="primary"),
+                ActionSpec("Refresh", self.refresh, "Reload schemes and source data."),
             ]
         )
-        header.layout().addWidget(toolbar)
-        return header
+        return self.action_toolbar
 
     def _form_card(self) -> QWidget:
         frame = QFrame()

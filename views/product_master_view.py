@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import csv
+from datetime import date
 from typing import Any
 
 from PyQt6.QtCore import Qt, QEvent, QObject
@@ -11,6 +13,7 @@ from PyQt6.QtWidgets import (
     QCompleter,
     QDialog,
     QDialogButtonBox,
+    QFileDialog,
     QFormLayout,
     QFrame,
     QGridLayout,
@@ -32,8 +35,9 @@ from PyQt6.QtWidgets import (
 from config.app_config import AppConfig
 from services.master_repository import MasterRepository
 from services.mysql_source import MySqlSource
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar
-from widgets.form_layout_helpers import build_field_section
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader
+from widgets.widget_values import set_widget_value, widget_text
 
 
 class ProductMasterView(QWidget):
@@ -66,8 +70,9 @@ class ProductMasterView(QWidget):
     def _build(self) -> None:
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(3)
+        root.setSpacing(5)
         root.addWidget(self._title_bar())
+        root.addWidget(self._action_toolbar())
         root.addWidget(self._form_card())
         root.addWidget(self._pack_card())
         root.addWidget(self._list_card(), stretch=1)
@@ -81,15 +86,24 @@ class ProductMasterView(QWidget):
             self,
         )
         self.source_status = header.status_label
-        toolbar = ERPToolbar(
-            [
-                ("New", self.clear_form),
-                ("Advanced", self.open_notes),
-                ("Save Product", self.save_draft),
-            ]
-        )
-        header.layout().addWidget(toolbar)
         return header
+
+    def _action_toolbar(self) -> QWidget:
+        self.action_toolbar = CompactActionToolbar(
+            [
+                ActionSpec("New", self.clear_form, "Start a new product (Ctrl+N).", role="positive"),
+                ActionSpec("Save Product", self.save_draft, "Validate and save this product (Ctrl+S).", role="primary"),
+                ActionSpec("Refresh", self.refresh_source_data, "Reload product and lookup data."),
+                ActionSpec("Copy Product", self.copy_product, "Create a new product from the current values."),
+                ActionSpec("Advanced", self.open_notes, "Edit extended product details."),
+                ActionSpec("Import", self.open_import, "Open the product import workspace."),
+                ActionSpec("Export", self.export_products, "Export the current product list to CSV."),
+                ActionSpec("Close", self.close_page, "Return to the previous ERP page.", role="destructive"),
+            ],
+            self,
+        )
+        self.action_toolbar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        return self.action_toolbar
 
     def _prepare_control(self, widget: QWidget, minimum_width: int = 96, fixed_height: int = 28) -> QWidget:
         widget.setMinimumWidth(min(minimum_width, 120))
@@ -110,12 +124,6 @@ class ProductMasterView(QWidget):
         return ERPFieldBox(label, widget, self)
 
     def _form_card(self) -> QWidget:
-        frame = QFrame()
-        frame.setObjectName("card")
-        layout = QVBoxLayout(frame)
-        layout.setContentsMargins(8, 6, 8, 6)
-        layout.setSpacing(4)
-
         self.product_id = 0
         self.code = QLineEdit()
         self.code.setPlaceholderText("Required")
@@ -150,33 +158,148 @@ class ProductMasterView(QWidget):
         self.expiry_required = QCheckBox("Expiry Required")
         self.notes = QTextEdit()
         self.notes.setPlaceholderText("Internal item notes")
+        self.notes.setToolTip("Internal notes are not printed on invoices")
+        self.code.setToolTip("Unique product code")
+        self.category.setToolTip("Required product category")
+        self.sale_unit.setToolTip("Default unit used on sales documents")
+        self.purchase_unit.setToolTip("Default unit used on purchase documents")
 
-        fields = [
+        basic_fields = [
             ("Product Code *", self.code, 140),
-            ("Product Name *", self.name, 280),
-            ("Supplier / Brand", self.supplier, 180),
+            ("Product Name *", self.name, 260),
+            ("Supplier / Company", self.supplier, 180),
             ("Category *", self.category, 160),
-            ("Brand", self.brand, 160),
-            ("HSN", self.hsn, 90),
+            ("Brand", self.brand, 150),
+            ("HSN", self.hsn, 100),
             ("GST %", self.gst, 90),
-            ("Sale UoM *", self.sale_unit, 90),
-            ("Purchase UoM *", self.purchase_unit, 90),
-            ("Valuation", self.valuation, 120),
-            ("SKU Alias", self.sku_alias, 140),
-            ("Lead Time", self.lead_time, 120),
-            ("Shelf Life Days", self.shelf_life, 120),
-            ("Near Expiry Alert Days", self.near_expiry, 150),
-            ("Notes", self.notes, 360),
-            ("Batch Required", self.batch_required, 160),
-            ("Expiry Required", self.expiry_required, 160),
-            ("Multi-UOM", self.multi_uom, 140),
-            ("Pack Conversion", self.pack_conversion, 160),
+            ("Valuation Method", self.valuation, 150),
+            ("Item Type", self.item_type, 150),
+            ("Status", self.status, 120),
         ]
-        layout.addWidget(build_field_section(fields, spacing=6, margin=0))
-        for _, widget, _ in fields:
-            self.form_controls.append(widget)
+        inventory_fields = [
+            ("Sale UoM *", self.sale_unit, 120),
+            ("Purchase UoM *", self.purchase_unit, 120),
+            ("Lead Time (Days)", self.lead_time, 120),
+            ("Shelf Life (Days)", self.shelf_life, 120),
+            ("Near Expiry Alert (Days)", self.near_expiry, 160),
+        ]
+        identification_fields = [
+            ("SKU / Alias", self.sku_alias, 180),
+            ("Internal Notes", self.notes, 420),
+        ]
 
-        return frame
+        options = QFrame()
+        options.setObjectName("productOptionStrip")
+        option_layout = QHBoxLayout(options)
+        option_layout.setContentsMargins(0, 3, 0, 0)
+        option_layout.setSpacing(14)
+        for option in (
+            self.multi_uom,
+            self.pack_conversion,
+            self.batch_required,
+            self.expiry_required,
+        ):
+            option_layout.addWidget(option)
+        option_layout.addStretch(1)
+
+        self.basic_card = self._section_card(
+            "Basic Product Information",
+            "Identity, classification and tax defaults",
+            basic_fields,
+            columns=4,
+            minimum_width=560,
+        )
+        self.inventory_card = self._section_card(
+            "Inventory & UoM",
+            "Units, replenishment and batch controls",
+            inventory_fields,
+            columns=3,
+            minimum_width=500,
+            footer=options,
+        )
+        self.identification_card = self._section_card(
+            "Identification & Notes",
+            "Barcode, supplier code and pack identifiers are maintained in the package grid below",
+            identification_fields,
+            columns=2,
+            minimum_width=560,
+        )
+
+        self.form_controls.extend(
+            [widget for _, widget, _ in basic_fields + inventory_fields + identification_fields]
+        )
+        self.form_controls.extend(
+            [self.multi_uom, self.pack_conversion, self.batch_required, self.expiry_required]
+        )
+
+        host = QFrame()
+        host.setObjectName("productFormSections")
+        self.form_grid = QGridLayout(host)
+        self.form_grid.setContentsMargins(0, 0, 0, 0)
+        self.form_grid.setHorizontalSpacing(6)
+        self.form_grid.setVerticalSpacing(6)
+        self._form_layout_compact: bool | None = None
+        self._arrange_form_cards(compact=self.width() < 1180)
+        return host
+
+    def _section_card(
+        self,
+        title: str,
+        subtitle: str,
+        fields: list[tuple[str, QWidget, int]],
+        *,
+        columns: int,
+        minimum_width: int,
+        footer: QWidget | None = None,
+    ) -> QWidget:
+        card = QFrame()
+        card.setObjectName("card")
+        card.setProperty("productSection", True)
+        card.setMinimumWidth(minimum_width)
+        card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(8, 6, 8, 6)
+        layout.setSpacing(3)
+
+        title_label = QLabel(title)
+        title_label.setObjectName("cardTitle")
+        subtitle_label = QLabel(subtitle)
+        subtitle_label.setObjectName("caption")
+        subtitle_label.setWordWrap(True)
+        layout.addWidget(title_label)
+        layout.addWidget(subtitle_label)
+
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 2, 0, 0)
+        grid.setHorizontalSpacing(7)
+        grid.setVerticalSpacing(4)
+        for index, (label, control, minimum) in enumerate(fields):
+            grid.addWidget(self._field(label, control, minimum), index // columns, index % columns)
+        for column in range(columns):
+            grid.setColumnStretch(column, 1)
+        layout.addLayout(grid)
+        if footer is not None:
+            layout.addWidget(footer)
+        return card
+
+    def _arrange_form_cards(self, *, compact: bool) -> None:
+        if self._form_layout_compact is compact:
+            return
+        while self.form_grid.count():
+            self.form_grid.takeAt(0)
+        if compact:
+            self.form_grid.addWidget(self.basic_card, 0, 0)
+            self.form_grid.addWidget(self.inventory_card, 1, 0)
+            self.form_grid.addWidget(self.identification_card, 2, 0)
+            self.form_grid.setColumnStretch(0, 1)
+            self.form_grid.setColumnStretch(1, 0)
+        else:
+            self.form_grid.addWidget(self.basic_card, 0, 0)
+            self.form_grid.addWidget(self.inventory_card, 0, 1)
+            self.form_grid.addWidget(self.identification_card, 1, 0, 1, 2)
+            self.form_grid.setColumnStretch(0, 11)
+            self.form_grid.setColumnStretch(1, 9)
+        self._form_layout_compact = compact
 
     def _pack_card(self) -> QWidget:
         frame = QFrame()
@@ -189,11 +312,14 @@ class ProductMasterView(QWidget):
         title.setObjectName("cardTitle")
         self.add_pack_btn = QPushButton("Add Pack")
         self.add_pack_btn.clicked.connect(self.add_pack_row)
+        self.duplicate_pack_btn = QPushButton("Duplicate Pack")
+        self.duplicate_pack_btn.clicked.connect(self.duplicate_selected_pack)
         self.remove_pack_btn = QPushButton("Remove Selected")
         self.remove_pack_btn.clicked.connect(self.remove_selected_pack)
         head.addWidget(title)
         head.addStretch(1)
         head.addWidget(self.add_pack_btn)
+        head.addWidget(self.duplicate_pack_btn)
         head.addWidget(self.remove_pack_btn)
         layout.addLayout(head)
         # Use a custom table that advances focus on Enter/Return
@@ -218,17 +344,11 @@ class ProductMasterView(QWidget):
                         row = max(0, row - 1)
                         col = self.columnCount() - 1
                 if row >= self.rowCount():
-                    try:
-                        self.owner.add_pack_row()
-                    except Exception:
-                        self.insertRow(row)
+                    self.owner.add_pack_row()
                 self.setCurrentCell(row, col)
                 widget = self.cellWidget(row, col)
                 if widget is not None:
-                    try:
-                        widget.setFocus()
-                    except Exception:
-                        pass
+                    widget.setFocus()
                 else:
                     item = self.item(row, col)
                     if item is not None:
@@ -321,14 +441,12 @@ class ProductMasterView(QWidget):
             combo.setCompleter(completer)
             combo.setToolTip("Type to filter; press Enter to select")
         self.units = [u["name"] for u in units] or ["PCS"]
-        # populate sale/purchase unit combos
-        try:
-            self.sale_unit.clear()
-            self.sale_unit.addItems(self.units)
-            self.purchase_unit.clear()
-            self.purchase_unit.addItems(self.units)
-        except Exception:
-            pass
+        # Populate the two persistent combo models explicitly. New/reset must
+        # change only their selection, never discard the available UoMs.
+        self.sale_unit.clear()
+        self.sale_unit.addItems(self.units)
+        self.purchase_unit.clear()
+        self.purchase_unit.addItems(self.units)
         self.gst.clear()
         self.gst.addItems([f"{float(s['rate']):.2f}" for s in slabs] or ["0.00", "5.00", "12.00", "18.00", "28.00"])
         # Check for UOM/price foundation availability in DB and show small indicator
@@ -405,8 +523,8 @@ class ProductMasterView(QWidget):
         self.item_type.setCurrentText(str(product.get("item_type") or "Stock Item"))
         self.status.setCurrentText(str(product.get("status") or "Active"))
         self.gst.setCurrentText(f"{float(product.get('gst') or 0):.2f}")
-        self.sale_unit.setText(str(product.get("sale_unit") or ""))
-        self.purchase_unit.setText(str(product.get("purchase_unit") or ""))
+        set_widget_value(self.sale_unit, product.get("sale_unit") or "")
+        set_widget_value(self.purchase_unit, product.get("purchase_unit") or "")
         self.valuation.setCurrentText(str(product.get("valuation_method") or "weighted_average"))
         self.sku_alias.setText(str(product.get("sku_alias") or ""))
         self.lead_time.setText(str(int(product.get("lead_time_days") or 0)))
@@ -428,8 +546,14 @@ class ProductMasterView(QWidget):
         for widget in [self.code, self.name, self.hsn, self.sku_alias]:
             widget.clear()
         self.lead_time.setText("0")
-        self.sale_unit.clear()
-        self.purchase_unit.clear()
+        if self.sale_unit.count():
+            self.sale_unit.setCurrentIndex(0)
+        else:
+            self.sale_unit.setEditText("")
+        if self.purchase_unit.count():
+            self.purchase_unit.setCurrentIndex(0)
+        else:
+            self.purchase_unit.setEditText("")
         self.shelf_life.setText("0")
         self.near_expiry.setText("0")
         self.multi_uom.setChecked(False)
@@ -532,6 +656,23 @@ class ProductMasterView(QWidget):
         if self.pack_table.rowCount() == 0:
             self.add_pack_row()
 
+    def duplicate_selected_pack(self) -> None:
+        row = self.pack_table.currentRow()
+        if row < 0:
+            QMessageBox.information(self, "Product Master", "Select a package row to duplicate.")
+            return
+        packs, errors = self._pack_payload()
+        if errors or row >= len(packs):
+            QMessageBox.warning(self, "Product Master", "Correct the selected package row before duplicating it.")
+            return
+        duplicate = dict(packs[row])
+        duplicate["display_name"] = f"{duplicate.get('display_name') or 'Pack'} Copy"
+        duplicate["barcode"] = ""
+        duplicate["supplier_item_code"] = ""
+        duplicate["is_default"] = 0
+        self.add_pack_row(duplicate)
+        self.pack_table.scrollToBottom()
+
     def open_notes(self) -> None:
         dialog = QDialog(self)
         dialog.setWindowTitle("Advanced Product Details")
@@ -579,19 +720,9 @@ class ProductMasterView(QWidget):
         active_count = 0
         for row in range(self.pack_table.rowCount()):
             def text(col: int) -> str:
-                # Prefer cell widget value if present (e.g., unit combo), else table item
                 widget = self.pack_table.cellWidget(row, col)
                 if widget is not None:
-                    # common widget types
-                    try:
-                        # QComboBox
-                        if hasattr(widget, "currentText"):
-                            return str(widget.currentText() or "").strip()
-                        # QLineEdit or similar
-                        if hasattr(widget, "text"):
-                            return str(widget.text() or "").strip()
-                    except Exception:
-                        pass
+                    return widget_text(widget)
                 item = self.pack_table.item(row, col)
                 return item.text().strip() if item else ""
 
@@ -649,7 +780,10 @@ class ProductMasterView(QWidget):
         if active_count == 0:
             errors.append("Product must have at least one active package row.")
         if rows and not any(row["is_default"] for row in rows if row["is_active"]):
-            rows[0]["is_default"] = 1
+            for row in rows:
+                if row["is_active"]:
+                    row["is_default"] = 1
+                    break
         return rows, errors
 
     def _product_payload(self) -> tuple[dict[str, Any], list[str]]:
@@ -670,8 +804,8 @@ class ProductMasterView(QWidget):
         except ValueError:
             lead_time_days = 0
             errors.append("Lead Time must be numeric.")
-        sale_unit = self.sale_unit.text().strip() or "PCS"
-        purchase_unit = self.purchase_unit.text().strip() or sale_unit
+        sale_unit = widget_text(self.sale_unit) or "PCS"
+        purchase_unit = widget_text(self.purchase_unit) or sale_unit
         try:
             shelf_life_days = int(float(self.shelf_life.text() or 0))
             if shelf_life_days < 0:
@@ -715,6 +849,11 @@ class ProductMasterView(QWidget):
 
     def save_draft(self) -> None:
         payload, errors = self._product_payload()
+        try:
+            errors.extend(self.repository.validate_product_payload(payload))
+        except Exception as exc:
+            QMessageBox.warning(self, "Product Master", f"Product validation could not be completed:\n{exc}")
+            return
         if errors:
             QMessageBox.warning(self, "Product Master", "\n".join(dict.fromkeys(errors)))
             return
@@ -725,7 +864,84 @@ class ProductMasterView(QWidget):
             return
         self.product_id = saved_id
         self._load_source_data()
+        saved_product = self.product_by_id.get(saved_id)
+        if saved_product:
+            self.load_product(saved_product)
         QMessageBox.information(self, "Product Master", f"Product saved to local database.\nProduct ID: {saved_id}")
+
+    def refresh_source_data(self) -> None:
+        selected_id = self.product_id
+        self._load_source_data()
+        if selected_id and selected_id in self.product_by_id:
+            self.load_product(self.product_by_id[selected_id])
+        self.source_status.setText(f"{len(self.products)} products | refreshed")
+        self.action_toolbar.mark_success("Refresh")
+
+    def copy_product(self) -> None:
+        if not self.product_id:
+            QMessageBox.information(self, "Product Master", "Open a saved product before using Copy Product.")
+            return
+        self.product_id = 0
+        source_code = self.code.text().strip()
+        source_name = self.name.text().strip()
+        self.code.clear()
+        self.code.setPlaceholderText(f"New code (copied from {source_code})" if source_code else "Required")
+        self.name.setText(f"{source_name} Copy".strip())
+        self.source_status.setText("Copy ready | enter a unique product code and save")
+        self.code.setFocus()
+
+    def open_import(self) -> None:
+        opener = getattr(self.window(), "open_page", None)
+        if callable(opener):
+            opener("excel_import")
+            return
+        QMessageBox.information(self, "Product Import", "Open Masters > Excel Import from the main window.")
+
+    def export_products(self) -> None:
+        default_name = f"product_master_{date.today():%Y%m%d}.csv"
+        path, _selected_filter = QFileDialog.getSaveFileName(
+            self,
+            "Export Product Master",
+            str(self.config.project_root / "output" / default_name),
+            "CSV files (*.csv)",
+        )
+        if not path:
+            return
+        headers = [
+            "id", "code", "name", "category_name", "brand_name", "supplier_name",
+            "hsn", "gst", "sale_unit", "purchase_unit", "status", "pack_count",
+            "default_pack_name", "default_pack_barcode", "default_mrp", "default_sale_rate",
+        ]
+        try:
+            with open(path, "w", newline="", encoding="utf-8-sig") as handle:
+                writer = csv.DictWriter(handle, fieldnames=headers, extrasaction="ignore")
+                writer.writeheader()
+                writer.writerows(self.products)
+        except OSError as exc:
+            self.action_toolbar.mark_error("Export")
+            QMessageBox.warning(self, "Product Export", f"CSV could not be written:\n{exc}")
+            return
+        self.action_toolbar.mark_success("Export")
+        QMessageBox.information(self, "Product Export", f"Exported {len(self.products)} products to:\n{path}")
+
+    def close_page(self) -> None:
+        go_back = getattr(self.window(), "go_back", None)
+        if callable(go_back):
+            go_back()
+            return
+        self.clear_form()
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self.sync_responsive_layout()
+
+    def sync_responsive_layout(self) -> None:
+        """Refresh card placement when a previously hidden master is opened."""
+
+        if hasattr(self, "form_grid"):
+            self._arrange_form_cards(compact=self.width() < 1120)
+            self.form_grid.activate()
+            self.updateGeometry()
 
     def _register_hotkeys(self) -> None:
         QShortcut(QKeySequence("Ctrl+S"), self, activated=self.save_draft)

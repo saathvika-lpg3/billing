@@ -20,8 +20,9 @@ from PyQt6.QtWidgets import (
 
 from config.app_config import AppConfig
 from services.financial_year_service import FinancialYearService
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
 from widgets.form_layout_helpers import build_field_section, prepare_form_control
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 
 class FinancialYearAdminView(QWidget):
@@ -73,38 +74,27 @@ class FinancialYearAdminView(QWidget):
         ]
         layout.addWidget(build_field_section(fields, spacing=6, margin=0))
 
-        actions = QHBoxLayout()
-        actions.setSpacing(5)
-        self.new_button = QPushButton("New")
-        self.new_button.clicked.connect(self.clear_form)
-        self.save_button = QPushButton("Save Year")
-        self.save_button.clicked.connect(self.save_year)
-        self.current_button = QPushButton("Set Current")
-        self.current_button.clicked.connect(self.set_current_year)
-        self.close_button = QPushButton("Close Year")
-        self.close_button.clicked.connect(self.close_year)
-        self.open_button = QPushButton("Open Year")
-        self.open_button.clicked.connect(self.open_year)
-        self.lock_button = QPushButton("Lock Year")
-        self.lock_button.clicked.connect(self.lock_year)
-        self.delete_button = QPushButton("Delete")
-        self.delete_button.clicked.connect(self.delete_year)
-        self.refresh_button = QPushButton("Refresh")
-        self.refresh_button.clicked.connect(self.refresh)
-
-        for button in [
-            self.new_button,
-            self.save_button,
-            self.current_button,
-            self.close_button,
-            self.open_button,
-            self.lock_button,
-            self.delete_button,
-            self.refresh_button,
-        ]:
-            actions.addWidget(button)
-
-        layout.addLayout(actions)
+        self.action_toolbar = CompactActionToolbar(
+            [
+                ActionSpec("New", self.clear_form, "Start a new financial year record.", role="positive"),
+                ActionSpec("Save Year", self.save_year, "Save the financial year.", role="primary"),
+                ActionSpec("Set Current", self.set_current_year, "Make the selected year current."),
+                ActionSpec("Open Year", self.open_year, "Reopen the selected closed year."),
+                ActionSpec("Close Year", self.close_year, "Close the selected financial year.", role="destructive"),
+                ActionSpec("Lock Year", self.lock_year, "Permanently lock the selected year.", role="destructive"),
+                ActionSpec("Delete", self.delete_year, "Delete the selected unused year.", role="destructive"),
+                ActionSpec("Refresh", self.refresh, "Reload financial years."),
+            ]
+        )
+        self.new_button = self.action_toolbar.button("New")
+        self.save_button = self.action_toolbar.button("Save Year")
+        self.current_button = self.action_toolbar.button("Set Current")
+        self.open_button = self.action_toolbar.button("Open Year")
+        self.close_button = self.action_toolbar.button("Close Year")
+        self.lock_button = self.action_toolbar.button("Lock Year")
+        self.delete_button = self.action_toolbar.button("Delete")
+        self.refresh_button = self.action_toolbar.button("Refresh")
+        layout.addWidget(self.action_toolbar)
         return frame
 
     def _field(self, label: str, widget: QWidget) -> QWidget:

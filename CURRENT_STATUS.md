@@ -1,5 +1,37 @@
 # Current Status
 
+## 2026-07-11 Fast-Track UI Stabilization And Installer 1.7.5
+
+- Created and verified the pre-change source checkpoint
+  `backups/source_checkpoint_20260711_114542.zip` (SHA-256
+  `A1135D9E8B96C8537F6579799F1345EAB49FF0F74C72062BAF4C500014347A40`).
+- Rebuilt Product Master as responsive Basic, Inventory/UoM,
+  Identification/Notes and Package/Variant sections with one horizontal action
+  toolbar. The exact `QComboBox.text()` / `setText()` failure was replaced by
+  typed shared widget access; New no longer clears UoM models, multi-pack
+  save/reload works, and editing does not create a duplicate product.
+- Migrated Sales Bill and Purchase Entry to the shared transaction header,
+  toolbar, details, grid, totals and tax-summary language used by Quotation and
+  Sales Order. Grand Total is high-contrast, bold, numerically bound and visible
+  in the initial 1366x768 viewport.
+- Replaced cramped or vertical master/list/report actions with the shared
+  wrapping horizontal toolbar. Global pressed, focus, disabled, checked, busy,
+  success, error, positive and destructive feedback is defined in both themes.
+- Runtime inventory: 59/59 live routes pass wiring, fallback, horizontal-stack,
+  Grand Total and 1366x768 / 1440x900 / 1920x1080 checks. The broader screen-fit
+  regression also passes 1093x614 and 911x512 scaling cases.
+- Static typed-widget audit: 33 UI files scanned, 0 unsafe method calls.
+  Performance smoke: all eight measured operations passed their thresholds.
+- Verification: compile/static checks passed; stabilization regressions 8/8;
+  full suite **190 passed in 182.32 seconds**.
+- Installer 1.7.5 built and certified. Silent install, actual frozen startup,
+  QA admin activation, installed-resource Product Master two-pack save/reload,
+  required route opening, both themes, Grand Total, horizontal actions,
+  byte-identical reinstall preservation and uninstall preservation all passed.
+  Setup SHA-256:
+  `C54E99B4B714E20D5D7DE2958415ED6FEDA35D9E39D2C694B927F965AF41BFFA`.
+- No code-controlled blocker remains in this stabilization scope.
+
 This task-specific status file was created because the requested
 `CURRENT_STATUS.md` did not exist. The canonical long-form project status also
 remains updated in `PRM_CURRENT_STATUS.md`.
@@ -30,15 +62,15 @@ remains updated in `PRM_CURRENT_STATUS.md`.
   installed Python runtime that actually contains PyInstaller, removed client
   upload data and the obsolete `pysqlite` hidden import from packaging, and
   corrected frozen startup logs to `<app_root>\\logs`.
-- Installer/license regressions: **6 passed**. The final complete native suite is
-  **177 passed** with no product failures.
-- Built final v1.7.4 installer SHA-256
+- Installer/license regressions: **6 passed**. At the v1.7.4 checkpoint, the
+  complete native suite was **177 passed** with no product failures.
+- Built the v1.7.4 checkpoint installer SHA-256
   `5FA609210B0ECBC4B4145D52C1DF643AC4A5FDE0391FF37248DB15E097CB8412`,
   installed it silently using the supplied `.prmlic`, and verified the installed
   seed started with zero activation/license/user/transaction rows. First launch
   then created exactly one Active activation, one license row and one admin user.
   The installed application reached the login dialog and remained responsive.
-- The final cleaned artifact rebuilt successfully after removing client uploads
+- The v1.7.4 checkpoint artifact rebuilt successfully after removing client uploads
   and the obsolete optional import. Its distribution has no uploads directory,
   no `pysqlite` warning, and retains the sanitized seed database.
 

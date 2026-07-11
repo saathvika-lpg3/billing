@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from PyQt6.QtCore import QPoint, QRect, QSize, Qt
-from PyQt6.QtWidgets import QLayout, QSizePolicy, QLayoutItem, QWidget
+from PyQt6.QtWidgets import QLayout, QLayoutItem, QWidget
 
 
 class FlowLayout(QLayout):
@@ -48,31 +48,54 @@ class FlowLayout(QLayout):
     def minimumSize(self) -> QSize:
         size = QSize()
         for item in self.item_list:
+            if item.isEmpty():
+                continue
             size = size.expandedTo(item.minimumSize())
         left, top, right, bottom = self.getContentsMargins()
         size += QSize(left + right, top + bottom)
         return size
 
+    def rowCountForWidth(self, width: int) -> int:  # noqa: N802
+        """Return the number of visible rows needed at ``width``.
+
+        This is primarily useful to containers and UI checks that need to
+        reserve the correct height before the widget has been shown.
+        """
+        return self._layout(QRect(0, 0, max(0, width), 0), True)[1]
+
     def doLayout(self, rect: QRect, testOnly: bool) -> int:
-        x = rect.x()
-        y = rect.y()
+        return self._layout(rect, testOnly)[0]
+
+    def _layout(self, rect: QRect, test_only: bool) -> tuple[int, int]:
         line_height = 0
         left, top, right, bottom = self.getContentsMargins()
         effective_rect = rect.adjusted(left, top, -right, -bottom)
+        x = effective_rect.x()
+        y = effective_rect.y()
+        row_count = 0
+        row_has_item = False
+        available_right = effective_rect.x() + max(0, effective_rect.width())
+        space_x = max(0, self.spacing())
+        space_y = max(0, self.spacing())
         for item in self.item_list:
+            if item.isEmpty():
+                continue
             widget_size = item.sizeHint()
-            space_x = self.spacing()
-            space_y = self.spacing()
             next_x = x + widget_size.width() + space_x
-            if next_x - space_x > effective_rect.right() and line_height > 0:
+            if x + widget_size.width() > available_right and row_has_item:
                 x = effective_rect.x()
                 y += line_height + space_y
                 next_x = x + widget_size.width() + space_x
                 line_height = 0
-            if not testOnly:
+                row_count += 1
+                row_has_item = False
+            if not test_only:
                 item.setGeometry(QRect(QPoint(x, y), widget_size))
             x = next_x
             line_height = max(line_height, widget_size.height())
-        if line_height:
+            row_has_item = True
+        if row_has_item:
+            row_count += 1
             y += line_height
-        return y + bottom
+        used_height = max(0, y - rect.y()) + bottom
+        return used_height, row_count

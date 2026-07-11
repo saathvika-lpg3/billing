@@ -46,15 +46,16 @@ from services.share_service import (
 from services.transaction_repository import TransactionRepository
 from services.ui_profile_adapter import control_attribute_map_from_profile
 from widgets.erp_components import (
-    BottomTotalsCard,
-    CustomerCard,
     ERPFieldBox,
     ERPItemGrid,
     ERPTransactionGrid,
     ProductSearchCard,
+    TransactionDetailsDeck,
     TransactionHeader,
     TransactionGridPanel,
     TransactionPageLayout,
+    TransactionSectionCard,
+    TransactionSummaryDeck,
     TransactionTaxSummaryPanel,
     TransactionTotalsPanel,
     TransactionToolbar,
@@ -133,12 +134,7 @@ class PurchaseEntryView(QWidget):
         )
 
     def _header_card(self) -> QWidget:
-        frame = CustomerCard()
-        frame.setMinimumHeight(116)
-        grid = QGridLayout(frame)
-        grid.setContentsMargins(8, 6, 8, 6)
-        grid.setHorizontalSpacing(8)
-        grid.setVerticalSpacing(6)
+        host = TransactionDetailsDeck(self)
         self.bill_no = QLineEdit(f"PUR-{date.today():%y%m%d}-0001")
         self.bill_date = QDateEdit()
         self.bill_date.setCalendarPopup(True)
@@ -154,20 +150,67 @@ class PurchaseEntryView(QWidget):
         self.payment = QComboBox()
         self.payment.addItems(["Cash", "Credit", "Bank", "UPI", "Card"])
         self.branch = QComboBox()
-        fields = [
-            ("Bill No", self.bill_no, 140),
-            ("Date", self.bill_date, 120),
-            ("Area / Beat", self.area, 150),
-            ("Supplier *", self.supplier, 260),
-            ("Warehouse", self.warehouse, 160),
-            ("Payment", self.payment, 130),
-            ("Branch", self.branch, 160),
-        ]
-        for index, (label, widget, width) in enumerate(fields):
-            grid.addWidget(self._field(label, widget, width), index // 4, index % 4)
-        for col in range(4):
-            grid.setColumnStretch(col, 1)
-        return frame
+        self.document_status = QLabel("New")
+        self.document_status.setObjectName("caption")
+        self.document_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.print_template = self._print_template_selector()
+
+        party_card, party_grid = self._header_section("Supplier Information", "customer")
+        party_grid.addWidget(self._field("Supplier *", self.supplier, 260), 0, 0, 1, 2)
+        party_grid.addWidget(self._field("Area / Beat", self.area, 150), 1, 0, 1, 2)
+
+        detail_card, detail_grid = self._header_section("Other Details", "document")
+        detail_grid.addWidget(self._field("Bill No", self.bill_no, 140), 0, 0)
+        detail_grid.addWidget(self._field("Date", self.bill_date, 120), 0, 1)
+        detail_grid.addWidget(self._field("Warehouse", self.warehouse, 160), 1, 0)
+        detail_grid.addWidget(self._field("Payment", self.payment, 130), 1, 1)
+
+        info_card, info_grid = self._header_section("Additional Information", "additional")
+        info_grid.addWidget(self._field("Branch", self.branch, 160), 0, 0)
+        info_grid.addWidget(self._field("Status", self.document_status, 100), 0, 1)
+        info_grid.addWidget(self._field("Print Template", self.print_template, 180), 1, 0, 1, 2)
+
+        host.add_card(party_card, stretch=2)
+        host.add_card(detail_card, stretch=2)
+        host.add_card(info_card, stretch=3)
+        return host
+
+    def _header_section(self, title: str, role: str) -> tuple[QWidget, QGridLayout]:
+        card = TransactionSectionCard(role)
+        card.setMinimumHeight(108)
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(8, 7, 8, 7)
+        layout.setSpacing(5)
+        heading = QLabel(title)
+        heading.setObjectName("cardTitle")
+        layout.addWidget(heading)
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(7)
+        grid.setVerticalSpacing(5)
+        layout.addLayout(grid)
+        return card, grid
+
+    def _print_template_selector(self) -> QComboBox:
+        selector = QComboBox()
+        selector.setMinimumWidth(120)
+        try:
+            import sqlite3
+
+            with sqlite3.connect(self.source.sqlite_path) as conn:
+                conn.row_factory = sqlite3.Row
+                rows = conn.execute(
+                    "SELECT DISTINCT template_code, template_name FROM print_templates "
+                    "WHERE COALESCE(is_active,1)=1 ORDER BY template_name"
+                ).fetchall()
+            items = [f"{row['template_name']} ({row['template_code']})" for row in rows]
+            current_code = str(self.company.get("invoice_template_code") or "")
+            if current_code:
+                items.insert(0, f"Company ({current_code})")
+            selector.addItems(items or ["Default"])
+        except Exception:
+            selector.addItem("Default")
+        return selector
 
     def _item_entry_card(self) -> QWidget:
         frame = ProductSearchCard()
@@ -243,68 +286,13 @@ class PurchaseEntryView(QWidget):
         )
 
     def _summary_card(self) -> QWidget:
-        frame = QFrame()
-        frame.setObjectName("transactionSummaryDeck")
-        frame.setProperty("transactionFramework", True)
-        layout = QGridLayout(frame)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setHorizontalSpacing(5)
-        layout.setVerticalSpacing(5)
+        deck = TransactionSummaryDeck(self)
         self.totals_panel = TransactionTotalsPanel()
         self.tax_summary_panel = TransactionTaxSummaryPanel()
         self.total_summary = self.totals_panel.labels["grand_total"]
-        self.gst_summary = QLabel("GST Summary: no rows")
-        self.save_btn = QPushButton("Save Purchase  Ctrl+S")
-        self.save_btn.clicked.connect(self.save_draft)
-        self.print_btn = QPushButton("Print PDF  Ctrl+P")
-        self.print_btn.clicked.connect(self.print_draft_pdf)
-        self.whatsapp_btn = QPushButton("WhatsApp PDF")
-        self.whatsapp_btn.clicked.connect(self.share_draft_whatsapp)
-        self.remove_btn = QPushButton("Remove Row")
-        self.remove_btn.clicked.connect(self.remove_selected_line)
-        self.clear_btn = QPushButton("Clear")
-        self.clear_btn.clicked.connect(self.clear_bill)
-        # Non-persistent print template selector (per-print override)
-        from PyQt6.QtWidgets import QComboBox
-        self.print_template = QComboBox()
-        self.print_template.setMinimumWidth(120)
-        try:
-            db_path = self.source.sqlite_path
-            import sqlite3
-            with sqlite3.connect(db_path) as conn:
-                conn.row_factory = sqlite3.Row
-                rows = conn.execute("SELECT DISTINCT template_code, template_name FROM print_templates WHERE COALESCE(is_active,1)=1 ORDER BY template_name").fetchall()
-            items = [f"{r['template_name']} ({r['template_code']})" for r in rows] if rows else []
-            current_code = str(self.company.get('invoice_template_code') or '')
-            if current_code:
-                items.insert(0, f"Company ({current_code})")
-            if not items:
-                items = ["Default"]
-            self.print_template.addItems(items)
-        except Exception:
-            self.print_template.addItems(["Default"])
-        actions = BottomTotalsCard()
-        actions_layout = QGridLayout(actions)
-        actions_layout.setContentsMargins(8, 5, 8, 6)
-        actions_layout.setHorizontalSpacing(5)
-        actions_layout.setVerticalSpacing(5)
-        action_title = QLabel("Actions")
-        action_title.setObjectName("cardTitle")
-        actions_layout.addWidget(action_title, 0, 0, 1, 2)
-        actions_layout.addWidget(self.print_template, 1, 0, 1, 2)
-        actions_layout.addWidget(self.remove_btn, 2, 0)
-        actions_layout.addWidget(self.clear_btn, 2, 1)
-        actions_layout.addWidget(self.save_btn, 3, 0, 1, 2)
-        actions_layout.addWidget(self.print_btn, 4, 0)
-        actions_layout.addWidget(self.whatsapp_btn, 4, 1)
-        layout.addWidget(self.totals_panel, 0, 0, 1, 2)
-        layout.addWidget(self.tax_summary_panel, 0, 2)
-        layout.addWidget(actions, 0, 3)
-        layout.setColumnStretch(0, 2)
-        layout.setColumnStretch(1, 2)
-        layout.setColumnStretch(2, 2)
-        layout.setColumnStretch(3, 1)
-        return frame
+        deck.add_card(self.totals_panel, stretch=5)
+        deck.add_card(self.tax_summary_panel, stretch=2)
+        return deck
 
     def _register_hotkeys(self) -> None:
         QShortcut(QKeySequence("F4"), self, activated=self.add_line)
@@ -506,19 +494,14 @@ class PurchaseEntryView(QWidget):
         self.table.resizeColumnsToContents()
         self._updating_table = False
         totals = SalesCalculator(str(self.company.get("state") or "")).totals(self.computed_lines)
-        if hasattr(self, "totals_panel"):
-            self.totals_panel.set_totals(self.computed_lines, totals)
-            self.tax_summary_panel.set_lines(self.computed_lines, totals)
-        else:
-            self.gst_summary.setText(
-                f"Taxable {money(totals['taxable'])} | CGST {money(totals['cgst'])} | SGST {money(totals['sgst'])} | IGST {money(totals['igst'])} | Round {totals['round_off']:.2f}"
-            )
-            self.total_summary.setText(f"Grand Total: {money(totals['grand_total'])}")
+        self.totals_panel.set_totals(self.computed_lines, totals)
+        self.tax_summary_panel.set_lines(self.computed_lines, totals)
 
     def clear_bill(self) -> None:
         self.editing_purchase_id = None
         self.computed_lines.clear()
         self._redraw_lines()
+        self.document_status.setText("New")
         self.source_status.setText(f"{len(self.suppliers)} suppliers | {len(self.products)} packs")
 
     def _line_table_item_changed(self, item: QTableWidgetItem) -> None:
@@ -588,6 +571,7 @@ class PurchaseEntryView(QWidget):
             QMessageBox.warning(self, "Purchase Save", f"Purchase could not be saved:\n{exc}")
             return
         self.editing_purchase_id = purchase_id
+        self.document_status.setText("Active")
         self.source_status.setText(f"Editing saved purchase #{purchase_id}")
         QMessageBox.information(
             self,
@@ -648,6 +632,7 @@ class PurchaseEntryView(QWidget):
             self.branch.setCurrentText(branch_name)
         self.computed_lines = [self._saved_line_for_edit(row) for row in payload["lines"]]
         self._redraw_lines()
+        self.document_status.setText(f"Editing #{purchase_id}")
         self.source_status.setText(f"Editing purchase #{purchase_id} | saving will reverse and repost once")
 
     @staticmethod

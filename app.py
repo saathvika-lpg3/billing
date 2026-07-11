@@ -132,7 +132,7 @@ def main() -> int:
         _append_startup_log(
             "license_validation",
             "SUCCESS",
-            f"license_key={license_context.license_key} status={license_context.status} expiry={license_context.expiry_date} business_type_code={license_context.business_type_code}",
+            f"status={license_context.status} expiry={license_context.expiry_date} business_type_code={license_context.business_type_code}",
         )
         license_service.apply_to_database(license_context)
         _append_startup_log("database_initialization", "SUCCESS", f"applied to {license_service.db_path}")

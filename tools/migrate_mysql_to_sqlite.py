@@ -7,21 +7,17 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-import pysqlite
-
-
-SQLITE_CONFIG = {
+MYSQL_CONFIG = {
     "host": "localhost",
     "user": "root",
     "password": "",
     "database": "prm_gst",
     "charset": "utf8mb4",
-    "cursorclass": pysqlite.cursors.DictCursor,
 }
 
 
-def sqlite_type(sqlite_type: str) -> str:
-    lower = sqlite_type.lower()
+def sqlite_type(mysql_type: str) -> str:
+    lower = mysql_type.lower()
     if "int" in lower:
         return "INTEGER"
     if any(token in lower for token in ["decimal", "double", "float"]):
@@ -60,8 +56,8 @@ def create_table(sqlite_conn: sqlite3.Connection, table: str, columns: list[dict
     sqlite_conn.execute(f"CREATE TABLE {quote(table)} ({', '.join(parts)})")
 
 
-def migrate_table(sqlite_conn, sqlite_conn: sqlite3.Connection, table: str) -> int:
-    with sqlite_conn.cursor() as cur:
+def migrate_table(mysql_conn: Any, sqlite_conn: sqlite3.Connection, table: str) -> int:
+    with mysql_conn.cursor() as cur:
         cur.execute(f"DESCRIBE `{table}`")
         columns = list(cur.fetchall())
         create_table(sqlite_conn, table, columns)
@@ -79,17 +75,26 @@ def migrate_table(sqlite_conn, sqlite_conn: sqlite3.Connection, table: str) -> i
 
 
 def migrate(output_path: Path) -> None:
+    try:
+        import pymysql
+    except ImportError as exc:
+        raise RuntimeError(
+            "The optional PyMySQL package is required for the legacy MySQL import utility."
+        ) from exc
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with pysqlite.connect(**SQLITE_CONFIG) as sqlite_conn, sqlite3.connect(output_path) as sqlite_conn:
-        with sqlite_conn.cursor() as cur:
+    mysql_config = dict(MYSQL_CONFIG)
+    mysql_config["cursorclass"] = pymysql.cursors.DictCursor
+    with pymysql.connect(**mysql_config) as mysql_conn, sqlite3.connect(output_path) as sqlite_conn:
+        with mysql_conn.cursor() as cur:
             cur.execute("SHOW TABLES")
-            table_key = f"Tables_in_{SQLITE_CONFIG['database']}"
+            table_key = f"Tables_in_{MYSQL_CONFIG['database']}"
             tables = [row[table_key] for row in cur.fetchall()]
         sqlite_conn.execute("PRAGMA journal_mode=WAL")
         sqlite_conn.execute("PRAGMA foreign_keys=OFF")
         total = 0
         for table in tables:
-            count = migrate_table(sqlite_conn, sqlite_conn, table)
+            count = migrate_table(mysql_conn, sqlite_conn, table)
             total += count
             print(f"{table}: {count}")
         sqlite_conn.execute(
@@ -101,14 +106,14 @@ def migrate(output_path: Path) -> None:
         )
         sqlite_conn.execute(
             "INSERT OR REPLACE INTO migration_meta (key, value) VALUES (?, ?)",
-            ("source_database", SQLITE_CONFIG["database"]),
+            ("source_database", MYSQL_CONFIG["database"]),
         )
         sqlite_conn.commit()
         print(f"migrated_tables={len(tables)} migrated_rows={total} output={output_path}")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Copy PRM_GST SQLite data into local desktop SQLite database.")
+    parser = argparse.ArgumentParser(description="Copy legacy PRM_GST MySQL data into the local desktop SQLite database.")
     parser.add_argument(
         "--output",
         default=str(Path(__file__).resolve().parents[1] / "database" / "prm_billing_inventory.db"),

@@ -32,7 +32,8 @@ from services.mysql_source import MySqlSource
 from services.pdf_print import write_report_pdf
 from services.print_preview import show_print_preview
 from services.transaction_repository import TransactionRepository
-from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPToolbar, ERPGrid
+from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 
 @dataclass(frozen=True)
@@ -148,23 +149,24 @@ class ModuleHubView(QWidget):
         self.operation_title.setObjectName("cardTitle")
         self.search = QLineEdit()
         self.search.setPlaceholderText("Filter current rows")
+        self.search.setMaximumWidth(320)
         self.search.textChanged.connect(self._redraw_table)
-        toolbar = ERPToolbar(
+        self.action_toolbar = CompactActionToolbar(
             [
-                ("Refresh", lambda: self.open_operation(self.current_operation)),
-                ("Show Options", self.show_options),
-                ("Edit Selected", self.edit_selected_document),
-                ("Cancel Selected", self.cancel_selected_document),
-                ("Print", self.print_visible_rows),
-                ("Export CSV", self.export_csv),
-                ("Export PDF", self.export_pdf),
+                ActionSpec("Refresh", lambda: self.open_operation(self.current_operation), "Reload the current list."),
+                ActionSpec("Show Options", self.show_options, "Show the operation shortcuts above the list."),
+                ActionSpec("Edit Selected", self.edit_selected_document, "Open the selected supported document for editing."),
+                ActionSpec("Cancel Selected", self.cancel_selected_document, "Cancel the selected supported document.", role="destructive"),
+                ActionSpec("Print", self.print_visible_rows, "Open a print preview for the visible rows."),
+                ActionSpec("Export CSV", self.export_csv, "Export the visible rows to CSV."),
+                ActionSpec("Export PDF", self.export_pdf, "Export the visible rows to PDF."),
             ]
         )
         bar.addWidget(self.operation_title)
         bar.addStretch(1)
         bar.addWidget(self.search)
-        bar.addWidget(toolbar)
         layout.addLayout(bar)
+        layout.addWidget(self.action_toolbar)
         self.table = ERPGrid()
         self.table.setAlternatingRowColors(True)
         self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)

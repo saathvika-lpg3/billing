@@ -292,6 +292,97 @@ QPushButton[busy="true"] {
     border-color: #60A5FA;
     color: #1D4ED8;
 }
+QPushButton#primaryButton:pressed,
+QPushButton#quickButton:pressed {
+    background: #BFDBFE;
+    border: 2px solid #1D4ED8;
+    color: #0B1F4D;
+}
+QPushButton#primaryButton:focus,
+QPushButton#quickButton:focus,
+QPushButton#dangerButton:focus {
+    border: 2px solid #2563EB;
+}
+QPushButton#primaryButton:disabled,
+QPushButton#quickButton:disabled,
+QPushButton#dangerButton:disabled {
+    background: #F1F5F9;
+    border-color: #E2E8F0;
+    color: #94A3B8;
+}
+QPushButton:checked {
+    background: #1D4ED8;
+    border-color: #1E40AF;
+    color: #FFFFFF;
+}
+QPushButton:checked:hover {
+    background: #1E40AF;
+    border-color: #1E3A8A;
+}
+QPushButton:disabled {
+    background: #F1F5F9;
+    border-color: #E2E8F0;
+    color: #94A3B8;
+}
+QPushButton[busy="true"]:disabled,
+QPushButton[actionState="busy"]:disabled {
+    background: #DBEAFE;
+    border-color: #60A5FA;
+    color: #1D4ED8;
+}
+QPushButton[success="true"],
+QPushButton[actionState="success"] {
+    background: #DCFCE7;
+    border-color: #22C55E;
+    color: #166534;
+}
+QPushButton[error="true"],
+QPushButton[actionState="error"] {
+    background: #FEE2E2;
+    border-color: #EF4444;
+    color: #991B1B;
+}
+QPushButton#dangerButton,
+QPushButton[actionRole="destructive"] {
+    background: #FFF7F7;
+    border-color: #FCA5A5;
+    color: #B91C1C;
+}
+QPushButton#dangerButton:hover,
+QPushButton[actionRole="destructive"]:hover {
+    background: #FEE2E2;
+    border-color: #EF4444;
+}
+QPushButton#dangerButton:pressed,
+QPushButton[actionRole="destructive"]:pressed {
+    background: #FECACA;
+    border-color: #DC2626;
+    color: #7F1D1D;
+}
+QPushButton[actionRole="positive"] {
+    background: #F0FDF4;
+    border-color: #86EFAC;
+    color: #166534;
+}
+QPushButton[actionRole="positive"]:hover {
+    background: #DCFCE7;
+    border-color: #22C55E;
+}
+QPushButton[toolbarAction="true"][actionState="busy"] {
+    background: #DBEAFE;
+    border-color: #60A5FA;
+    color: #1D4ED8;
+}
+QPushButton[toolbarAction="true"][actionState="success"] {
+    background: #DCFCE7;
+    border-color: #22C55E;
+    color: #166534;
+}
+QPushButton[toolbarAction="true"][actionState="error"] {
+    background: #FEE2E2;
+    border-color: #EF4444;
+    color: #991B1B;
+}
 QPushButton#sidebarButton {
     background: transparent;
     color: #E2E8F0;

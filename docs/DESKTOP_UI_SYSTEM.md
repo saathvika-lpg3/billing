@@ -1,5 +1,23 @@
 # Desktop UI System
 
+## 2026-07-11 Accepted UI Foundation
+
+- `widgets/action_toolbar.py` is the master/list/report action surface. Actions
+  are horizontal-first, permission-aware, visibly role-styled and never silent.
+- `widgets/widget_values.py` is the typed form access boundary. QComboBox uses
+  current text/data; line edits use text; rich/plain edits, dates, times,
+  spinboxes, checks, table items and custom lookups use their supported APIs.
+- Product Master is the reference professional master-entry page: horizontal
+  actions, responsive business cards, explicit required fields, keyboard flow,
+  multi-pack editing and a searchable list.
+- Transaction pages use shared header/details/grid/summary decks. Sales Bill,
+  Purchase Entry, Quotation and Sales Order now follow the same visual language.
+- `FitToWidthStack` resynchronizes active page height and hidden responsive
+  components after route and resolution changes. This prevents stale wide modes,
+  table edge gaps and below-fold totals.
+- Accepted evidence: 59 routes pass runtime audit; five desktop/scaling sizes
+  pass layout tests; full suite 190 passed. See `audit/live_page_ui_inventory.*`.
+
 The desktop application must preserve PRM_GST business behavior without copying
 the old web layout. Screens should feel like a fast operator-focused ERP.
 
@@ -410,10 +428,9 @@ This document tracks the migration of screens to the approved Quotation Entry de
 If this session ends and work continues later, resume from this document.
 
 - Document: `docs/DESKTOP_UI_SYSTEM.md`
-- Current task: responsive compact layout stabilization, final reference-footer
-  acceptance, button feedback/wiring and transaction totals stabilization are
-  complete; wait for approval before making additional dashboard or layout
-  enhancements.
+- Current task: fast-track Product Master, shared transaction, horizontal action,
+  button feedback and Grand Total stabilization is complete and release-tested.
 - Extend the existing shared transaction framework; do not create a parallel UI framework.
-- Current transaction task: Add Row/F4 crash is fixed and covered by UI tests; wait for approval before making additional transaction/dashboard enhancements.
+- Preserve the accepted Product Master overlap guard and transaction viewport
+  regression whenever shared layout code changes.
 - Do not redesign shared framework or business logic without a new approved task.

@@ -1,6 +1,7 @@
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $Root
+$BuildStarted = Get-Date
 $VenvPython = Join-Path $Root ".venv\Scripts\python.exe"
 $LocalPython = "$env:LOCALAPPDATA\Programs\Python\Python313\python.exe"
 $Candidates = @($LocalPython, $VenvPython)
@@ -30,7 +31,29 @@ if (!$PythonExe) {
     --source "$Root\database\prm_billing_inventory.db" `
     --output "$Root\build\installer_payload\database\prm_billing_inventory.db" `
     --report "$Root\build\installer_payload\database\seed_report.json"
+if ($LASTEXITCODE -ne 0) {
+    throw "Installer database preparation failed with exit code $LASTEXITCODE"
+}
+$SeedOutputs = @(
+    "$Root\build\installer_payload\database\prm_billing_inventory.db",
+    "$Root\build\installer_payload\database\seed_report.json"
+)
+foreach ($OutputPath in $SeedOutputs) {
+    if (!(Test-Path -LiteralPath $OutputPath)) {
+        throw "Installer database preparation did not produce $OutputPath"
+    }
+    if ((Get-Item -LiteralPath $OutputPath).LastWriteTime -lt $BuildStarted) {
+        throw "Installer database preparation left a stale output: $OutputPath"
+    }
+}
 & $PythonExe -m PyInstaller --clean --noconfirm "$Root\PRM_Billing_Inventory.spec"
-if (!(Test-Path "$Root\dist\PRM_Billing_Inventory\PRM_Billing_Inventory.exe")) {
+if ($LASTEXITCODE -ne 0) {
+    throw "PyInstaller failed with exit code $LASTEXITCODE"
+}
+$DesktopExe = "$Root\dist\PRM_Billing_Inventory\PRM_Billing_Inventory.exe"
+if (!(Test-Path -LiteralPath $DesktopExe)) {
     throw "PyInstaller completed without producing PRM_Billing_Inventory.exe"
+}
+if ((Get-Item -LiteralPath $DesktopExe).LastWriteTime -lt $BuildStarted) {
+    throw "PyInstaller left a stale PRM_Billing_Inventory.exe"
 }

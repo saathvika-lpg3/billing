@@ -13,7 +13,6 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QCompleter,
     QDateEdit,
-    QFrame,
     QGridLayout,
     QHeaderView,
     QHBoxLayout,
@@ -46,18 +45,18 @@ from services.share_service import (
 from services.transaction_repository import TransactionRepository
 from services.ui_profile_adapter import control_attribute_map_from_profile
 from widgets.erp_components import (
-    BottomTotalsCard,
-    CustomerCard,
     DocumentCard,
     ERPFieldBox,
     ERPItemGrid,
     ERPTransactionGrid,
     ProductSearchCard,
     RemarksTermsCard,
+    TransactionDetailsDeck,
     TransactionHeader,
     TransactionGridPanel,
     TransactionPageLayout,
     TransactionSectionCard,
+    TransactionSummaryDeck,
     TransactionTaxSummaryPanel,
     TransactionTotalsPanel,
     TransactionToolbar,
@@ -185,12 +184,7 @@ class SalesDocumentView(QWidget):
         return ERPFieldBox(label, widget, self)
 
     def _header_card(self) -> QWidget:
-        host = QWidget()
-        host.setObjectName("transactionHeaderGrid")
-        root = QGridLayout(host)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setHorizontalSpacing(7)
-        root.setVerticalSpacing(6)
+        host = TransactionDetailsDeck(self)
         self.doc_no = QLineEdit()
         self.doc_date = QDateEdit()
         self.doc_date.setCalendarPopup(True)
@@ -217,31 +211,28 @@ class SalesDocumentView(QWidget):
         customer_card, customer_grid = self._header_section("Customer Information", "customer")
         customer_grid.addWidget(self._field(str(self.meta.get("party_label", "Customer")), self.customer, 220), 0, 0)
         customer_grid.addWidget(self._field("Area / Route", self.area, 150), 1, 0)
-        customer_grid.addWidget(self._field("Status", self.status, 120), 2, 0)
 
         detail_card, detail_grid = self._header_section("Other Details", "document")
         detail_grid.addWidget(self._field(str(self.meta["doc_label"]), self.doc_no, 140), 0, 0)
         detail_grid.addWidget(self._field("Date", self.doc_date, 120), 0, 1)
-        detail_grid.addWidget(self._field("Warehouse", self.warehouse, 160), 1, 0, 1, 2)
-        detail_grid.addWidget(self._field("Payment", self.pay_mode, 120), 2, 0)
-        detail_grid.addWidget(self._field("Valid / Delivery", self.valid_until, 120), 2, 1)
+        detail_grid.addWidget(self._field("Warehouse", self.warehouse, 160), 1, 0)
+        detail_grid.addWidget(self._field("Payment", self.pay_mode, 120), 1, 1)
 
         info_card, info_grid = self._header_section("Additional Information", "additional")
-        self.notes.setMinimumHeight(50)
-        self.notes.setMaximumHeight(68)
-        info_grid.addWidget(self._field("Notes", self.notes, 240), 0, 0)
+        info_grid.addWidget(self._field("Status", self.status, 120), 0, 0)
+        info_grid.addWidget(self._field("Valid / Delivery", self.valid_until, 120), 0, 1)
+        info_grid.addWidget(self._field("Notes", self.notes, 240), 1, 0, 1, 2)
+        self.notes.setMinimumHeight(38)
+        self.notes.setMaximumHeight(44)
 
-        root.addWidget(customer_card, 0, 0)
-        root.addWidget(detail_card, 0, 1)
-        root.addWidget(info_card, 0, 2)
-        root.setColumnStretch(0, 2)
-        root.setColumnStretch(1, 2)
-        root.setColumnStretch(2, 3)
+        host.add_card(customer_card, stretch=2)
+        host.add_card(detail_card, stretch=2)
+        host.add_card(info_card, stretch=3)
         return host
 
     def _header_section(self, title: str, role: str) -> tuple[QWidget, QGridLayout]:
         card = TransactionSectionCard(role)
-        card.setMinimumHeight(132)
+        card.setMinimumHeight(108)
         layout = QVBoxLayout(card)
         layout.setContentsMargins(8, 7, 8, 7)
         layout.setSpacing(5)
@@ -347,27 +338,18 @@ class SalesDocumentView(QWidget):
         )
 
     def _summary_card(self) -> QWidget:
-        frame = QFrame()
-        frame.setObjectName("transactionSummaryDeck")
-        frame.setProperty("transactionFramework", True)
-        frame.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        layout = QGridLayout(frame)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setHorizontalSpacing(5)
-        layout.setVerticalSpacing(5)
+        deck = TransactionSummaryDeck(self)
 
         remarks_card, self.remarks = self._memo_summary_card("Remarks", "Type remarks here...")
         terms_card, self.terms = self._memo_summary_card("Terms & Conditions", "Type terms and conditions here...")
         totals_card = self._totals_summary_card()
         tax_card = self._tax_summary_card()
 
-        layout.addWidget(remarks_card, 0, 0)
-        layout.addWidget(terms_card, 0, 1)
-        layout.addWidget(totals_card, 0, 2)
-        layout.addWidget(tax_card, 0, 3)
-        for column, stretch in enumerate([2, 2, 5, 2]):
-            layout.setColumnStretch(column, stretch)
-        return frame
+        deck.add_card(remarks_card, stretch=1)
+        deck.add_card(terms_card, stretch=1)
+        deck.add_card(totals_card, stretch=7)
+        deck.add_card(tax_card, stretch=2)
+        return deck
 
     def _memo_summary_card(self, title: str, placeholder: str) -> tuple[QWidget, QTextEdit]:
         card = RemarksTermsCard()
@@ -394,14 +376,6 @@ class SalesDocumentView(QWidget):
         self.round_off = self.totals_panel.labels["round_off"]
         self.grand_total = self.totals_panel.labels["grand_total"]
         return self.totals_panel
-
-    def _summary_value(self, label: str, value: str, highlight: bool = False) -> QLabel:
-        widget = QLabel(f"{label}\n{value}")
-        widget.setObjectName("grandTotalValue" if highlight else "summaryValue")
-        widget.setWordWrap(True)
-        widget.setMinimumHeight(32)
-        widget.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        return widget
 
     def _tax_summary_card(self) -> QWidget:
         self.tax_summary_panel = TransactionTaxSummaryPanel()
@@ -752,60 +726,11 @@ class SalesDocumentView(QWidget):
 
     def _update_summary(self) -> None:
         totals = SalesCalculator(str(self.company.get("state") or "")).totals(self.computed_lines)
-        if hasattr(self, "totals_panel"):
-            self.totals_panel.set_totals(self.computed_lines, totals)
-        else:
-            total_qty = sum(row.source.qty for row in self.computed_lines)
-            self.total_items.setText(f"Total Quantity\n{total_qty:.3f}")
-            self.taxable_total.setText(f"Taxable Amount\n{money(totals['taxable'])}")
-            self.gst_total.setText(f"Total Tax\n{money(totals['gst_total'])}")
-            self.round_off.setText(f"Round Off\n{money(totals['round_off'])}")
-            self.grand_total.setText(f"Grand Total (Rs)\n{money(totals['grand_total'])}")
-        self._update_tax_summary_table(totals)
+        self.totals_panel.set_totals(self.computed_lines, totals)
+        self.tax_summary_panel.set_lines(self.computed_lines, totals)
 
     def _update_tax_summary_table(self, totals: dict[str, float]) -> None:
-        if hasattr(self, "tax_summary_panel"):
-            self.tax_summary_panel.set_lines(self.computed_lines, totals)
-            return
-        if not self.computed_lines:
-            self.tax_summary_table.setRowCount(1)
-            for column, value in enumerate(["No data available", "", ""]):
-                item = QTableWidgetItem(value)
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                self.tax_summary_table.setItem(0, column, item)
-            return
-        rows: list[tuple[str, float, float]] = []
-        buckets: dict[str, list[float]] = {}
-        for line in self.computed_lines:
-            if line.cgst:
-                key = f"CGST @ {self._tax_rate_label(line.source.gst_rate / 2)}%"
-                buckets.setdefault(key, [0.0, 0.0])
-                buckets[key][0] += line.taxable
-                buckets[key][1] += line.cgst
-            if line.sgst:
-                key = f"SGST @ {self._tax_rate_label(line.source.gst_rate / 2)}%"
-                buckets.setdefault(key, [0.0, 0.0])
-                buckets[key][0] += line.taxable
-                buckets[key][1] += line.sgst
-            if line.igst:
-                key = f"IGST @ {self._tax_rate_label(line.source.gst_rate)}%"
-                buckets.setdefault(key, [0.0, 0.0])
-                buckets[key][0] += line.taxable
-                buckets[key][1] += line.igst
-        rows.extend((label, round(values[0], 2), round(values[1], 2)) for label, values in sorted(buckets.items()))
-        rows.append(("Total", float(totals["taxable"]), float(totals["gst_total"])))
-        self.tax_summary_table.setRowCount(len(rows))
-        for row_index, (label, taxable, tax) in enumerate(rows):
-            cells = [label, money(taxable), money(tax)]
-            for column, value in enumerate(cells):
-                item = QTableWidgetItem(value)
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                if column > 0:
-                    item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-                self.tax_summary_table.setItem(row_index, column, item)
-
-    def _tax_rate_label(self, rate: float) -> str:
-        return f"{rate:.2f}".rstrip("0").rstrip(".")
+        self.tax_summary_panel.set_lines(self.computed_lines, totals)
 
     def clear_document(self) -> None:
         self.doc_no.clear()

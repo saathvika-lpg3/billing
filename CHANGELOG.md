@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-07-11 - Commercial UI stabilization and installer 1.7.5
+
+- Rebuilt Product Master into responsive business sections and a professional
+  package grid; added Copy, Import, Export, Duplicate Pack and reliable
+  New/Save/Refresh behavior.
+- Fixed the Product save crash caused by calling QLineEdit APIs on QComboBox,
+  introduced shared typed widget value access, and preserved distinct sale and
+  purchase UoMs through repository persistence.
+- Standardized Sales Bill and Purchase Entry on the shared transaction entry
+  framework and corrected responsive page-height reuse across route/resolution
+  changes.
+- Made Grand Total the strongest, high-contrast totals value and guaranteed its
+  initial-viewport visibility at 1366x768.
+- Replaced narrow vertical/cramped action regions across shared masters, lists,
+  reports, search, imports, labels and document center with a wrapping
+  horizontal action toolbar.
+- Added global button state styling and no-dead-action feedback behavior.
+- Added live route, typed widget API, installer UI and performance evidence plus
+  permanent Product, toolbar, totals, screen-fit and packaging regressions.
+- Repaired the legacy MySQL-to-SQLite utility's duplicate parameter and wrong
+  connector roles discovered by the application-wide compile audit.
+- Removed development audit/test output from client packaging, bumped Inno to
+  1.7.5 and certified build, install, startup, installed UI save/open flows and
+  uninstall data preservation. Full suite: 190 passed.
+- Removed the client license key from startup logs, added a permanent disclosure
+  regression, and made seed preparation, PyInstaller and Inno Setup fail fast on
+  non-zero exits or stale build outputs.
+
 ## 2026-07-11 - License-safe desktop installer 1.7.4
 
 - Replaced direct packaging of the activated developer database with a

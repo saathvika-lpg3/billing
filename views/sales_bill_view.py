@@ -18,16 +18,13 @@ from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QFormLayout,
-    QFrame,
     QGridLayout,
     QHeaderView,
-    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
     QSizePolicy,
-    QTableWidget,
     QTableWidgetItem,
     QTextEdit,
     QVBoxLayout,
@@ -51,15 +48,15 @@ from services.share_service import (
 from services.transaction_repository import TransactionRepository
 from services.ui_profile_adapter import control_attribute_map_from_profile
 from widgets.erp_components import (
-    BottomTotalsCard,
-    CustomerCard,
     ERPFieldBox,
     ERPItemGrid,
-    ERPTransactionGrid,
     ProductSearchCard,
+    TransactionDetailsDeck,
     TransactionHeader,
     TransactionGridPanel,
     TransactionPageLayout,
+    TransactionSectionCard,
+    TransactionSummaryDeck,
     TransactionTaxSummaryPanel,
     TransactionTotalsPanel,
     TransactionToolbar,
@@ -152,57 +149,97 @@ class SalesBillView(QWidget):
         )
 
     def _header_card(self) -> QWidget:
-        frame = CustomerCard()
-        frame.setMinimumHeight(136)
-        grid = QGridLayout(frame)
-        grid.setContentsMargins(8, 6, 8, 6)
-        grid.setHorizontalSpacing(8)
-        grid.setVerticalSpacing(6)
+        host = TransactionDetailsDeck(self)
         self.bill_no = QLineEdit(f"DSK-{date.today():%y%m%d}-0001")
         self.bill_date = QDateEdit()
         self.bill_date.setCalendarPopup(True)
         self.bill_date.setDisplayFormat("dd/MM/yyyy")
         self.bill_date.setDate(QDate.currentDate())
-        self.employee = QComboBox(frame)
-        self.area = QComboBox(frame)
+        self.employee = QComboBox(host)
+        self.area = QComboBox(host)
         self.area.setEditable(True)
         self.area.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
-        self.customer = QComboBox(frame)
+        self.customer = QComboBox(host)
         self.customer.setEditable(True)
         self.customer.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
-        self.warehouse = QComboBox(frame)
-        self.branch = QComboBox(frame)
-        self.cost_center = QComboBox(frame)
+        self.warehouse = QComboBox(host)
+        self.branch = QComboBox(host)
+        self.cost_center = QComboBox(host)
         for advanced_control in (self.employee, self.warehouse, self.branch, self.cost_center):
             advanced_control.hide()
-        self.payment = QComboBox(frame)
+        self.payment = QComboBox(host)
         self.payment.addItems(["Cash", "UPI", "Card", "Credit", "Bank"])
-        self.price_level = QComboBox(frame)
+        self.price_level = QComboBox(host)
         self.price_level.addItems(["Distributor", "Wholesale", "Retail", "Dealer", "MRP"])
-        self.supplier_filter = QComboBox(frame)
+        self.supplier_filter = QComboBox(host)
         self.supplier_filter.setEditable(True)
         self.supplier_filter.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.details_btn = QPushButton("More Details")
         self.details_btn.setMinimumHeight(28)
         self.details_btn.clicked.connect(self.open_more_details)
-        fields = [
-            ("Bill No", self.bill_no, 140),
-            ("Date", self.bill_date, 120),
-            ("Area / Beat", self.area, 180),
-            ("Customer *", self.customer, 260),
-            ("Payment", self.payment, 120),
-            ("Price Level", self.price_level, 130),
-            ("More", self.details_btn, 120),
-        ]
-        for index, (label, widget, width) in enumerate(fields):
-            row = index // 4
-            col = index % 4
-            grid.addWidget(self._field(label, widget, width), row, col)
-        for col in range(4):
-            grid.setColumnStretch(col, 1)
+        self.document_status = QLabel("New")
+        self.document_status.setObjectName("caption")
+        self.document_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.print_template = self._print_template_selector()
+
+        party_card, party_grid = self._header_section("Customer Information", "customer")
+        party_grid.addWidget(self._field("Customer *", self.customer, 260), 0, 0, 1, 2)
+        party_grid.addWidget(self._field("Area / Beat", self.area, 180), 1, 0)
+        party_grid.addWidget(self._field("Payment", self.payment, 120), 1, 1)
+
+        detail_card, detail_grid = self._header_section("Other Details", "document")
+        detail_grid.addWidget(self._field("Bill No", self.bill_no, 140), 0, 0)
+        detail_grid.addWidget(self._field("Date", self.bill_date, 120), 0, 1)
+        detail_grid.addWidget(self._field("Price Level", self.price_level, 130), 1, 0, 1, 2)
+
+        info_card, info_grid = self._header_section("Additional Information", "additional")
+        info_grid.addWidget(self._field("Status", self.document_status, 100), 0, 0)
+        info_grid.addWidget(self._field("Document Details", self.details_btn, 140), 0, 1)
+        info_grid.addWidget(self._field("Print Template", self.print_template, 180), 1, 0, 1, 2)
+
+        host.add_card(party_card, stretch=2)
+        host.add_card(detail_card, stretch=2)
+        host.add_card(info_card, stretch=3)
         self.customer.currentTextChanged.connect(self._customer_changed)
         self.area.currentTextChanged.connect(lambda text: setattr(self, "area_text", text.strip()))
-        return frame
+        return host
+
+    def _header_section(self, title: str, role: str) -> tuple[QWidget, QGridLayout]:
+        card = TransactionSectionCard(role)
+        card.setMinimumHeight(108)
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(8, 7, 8, 7)
+        layout.setSpacing(5)
+        heading = QLabel(title)
+        heading.setObjectName("cardTitle")
+        layout.addWidget(heading)
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(7)
+        grid.setVerticalSpacing(5)
+        layout.addLayout(grid)
+        return card, grid
+
+    def _print_template_selector(self) -> QComboBox:
+        selector = QComboBox()
+        selector.setMinimumWidth(120)
+        try:
+            import sqlite3
+
+            with sqlite3.connect(self.source.sqlite_path) as conn:
+                conn.row_factory = sqlite3.Row
+                rows = conn.execute(
+                    "SELECT DISTINCT template_code, template_name FROM print_templates "
+                    "WHERE COALESCE(is_active,1)=1 ORDER BY template_name"
+                ).fetchall()
+            items = [f"{row['template_name']} ({row['template_code']})" for row in rows]
+            current_code = str(self.company.get("invoice_template_code") or "")
+            if current_code:
+                items.insert(0, f"Company ({current_code})")
+            selector.addItems(items or ["Default"])
+        except Exception:
+            selector.addItem("Default")
+        return selector
 
     def _item_entry_card(self) -> QWidget:
         frame = ProductSearchCard()
@@ -306,7 +343,7 @@ class SalesBillView(QWidget):
         self.table = ERPItemGrid(0, 12)
         headers = ["#", "Item Description", "HSN", "Qty", "Unit", "MRP", "Rate", "SCH", "Disc", "Taxable", "GST", "Amount"]
         self.table.setHorizontalHeaderLabels(headers)
-        self.table.setMinimumHeight(92)
+        self.table.setMinimumHeight(60)
         self.table.verticalHeader().setVisible(False)
         self.table.itemChanged.connect(self._line_table_item_changed)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
@@ -337,76 +374,13 @@ class SalesBillView(QWidget):
         )
 
     def _summary_card(self) -> QWidget:
-        frame = QFrame()
-        frame.setObjectName("transactionSummaryDeck")
-        frame.setProperty("transactionFramework", True)
-        layout = QGridLayout(frame)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setHorizontalSpacing(5)
-        layout.setVerticalSpacing(5)
+        deck = TransactionSummaryDeck(self)
         self.totals_panel = TransactionTotalsPanel()
         self.tax_summary_panel = TransactionTaxSummaryPanel()
         self.total_summary = self.totals_panel.labels["grand_total"]
-        self.gst_summary = QLabel("GST Summary: no rows")
-        self.save_btn = QPushButton("Save Bill  Ctrl+S")
-        self.save_btn.setMinimumHeight(28)
-        self.save_btn.clicked.connect(self.save_draft)
-        self.print_btn = QPushButton("Print PDF  Ctrl+P")
-        self.print_btn.setMinimumHeight(28)
-        self.print_btn.clicked.connect(self.print_draft_pdf)
-        self.whatsapp_btn = QPushButton("WhatsApp PDF")
-        self.whatsapp_btn.setMinimumHeight(28)
-        self.whatsapp_btn.clicked.connect(self.share_draft_whatsapp)
-        self.remove_btn = QPushButton("Remove Row")
-        self.remove_btn.setMinimumHeight(28)
-        self.remove_btn.clicked.connect(self.remove_selected_line)
-        self.clear_btn = QPushButton("Clear")
-        self.clear_btn.setMinimumHeight(28)
-        self.clear_btn.clicked.connect(self.clear_bill)
-        # Non-persistent print template selector (per-print override)
-        from PyQt6.QtWidgets import QComboBox
-        self.print_template = QComboBox()
-        self.print_template.setMinimumWidth(120)
-        # populate with available templates from DB (family name shown)
-        try:
-            db_path = self.source.sqlite_path
-            import sqlite3
-            with sqlite3.connect(db_path) as conn:
-                conn.row_factory = sqlite3.Row
-                rows = conn.execute("SELECT DISTINCT template_code, template_name FROM print_templates WHERE COALESCE(is_active,1)=1 ORDER BY template_name").fetchall()
-            items = [f"{r['template_name']} ({r['template_code']})" for r in rows] if rows else []
-            # include current company template at top
-            current_code = str(self.company.get('invoice_template_code') or '')
-            if current_code:
-                items.insert(0, f"Company ({current_code})")
-            if not items:
-                items = ["Default"]
-            self.print_template.addItems(items)
-        except Exception:
-            # fallback minimal choices
-            self.print_template.addItems(["Default"])
-        actions = BottomTotalsCard()
-        actions_layout = QGridLayout(actions)
-        actions_layout.setContentsMargins(8, 5, 8, 6)
-        actions_layout.setHorizontalSpacing(5)
-        actions_layout.setVerticalSpacing(5)
-        action_title = QLabel("Actions")
-        action_title.setObjectName("cardTitle")
-        actions_layout.addWidget(action_title, 0, 0, 1, 2)
-        actions_layout.addWidget(self.print_template, 1, 0, 1, 2)
-        actions_layout.addWidget(self.remove_btn, 2, 0)
-        actions_layout.addWidget(self.clear_btn, 2, 1)
-        actions_layout.addWidget(self.save_btn, 3, 0, 1, 2)
-        actions_layout.addWidget(self.print_btn, 4, 0)
-        actions_layout.addWidget(self.whatsapp_btn, 4, 1)
-        layout.addWidget(self.totals_panel, 0, 0, 1, 2)
-        layout.addWidget(self.tax_summary_panel, 0, 2)
-        layout.addWidget(actions, 0, 3)
-        layout.setColumnStretch(0, 2)
-        layout.setColumnStretch(1, 2)
-        layout.setColumnStretch(2, 2)
-        layout.setColumnStretch(3, 1)
-        return frame
+        deck.add_card(self.totals_panel, stretch=5)
+        deck.add_card(self.tax_summary_panel, stretch=2)
+        return deck
 
     def _register_hotkeys(self) -> None:
         QShortcut(QKeySequence("F4"), self, activated=self.add_line)
@@ -764,19 +738,14 @@ class SalesBillView(QWidget):
             self.table.setCurrentCell(0, 3)
         self._updating_table = False
         totals = SalesCalculator(str(self.company.get("state") or "")).totals(self.computed_lines)
-        if hasattr(self, "totals_panel"):
-            self.totals_panel.set_totals(self.computed_lines, totals)
-            self.tax_summary_panel.set_lines(self.computed_lines, totals)
-        else:
-            self.gst_summary.setText(
-                f"Taxable {money(totals['taxable'])} | CGST {money(totals['cgst'])} | SGST {money(totals['sgst'])} | IGST {money(totals['igst'])} | Round {totals['round_off']:.2f}"
-            )
-            self.total_summary.setText(f"Grand Total: {money(totals['grand_total'])}")
+        self.totals_panel.set_totals(self.computed_lines, totals)
+        self.tax_summary_panel.set_lines(self.computed_lines, totals)
 
     def clear_bill(self) -> None:
         self.editing_sale_id = None
         self.computed_lines.clear()
         self._redraw_lines()
+        self.document_status.setText("New")
         self.source_status.setText(f"{len(self.customers)} customers | {len(self.products)} packs")
 
     def save_draft(self) -> None:
@@ -807,6 +776,7 @@ class SalesBillView(QWidget):
             QMessageBox.warning(self, "Sales Bill Save", f"Bill could not be saved:\n{exc}")
             return
         self.editing_sale_id = sale_id
+        self.document_status.setText("Active")
         self.source_status.setText(f"Editing saved sale #{sale_id}")
         QMessageBox.information(
             self,
@@ -879,6 +849,7 @@ class SalesBillView(QWidget):
         self.credit_terms_text = str(header.get("credit_terms") or "")
         self.computed_lines = [self._saved_line_for_edit(row) for row in payload["lines"]]
         self._redraw_lines()
+        self.document_status.setText(f"Editing #{sale_id}")
         self.source_status.setText(f"Editing sale #{sale_id} | saving will reverse and repost once")
 
     @staticmethod
