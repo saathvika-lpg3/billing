@@ -386,7 +386,13 @@ class SalesBillView(QWidget):
         QShortcut(QKeySequence("F4"), self, activated=self.add_line)
         QShortcut(QKeySequence("Alt+B"), self, activated=lambda: self.product.setFocus())
         QShortcut(QKeySequence("Ctrl+S"), self, activated=self.save_draft)
+        QShortcut(QKeySequence("F8"), self, activated=self.save_draft)
         QShortcut(QKeySequence("Ctrl+P"), self, activated=self.print_draft_pdf)
+        QShortcut(QKeySequence("F9"), self, activated=self.print_draft_pdf)
+        QShortcut(QKeySequence("F10"), self, activated=self.print_draft_pdf)
+        QShortcut(QKeySequence("Ctrl+N"), self, activated=self.clear_bill)
+        QShortcut(QKeySequence("Ctrl+F"), self, activated=lambda: self.product.setFocus())
+        QShortcut(QKeySequence("F3"), self, activated=lambda: self.product.setFocus())
         QShortcut(QKeySequence("Ctrl+W"), self, activated=self.share_draft_whatsapp)
         QShortcut(QKeySequence("Delete"), self, activated=self.remove_selected_line)
 
@@ -532,6 +538,11 @@ class SalesBillView(QWidget):
             self.area_text = customer_area
         if self.shipping_text:
             self.details_btn.setText("More Details (set)")
+        if self.computed_lines:
+            calculator = SalesCalculator(str(self.company.get("state") or ""))
+            place = self._current_place_of_supply()
+            self.computed_lines = [calculator.compute_line(row.source, place_of_supply=place) for row in self.computed_lines]
+            self._redraw_lines()
 
     def _product_changed(self, label: str) -> None:
         row = self.product_by_label.get(label)
@@ -652,7 +663,7 @@ class SalesBillView(QWidget):
             QMessageBox.warning(self, "Sales Bill", "Quantity must be greater than zero.")
             return
         calculator = SalesCalculator(str(self.company.get("state") or ""))
-        computed = calculator.compute_line(line)
+        computed = calculator.compute_line(line, place_of_supply=self._current_place_of_supply())
         self.computed_lines.append(computed)
         self._redraw_lines()
         self.qty.setText("1")
@@ -694,7 +705,10 @@ class SalesBillView(QWidget):
         except ValueError:
             return
         calculator = SalesCalculator(str(self.company.get("state") or ""))
-        self.computed_lines[row_index] = calculator.compute_line(line)
+        self.computed_lines[row_index] = calculator.compute_line(
+            line,
+            place_of_supply=self._current_place_of_supply(),
+        )
         self._redraw_lines()
 
     def remove_selected_line(self) -> None:
@@ -1048,6 +1062,10 @@ class SalesBillView(QWidget):
 
     def _selected_customer(self) -> dict[str, Any] | None:
         return self.customer_by_label.get(self.customer.currentText())
+
+    def _current_place_of_supply(self) -> str:
+        customer = self._selected_customer() or {}
+        return str(customer.get("place_of_supply") or customer.get("state") or "").strip()
 
     def _require_customer(self) -> bool:
         if self._selected_customer():

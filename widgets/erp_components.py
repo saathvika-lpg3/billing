@@ -167,6 +167,15 @@ class TransactionToolbar(QFrame):
         "Refresh",
         "Search",
     )
+    SHORTCUT_HINTS = {
+        "New": "Ctrl+N",
+        "Preview": "F9",
+        "Print": "Ctrl+P / F10",
+        "Save": "Ctrl+S / F8",
+        "Close": "Esc",
+        "Delete": "Ctrl+D / Delete",
+        "Search": "Ctrl+F / F3",
+    }
 
     def __init__(self, buttons: list[tuple[str, object]], parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -182,6 +191,9 @@ class TransactionToolbar(QFrame):
             button.setObjectName("primaryButton" if label == "Save" else "quickButton")
             button.setProperty("transactionAction", label.lower())
             button.setMinimumHeight(26)
+            shortcut = self.SHORTCUT_HINTS.get(label, "")
+            button.setToolTip(f"{label}{' (' + shortcut + ')' if shortcut else ''}")
+            button.setAccessibleName(f"{label}{' ' + shortcut if shortcut else ''}")
             install_button_feedback(button)
             button.clicked.connect(self._callback_wrapper(button, label, callback))
             layout.addWidget(button)
@@ -277,6 +289,9 @@ class TransactionDetailsDeck(QFrame):
         self.setProperty("transactionFramework", True)
         self.setProperty("transactionRole", "details-deck")
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        # Two-row ERP header cards remain readable at this height while leaving
+        # the item grid and Grand Total visible on 1366x768 workstations.
+        self.setMaximumHeight(144)
         self._layout = QGridLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setHorizontalSpacing(7)

@@ -203,6 +203,157 @@ class EmailDeliveryService:
             action(smtp)
 
 
+def open_outlook_email_with_attachment(
+    recipient: object,
+    subject: str,
+    body: str,
+    pdf_path: Path,
+    *,
+    dispatch_factory: Any | None = None,
+) -> dict[str, object]:
+    """Open an Outlook compose window with the PDF already attached."""
+
+    file_path = Path(pdf_path).resolve()
+    if not file_path.is_file():
+        return {"ok": False, "code": "missing_pdf", "message": "PDF attachment file is not ready."}
+    try:
+        if dispatch_factory is None:
+            from win32com.client import Dispatch  # type: ignore[import-not-found]
+
+            dispatch_factory = Dispatch
+        outlook = dispatch_factory("Outlook.Application")
+        draft = outlook.CreateItem(0)
+        draft.To = str(recipient or "").strip()
+        draft.Subject = subject or "PRM document"
+        draft.Body = body or ""
+        draft.Attachments.Add(str(file_path))
+        draft.Display(False)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "code": "outlook_unavailable",
+            "message": f"Outlook attachment handoff is unavailable: {exc}",
+            "file": str(file_path),
+        }
+    return {
+        "ok": True,
+        "code": "outlook_draft",
+        "message": "Outlook draft opened with the PDF attached.",
+        "file": str(file_path),
+        "attached": True,
+    }
+
+
+def open_mapi_email_with_attachment(
+    recipient: object,
+    subject: str,
+    body: str,
+    pdf_path: Path,
+    *,
+    send_mail: Any | None = None,
+) -> dict[str, object]:
+    """Use Windows Simple MAPI so the default compatible mail client receives an attachment."""
+
+    file_path = Path(pdf_path).resolve()
+    if not file_path.is_file():
+        return {"ok": False, "code": "missing_pdf", "message": "PDF attachment file is not ready."}
+    try:
+        if send_mail is not None:
+            result_code = int(send_mail(str(recipient or ""), subject, body, file_path))
+        else:
+            if os.name != "nt":
+                raise RuntimeError("Simple MAPI is available only on Windows.")
+            result_code = _mapi_send_mail(str(recipient or ""), subject, body, file_path)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "code": "mapi_unavailable",
+            "message": f"Default mail-client attachment handoff is unavailable: {exc}",
+            "file": str(file_path),
+        }
+    if result_code == 0:
+        return {
+            "ok": True,
+            "code": "mapi_completed",
+            "message": "Default mail client opened with the PDF attached.",
+            "file": str(file_path),
+            "attached": True,
+        }
+    if result_code == 1:
+        return {
+            "ok": False,
+            "code": "mapi_cancelled",
+            "message": "Email composition was cancelled in the default mail client.",
+            "file": str(file_path),
+        }
+    return {
+        "ok": False,
+        "code": "mapi_failed",
+        "message": f"Default mail client returned MAPI error {result_code}.",
+        "file": str(file_path),
+    }
+
+
+def _mapi_send_mail(recipient: str, subject: str, body: str, pdf_path: Path) -> int:
+    class MapiRecipDescW(ctypes.Structure):
+        _fields_ = [
+            ("ulReserved", ctypes.c_ulong),
+            ("ulRecipClass", ctypes.c_ulong),
+            ("lpszName", ctypes.c_wchar_p),
+            ("lpszAddress", ctypes.c_wchar_p),
+            ("ulEIDSize", ctypes.c_ulong),
+            ("lpEntryID", ctypes.c_void_p),
+        ]
+
+    class MapiFileDescW(ctypes.Structure):
+        _fields_ = [
+            ("ulReserved", ctypes.c_ulong),
+            ("flFlags", ctypes.c_ulong),
+            ("nPosition", ctypes.c_ulong),
+            ("lpszPathName", ctypes.c_wchar_p),
+            ("lpszFileName", ctypes.c_wchar_p),
+            ("lpFileType", ctypes.c_void_p),
+        ]
+
+    class MapiMessageW(ctypes.Structure):
+        _fields_ = [
+            ("ulReserved", ctypes.c_ulong),
+            ("lpszSubject", ctypes.c_wchar_p),
+            ("lpszNoteText", ctypes.c_wchar_p),
+            ("lpszMessageType", ctypes.c_wchar_p),
+            ("lpszDateReceived", ctypes.c_wchar_p),
+            ("lpszConversationID", ctypes.c_wchar_p),
+            ("flFlags", ctypes.c_ulong),
+            ("lpOriginator", ctypes.c_void_p),
+            ("nRecipCount", ctypes.c_ulong),
+            ("lpRecips", ctypes.POINTER(MapiRecipDescW)),
+            ("nFileCount", ctypes.c_ulong),
+            ("lpFiles", ctypes.POINTER(MapiFileDescW)),
+        ]
+
+    address = recipient.strip()
+    recip = MapiRecipDescW(0, 1, address or None, f"SMTP:{address}" if address else None, 0, None)
+    attachment = MapiFileDescW(0, 0, 0xFFFFFFFF, str(pdf_path), pdf_path.name, None)
+    message = MapiMessageW(
+        0,
+        subject or "PRM document",
+        body or "",
+        None,
+        None,
+        None,
+        0,
+        None,
+        1 if address else 0,
+        ctypes.pointer(recip) if address else None,
+        1,
+        ctypes.pointer(attachment),
+    )
+    send = ctypes.windll.mapi32.MAPISendMailW
+    send.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(MapiMessageW), ctypes.c_ulong, ctypes.c_ulong]
+    send.restype = ctypes.c_ulong
+    return int(send(None, None, ctypes.byref(message), 0x00000009, 0))
+
+
 def _settings_env(db_path: str | Path | None) -> dict[str, str]:
     if not db_path:
         try:

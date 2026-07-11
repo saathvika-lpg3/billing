@@ -116,6 +116,96 @@ class UomPriceService:
             }
 
     # Pack conversion
+    def validate_product_conversions(self, payload: dict[str, Any]) -> list[str]:
+        """Validate the conversion intent without imposing one UoM on every pack."""
+
+        errors: list[str] = []
+        sale_uom = str(payload.get("sale_unit") or "").strip()
+        purchase_uom = str(payload.get("purchase_unit") or "").strip()
+        pack_conversion = bool(payload.get("pack_conversion"))
+        multi_uom = bool(payload.get("multi_uom"))
+        if not sale_uom or not purchase_uom:
+            return errors
+
+        units_differ = sale_uom.casefold() != purchase_uom.casefold()
+        if units_differ and not pack_conversion:
+            errors.append("Enable Pack Conversion when Sale UoM and Purchase UoM differ.")
+        if units_differ and pack_conversion:
+            try:
+                factor = float(payload.get("conversion_factor") or 0)
+                if factor <= 0:
+                    errors.append("Purchase-to-sale conversion factor must be greater than zero.")
+            except (TypeError, ValueError):
+                errors.append("Purchase-to-sale conversion factor must be numeric.")
+
+        alternate_pack_units = {
+            str(pack.get("pack_unit") or "").strip().casefold()
+            for pack in payload.get("packs") or []
+            if pack.get("is_active") and str(pack.get("pack_unit") or "").strip()
+        } - {sale_uom.casefold()}
+        if alternate_pack_units and not multi_uom:
+            errors.append("Enable Multi-UOM when active package rows use more than one unit.")
+        if alternate_pack_units and not pack_conversion:
+            errors.append("Enable Pack Conversion for active package units that differ from the Sale UoM.")
+        return list(dict.fromkeys(errors))
+
+    def sync_product_conversions(
+        self,
+        product_id: int,
+        payload: dict[str, Any],
+        *,
+        conn: sqlite3.Connection | None = None,
+    ) -> None:
+        """Replace the product-specific conversion map as part of the product save."""
+
+        errors = self.validate_product_conversions(payload)
+        if errors:
+            raise ValueError("\n".join(errors))
+        owns_connection = conn is None
+        target = conn or sqlite3.connect(self.db_path)
+        try:
+            target.execute("DELETE FROM pack_conversions WHERE product_id=?", (int(product_id),))
+            sale_uom = str(payload.get("sale_unit") or "").strip()
+            purchase_uom = str(payload.get("purchase_unit") or "").strip()
+            now = datetime.now().isoformat(timespec="seconds")
+            conversions: dict[tuple[str, str], tuple[str, str, float]] = {}
+            if (
+                payload.get("pack_conversion")
+                and purchase_uom
+                and sale_uom
+                and purchase_uom.casefold() != sale_uom.casefold()
+            ):
+                factor = float(payload.get("conversion_factor") or 0)
+                conversions[(purchase_uom.casefold(), sale_uom.casefold())] = (
+                    purchase_uom,
+                    sale_uom,
+                    factor,
+                )
+            if payload.get("pack_conversion") and payload.get("multi_uom"):
+                for pack in payload.get("packs") or []:
+                    if not pack.get("is_active"):
+                        continue
+                    pack_uom = str(pack.get("pack_unit") or "").strip()
+                    if not pack_uom or pack_uom.casefold() == sale_uom.casefold():
+                        continue
+                    factor = float(pack.get("pack_size") or 0)
+                    if factor <= 0:
+                        raise ValueError("Active package conversion factors must be greater than zero.")
+                    conversions.setdefault(
+                        (pack_uom.casefold(), sale_uom.casefold()),
+                        (pack_uom, sale_uom, factor),
+                    )
+            for from_uom, to_uom, factor in conversions.values():
+                target.execute(
+                    "INSERT INTO pack_conversions (product_id,from_uom,to_uom,factor,created_at,updated_at) VALUES (?,?,?,?,?,?)",
+                    (int(product_id), from_uom, to_uom, float(factor), now, now),
+                )
+            if owns_connection:
+                target.commit()
+        finally:
+            if owns_connection:
+                target.close()
+
     def save_pack_conversion(self, from_uom: str, to_uom: str, factor: float, product_id: int = 0) -> int:
         self.ensure_schema()
         if not from_uom or not to_uom:

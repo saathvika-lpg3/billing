@@ -1,4 +1,61 @@
-# Installer 1.7.5 Release Certification
+# Installer Release Certification
+
+## Installer 1.7.6 - 2026-07-12
+
+**PASSED** - the release was rebuilt from current source, installed, launched,
+exercised, upgraded with a differently named valid client license, and
+uninstalled without bypassing license validation or authentication.
+
+### Certified artifact
+
+- File: `installer_output/PRM_Billing_Inventory_Setup.exe`
+- Size: 51,873,806 bytes
+- SHA-256: `E769D2216540AE04632ACA0E419D013A3D1020C67DD5ED12B865BDDF985FA8E7`
+- Build timestamp: 2026-07-12 01:13:02.094 local time
+- Builder: PyInstaller 6.21.0, Python 3.13.7 and Inno Setup 6.7.3
+- Frozen desktop SHA-256:
+  `A8736A8DF144775370E5019DF865454DBAA1C4C0D6EABA22BEC48EB8CB897E81`
+- Authenticode: not signed; no commercial certificate was supplied
+
+### Build and privacy checks
+
+- Sanitized seed integrity returned `ok` with zero license, activation, user or
+  transaction rows. Reference masters/templates were retained.
+- Client payload contains zero `.prmlic` files and zero `.ps1` files.
+- Application source contains zero PowerShell/`.ps1` runtime references.
+- Audit/test output, logs, backups and private development/client licenses are
+  excluded from the client payload.
+
+### Installation, license and UI checks
+
+- Clean silent install exit code: 0; executable, sanitized database, installed
+  license, both themes and uninstaller were present.
+- Actual frozen executable remained healthy after 12 seconds at login and its
+  startup log contained zero traceback/critical/unhandled/failure markers.
+- Authenticated installed-resource smoke opened Product Master, Sales Bill,
+  Purchase Entry, Sales and Reports; saved and reloaded one synthetic product
+  with two packs in a disposable database; verified both Grand Totals,
+  horizontal list actions and light/dark themes; SQLite integrity returned
+  `ok`; the installed database stayed byte-identical.
+- Upgrade used the valid source basename `lakshmi.prmlic`, proving setup is not
+  bound to `client.prmlic` or any one client filename. Setup validates the
+  `.prmlic` content/extension and copies it to
+  `<app>\license\client.prmlic`.
+- Upgrade exit code: 0. The activated database SHA-256 remained byte-identical:
+  `FBA4518F35F32AA134566ECE1929413DF0D4E4586476A67FDE45837C12B8CEC1`.
+- Uninstall exit code: 0; binaries were removed while the client database and
+  license were preserved byte-identically. Preserved database integrity was
+  `ok` with one activation and one administrator row.
+
+### Supporting gates
+
+- Installer/license regression: 7 passed.
+- Final full native suite: 213 passed in 183.75 seconds.
+- Live UI audit: 59/59 routes passed at 1366x768, 1440x900 and 1920x1080.
+- Typed widget audit: 35 files, zero unsafe calls.
+- Performance smoke: 8/8 scenarios passed.
+
+## Historical Installer 1.7.5 Release Certification
 
 Date: 2026-07-11
 Application: PRM Billing Inventory

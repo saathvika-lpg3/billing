@@ -1,11 +1,42 @@
 # UI Layout Rules
 
-Updated: 2026-07-11
+Updated: 2026-07-12
 
 These rules define the compact responsive ERP layout standard for the PyQt
 desktop application. The goal is to preserve all business controls and logic
 while preventing page-level overflow, clipped labels, clipped buttons, and
 overlapping widgets on normal desktop screens.
+
+## 2026-07-12 Locked Master, Branding And Dropdown Rules
+
+- Editable `QComboBox` controls are enhanced once through
+  `widgets/smart_combo.py`. Typing performs case-insensitive contains filtering;
+  arrow keys, Enter, Escape and mouse selection remain available. Do not add a
+  competing page-local completer.
+- Field boxes marked `erpMinimumWidth` must retain a readable control width
+  when cards wrap. Flow layouts may move the entire field box to the next row;
+  they must not compress a GST treatment, state, UOM or status value until only
+  its trailing characters remain visible.
+- Customer and Supplier masters use Identity & Contact, GST & Compliance,
+  Location & Credit, and Addresses & Notes groups. Product Master uses Basic,
+  Inventory/UOM, Identification/Notes and Package/Variant groups. Preserve all
+  business fields and the horizontal action surface.
+- Master shortcuts use the same handlers as their buttons: Ctrl+S/F8 Save,
+  Ctrl+N New, Ctrl+F/F3 Search, Ctrl+E/F2 Edit, Ctrl+P/F10 Print and Escape for
+  the safe local back/cancel action. Tooltips expose the available shortcuts.
+- `CompanyBrandingWidget` owns logo-above-company-name rendering, aspect-ratio
+  scaling, initials fallback and company regulatory/contact details. Login,
+  Dashboard, shell and Company Settings must reuse it.
+- Lazy route activation must invalidate and reactivate the active page layout,
+  then reset the page scroll position. This prevents a hidden route from
+  retaining stale widths or opening below its header.
+- `TransactionDetailsDeck` stays compact enough that the grid and summary deck
+  keep Grand Total inside the initial 1366x768 viewport. Smaller windows may
+  scroll vertically; required fields and totals must never be hidden or
+  overlapped.
+- Communication actions that promise an attachment must use SMTP, Outlook or
+  Simple MAPI. `mailto:` is an explicit manual fallback and must never be
+  labelled as verified automatic attachment delivery.
 
 ## 2026-07-11 Locked Master, Toolbar And Totals Rules
 

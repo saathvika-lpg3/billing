@@ -24,6 +24,9 @@ class MasterRepository:
             self._add_column(conn, "units", "is_active", "INTEGER DEFAULT 1")
             self._add_column(conn, "company", "fssai_no", "TEXT")
             self._add_column(conn, "company", "pan", "TEXT")
+            self._add_column(conn, "company", "logo_path", "TEXT")
+            self._add_column(conn, "company", "business_type_code", "TEXT")
+            self._add_column(conn, "company", "drug_license_no", "TEXT")
             self._add_column(conn, "items", "supplier_item_code", "TEXT")
             self._add_column(conn, "items", "sale_unit", "TEXT")
             self._add_column(conn, "items", "purchase_unit", "TEXT")
@@ -155,6 +158,9 @@ class MasterRepository:
 
     def save_product(self, payload: dict[str, Any]) -> int:
         self.ensure_schema()
+        errors = self.validate_product_payload(payload)
+        if errors:
+            raise ValueError("\n".join(errors))
         now = datetime.now().isoformat(timespec="seconds")
         packs = list(payload.get("packs") or [])
         default_pack = self._default_pack(packs)
@@ -233,6 +239,7 @@ class MasterRepository:
                     "updated_at": now,
                 }
                 self._insert(conn, "product_packs", pack_row)
+            UomPriceService(self.db_path).sync_product_conversions(product_id, payload, conn=conn)
         return product_id
 
     def deactivate_product(self, product_id: int) -> int:
@@ -337,10 +344,7 @@ class MasterRepository:
             errors.append("Sale unit of measure is required.")
         if not purchase_unit:
             errors.append("Purchase unit of measure is required.")
-        if sale_unit and purchase_unit and sale_unit.upper() != purchase_unit.upper():
-            pack_unit_mismatch = any(str(pack.get("pack_unit") or "").strip().upper() != sale_unit.upper() for pack in packs if pack.get("pack_unit"))
-            if pack_unit_mismatch:
-                errors.append("Pack conversion requires consistent pack units.")
+        errors.extend(UomPriceService(self.db_path).validate_product_conversions(payload))
         active_packs = 0
         barcodes: set[str] = set()
         for index, pack in enumerate(packs, start=1):

@@ -1,5 +1,41 @@
 # Changelog
 
+## 2026-07-12 - Production stabilization and installer 1.7.6
+
+- Added reusable client branding with aspect-ratio-preserving logo/initials,
+  company identity and regulatory/contact details across Login, Dashboard,
+  shell, Company Settings and every shared PDF header.
+- Replaced the false Product pack-unit consistency rejection with validated,
+  atomic purchase-to-sale UOM conversion synchronization. Added an explicit
+  factor field and regression coverage for single UOM, Multi-UOM, Pack
+  Conversion, prices, packs and rollback behavior.
+- Standardized Customer, Supplier and Product master grouping, widths,
+  shortcuts and searchable editable combo boxes. The shared smart-combo
+  behavior supports contains filtering, arrows, Enter, Escape and mouse use.
+- Completed GST precedence and place-of-supply propagation across sales,
+  purchase, orders, quotations, delivery challans and returns.
+- Implemented real PDF attachments for SMTP, Outlook and Windows Simple MAPI;
+  added report/statement/dispatch email actions and retained `mailto:` only as
+  a clearly limited manual fallback.
+- Removed the client-runtime PowerShell WhatsApp helper in favor of native
+  Windows attachment handoff. Developer-only build scripts remain outside the
+  packaged runtime dependency chain.
+- Routed Product, Customer, Supplier and remaining generic master lists through
+  the professional report renderer. Dispatch/loading reports no longer total
+  ID columns.
+- Preserved and revalidated the locked A4/A2 portrait/landscape print engine,
+  multi-page headers/footers, GST/Grand Total continuation, Tally-style Profit
+  & Loss and Balance Sheet, and receipt/payment voucher formatting.
+- Improved hidden-route relayout and transaction deck sizing so totals remain
+  visible at 1366x768 while smaller viewports remain safely scrollable.
+- Added company-branding, product-conversion, GST-flow, email-attachment,
+  dispatch-total and smart-combo regressions. Final source gate: 59/59 live UI
+  routes, 35-file widget audit with zero findings, eight performance checks and
+  **213 tests passed**.
+- Bumped the installer to 1.7.6. Interactive setup accepts any valid client
+  `.prmlic` filename and installs it under the canonical internal name without
+  overwriting the client's database during upgrade.
+
 ## 2026-07-11 - Commercial UI stabilization and installer 1.7.5
 
 - Rebuilt Product Master into responsive business sections and a professional

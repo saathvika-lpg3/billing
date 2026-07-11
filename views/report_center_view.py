@@ -37,6 +37,7 @@ from services.gst_payload_service import GstPayloadService
 from services.mysql_source import MySqlSource
 from services.pdf_print import write_report_pdf, write_statement_pdf
 from services.print_preview import show_print_preview
+from services.share_service import prepare_email_document
 from widgets.action_toolbar import ActionSpec, CompactActionToolbar
 from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
@@ -75,6 +76,16 @@ REPORT_CATALOG = [
 
 
 class ReportCenterView(QWidget):
+    TOTALABLE_HEADERS = frozenset(
+        {
+            "qty", "quantity", "free_qty", "total_qty", "total_free",
+            "weight", "total_weight", "boxes", "box_qty", "cartons", "carton_qty",
+            "invoice_value", "taxable", "gst_total", "grand_total", "net_amount",
+            "amount", "total", "value", "total_value", "total_dispatched_qty",
+            "total_returned_qty", "collected_amount", "balance",
+        }
+    )
+
     def __init__(self, config: AppConfig) -> None:
         super().__init__()
         self.config = config
@@ -186,6 +197,7 @@ class ReportCenterView(QWidget):
             [
                 ActionSpec("Run", self.run_report, "Run the selected report with the selected date range.", role="primary"),
                 ActionSpec("Print", self.print_report, "Open a print preview for selected or visible report rows."),
+                ActionSpec("Email", self.email_report, "Create the report PDF and open an email with the file attached."),
                 ActionSpec("Export CSV", self.export_csv, "Export the visible report rows to CSV."),
                 ActionSpec("Export PDF", self.export_pdf, "Save the visible report rows as a PDF."),
                 ActionSpec("Prepare GST JSON", self.prepare_gst_json, "Prepare GST JSON for E-Invoice or E-Way Bill reports."),
@@ -585,6 +597,34 @@ class ReportCenterView(QWidget):
             return
         show_print_preview(self, default_path, f"{self.report.currentText()} Print Preview")
 
+    def email_report(self) -> None:
+        if not self.rows:
+            QMessageBox.information(self, "Report Center", "Run a report before email.")
+            return
+        rows = self._selected_rows() or self._filtered_rows()
+        if not rows:
+            QMessageBox.information(self, "Report Center", "No visible rows to email.")
+            return
+        safe_name = self.report.currentText().replace(" ", "_").lower()
+        path = self.config.project_root / "reports" / "email" / f"{safe_name}_{datetime.now():%Y%m%d_%H%M%S}.pdf"
+        try:
+            self._write_current_pdf(path, rows, print_rows=True)
+            result = prepare_email_document(
+                "",
+                self.report.currentText(),
+                f"Please find the {self.report.currentText()} PDF attached.",
+                path,
+                db_path=self.source.sqlite_path,
+            )
+        except Exception as exc:
+            QMessageBox.warning(self, "Report Center", f"Report email could not be prepared:\n{exc}")
+            return
+        message = str(result.get("message") or "Email handoff completed.")
+        if result.get("ok"):
+            QMessageBox.information(self, "Report Center", message)
+        else:
+            QMessageBox.warning(self, "Report Center", message)
+
     def prepare_gst_json(self) -> None:
         key = str(self.report.currentData())
         if key not in {"einvoice", "eway_bill"}:
@@ -722,7 +762,7 @@ class ReportCenterView(QWidget):
     def _append_grand_total_row(self, rows: list[dict[str, Any]], headers: list[str]) -> None:
         if not rows:
             return
-        numeric_headers = [header for header in headers if all(isinstance(row.get(header), (int, float, Decimal)) for row in rows)]
+        numeric_headers = self._numeric_total_headers(rows, headers)
         if not numeric_headers:
             return
         totals: dict[str, Any] = {header: sum(float(row.get(header) or 0) for row in rows) for header in numeric_headers}
@@ -743,6 +783,15 @@ class ReportCenterView(QWidget):
                 item.setFont(font)
             self.table.setItem(row_index, col_index, item)
         self.table.resizeRowsToContents()
+
+    @classmethod
+    def _numeric_total_headers(cls, rows: list[dict[str, Any]], headers: list[str]) -> list[str]:
+        return [
+            header
+            for header in headers
+            if header.strip().lower() in cls.TOTALABLE_HEADERS
+            and all(isinstance(row.get(header), (int, float, Decimal)) for row in rows)
+        ]
 
     def _pretty(self, value: str) -> str:
         return value.replace("_", " ").strip().title()

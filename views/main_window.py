@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QAction, QKeySequence, QPixmap, QShortcut
+from PyQt6.QtGui import QAction, QKeySequence, QShortcut
 from PyQt6.QtWidgets import (
     QAbstractScrollArea,
     QComboBox,
@@ -39,6 +39,7 @@ from config.app_config import AppConfig
 from config.qt_fonts import ensure_application_font
 from services.audit_reader import read_csv_rows
 from services.business_rules import normalize_business_type
+from services.company_profile_service import CompanyProfileService
 from services.license_service import LicenseContext, LicenseService
 from services.mysql_source import MySqlSource
 from views.account_entry_view import AccountEntryView
@@ -75,8 +76,10 @@ from views.scheme_master_view import SchemeMasterView
 from views.simple_master_view import SimpleMasterView
 from views.stock_dashboard_view import StockDashboardView
 from views.stock_out_view import StockOutView
+from widgets.company_branding import CompanyBrandingWidget
 from widgets.enter_key_flow import EnterKeyFlowFilter
 from widgets.erp_components import TransactionTotalsPanel, install_button_feedback_tree
+from widgets.smart_combo import install_smart_combos
 
 
 class FitToWidthStack(QStackedWidget):
@@ -153,16 +156,17 @@ class MainWindow(QMainWindow):
         self.history: list[str] = []
         self.current_page = "dashboard"
         self.dark_mode = False
+        self.company_profile: dict[str, object] = {}
         self._startup_trace("company_profile_loading", "START", "Loading company profile")
         try:
-            company_profile = self.source.company()
-            self._startup_trace("company_profile_loading", "SUCCESS", f"company={company_profile}")
+            self.company_profile = CompanyProfileService(self.source.sqlite_path).current_profile()
+            self._startup_trace("company_profile_loading", "SUCCESS", f"company={self.company_profile}")
         except Exception as exc:
             self._startup_trace_exception("company_profile_loading", exc)
         self._startup_trace("business_type_loading", "START", "Loading business type")
         try:
             business_type = normalize_business_type(
-                str(company_profile.get("business_type_code") or company_profile.get("business_type") or "").strip()
+                str(self.company_profile.get("business_type_code") or self.company_profile.get("business_type") or "").strip()
             )
             self._startup_trace("business_type_loading", "SUCCESS", f"business_type={business_type}")
         except Exception as exc:
@@ -183,6 +187,7 @@ class MainWindow(QMainWindow):
         try:
             self.setCentralWidget(self._build_shell())
             install_button_feedback_tree(self)
+            install_smart_combos(self)
             self._startup_trace("setup_ui", "SUCCESS", "Main window shell built")
         except Exception as exc:
             self._startup_trace_exception("setup_ui", exc)
@@ -539,23 +544,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(8)
         brand_row = QHBoxLayout()
         brand_row.setSpacing(8)
-        self.logo_label = QLabel()
-        self.logo_label.setObjectName("brandLogo")
-        self.logo_label.setFixedSize(88, 44)
-        self.logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        logo_path = self.config.assets_dir / "PRM_SoftSolutions.jpg"
-        if logo_path.exists():
-            logo = QPixmap(str(logo_path))
-            self.logo_label.setPixmap(
-                logo.scaled(
-                    84,
-                    40,
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation,
-                )
-            )
-        else:
-            self.logo_label.setText("PRM")
+        self.company_brand = CompanyBrandingWidget(self.config, self.company_profile, compact=True)
         title = QLabel("PRM BILLING INVENTORY")
         title.setObjectName("brandTitle")
         caption = QLabel("Way to future, Today")
@@ -564,7 +553,7 @@ class MainWindow(QMainWindow):
         title_box.setSpacing(0)
         title_box.addWidget(title)
         title_box.addWidget(caption)
-        brand_row.addWidget(self.logo_label)
+        brand_row.addWidget(self.company_brand)
         brand_row.addLayout(title_box)
         brand_row.addStretch(1)
         layout.addLayout(brand_row, stretch=1)
@@ -935,6 +924,8 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentWidget(self.pages[key])
         self.stack.updateGeometry()
         page = self.pages[key]
+        if self.content_scroll is not None:
+            self.content_scroll.verticalScrollBar().setValue(0)
         QTimer.singleShot(0, lambda: self._finalize_page_fit(page))
         self._refresh_sidebar_state()
         self.statusBar().showMessage(f"Open: {key}")
@@ -943,11 +934,12 @@ class MainWindow(QMainWindow):
         if self.stack.currentWidget() is not page:
             return
         self._fit_page_to_width(page)
-        layout = page.layout()
-        if layout is not None:
-            layout.activate()
+        install_smart_combos(page)
+        self._refresh_page_layouts(page)
         self.stack.updateGeometry()
         self._sync_active_page_height(page)
+        if self.content_scroll is not None:
+            self.content_scroll.verticalScrollBar().setValue(0)
         # Height fitting can add or remove the vertical scrollbar, changing a
         # list table's viewport by a few pixels. Refill non-transaction columns
         # after that geometry transition so no blank strip remains at the edge.
@@ -963,9 +955,19 @@ class MainWindow(QMainWindow):
         sync_page = getattr(page, "sync_responsive_layout", None)
         if callable(sync_page):
             sync_page()
+        install_smart_combos(page)
+        self._refresh_page_layouts(page)
         for totals_panel in page.findChildren(TransactionTotalsPanel):
             totals_panel.sync_responsive_layout()
         self._sync_active_page_height(page)
+
+    def _refresh_page_layouts(self, page: QWidget) -> None:
+        for widget in [page, *page.findChildren(QWidget)]:
+            layout = widget.layout()
+            if layout is not None:
+                layout.invalidate()
+                layout.activate()
+        page.updateGeometry()
 
     def _sync_active_page_height(self, page: QWidget) -> None:
         if self.content_scroll is None or self.stack.currentWidget() is not page:
@@ -1175,12 +1177,13 @@ class MainWindow(QMainWindow):
         page.setSizePolicy(QSizePolicy.Policy.Expanding, page.sizePolicy().verticalPolicy())
         controls = (QLineEdit, QComboBox, QDateEdit, QPushButton)
         for widget in page.findChildren(QWidget):
-            widget.setMinimumWidth(0)
+            requested_width = int(widget.property("erpMinimumWidth") or 0)
+            widget.setMinimumWidth(min(requested_width, 200) if requested_width else 0)
             if widget.maximumWidth() < max_size and not isinstance(widget, QTableWidget):
                 widget.setMaximumWidth(max_size)
             name = widget.objectName()
             if isinstance(widget, QFrame):
-                widget.setMinimumWidth(0)
+                widget.setMinimumWidth(min(requested_width, 200) if requested_width else 0)
                 role = str(widget.property("transactionRole") or "")
                 if name == "pageHeader":
                     widget.setMinimumHeight(0)

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QKeySequence, QShortcut
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
@@ -26,11 +28,16 @@ from PyQt6.QtWidgets import (
 
 from config.app_config import AppConfig
 from services.accounting_setup_service import tally_group_names
+from services.company_profile_service import CompanyProfileService
 from services.master_repository import MasterRepository
 from services.mysql_source import MySqlSource
+from services.pdf_print import write_report_pdf
+from services.print_preview import show_print_preview
 from widgets.action_toolbar import ActionSpec, CompactActionToolbar
+from widgets.company_branding import CompanyBrandingWidget
 from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 from widgets.form_layout_helpers import build_field_section
+from widgets.smart_combo import configure_smart_combo
 from services.ui_profile_adapter import control_attribute_map_from_profile
 
 
@@ -315,18 +322,20 @@ MASTER_SPECS: dict[str, MasterSpec] = {
         mode="company",
         title="Company Settings",
         subtitle="Primary company, GST, contact and invoice identity",
-        query="SELECT id, name, business_name, gstin, pan, fssai_no, phone, email, city, state, invoice_prefix, upi_id FROM company ORDER BY id LIMIT 20",
+        query="SELECT id, name, business_name, logo_path, business_type_code, gstin, pan, fssai_no, drug_license_no, phone, email, city, state, invoice_prefix, upi_id FROM company ORDER BY id LIMIT 20",
         fields=(
             FieldSpec("name", "Company Name", required=True, width=240),
             FieldSpec("business_name", "Business Name", width=220),
             FieldSpec("gstin", "GSTIN", width=170),
             FieldSpec("pan", "PAN", width=150),
             FieldSpec("fssai_no", "FSSAI No", width=160),
+            FieldSpec("drug_license_no", "Drug License", width=170),
+            FieldSpec("business_type_code", "Business Type", width=190),
             FieldSpec("phone", "Phone", width=130),
             FieldSpec("email", "Email", width=180),
             FieldSpec("invoice_prefix", "Invoice Prefix", width=120),
         ),
-        columns=("id", "name", "business_name", "gstin", "pan", "fssai_no", "phone", "email", "city", "state", "invoice_prefix", "upi_id"),
+        columns=("id", "name", "business_name", "business_type_code", "gstin", "pan", "fssai_no", "drug_license_no", "phone", "email", "city", "state", "invoice_prefix", "upi_id"),
     ),
 }
 
@@ -344,6 +353,7 @@ class SimpleMasterView(QWidget):
         self.controls: dict[str, QWidget] = {}
         self.current_id = 0
         self._build()
+        self._register_hotkeys()
         self.refresh()
 
     def _build(self) -> None:
@@ -363,14 +373,15 @@ class SimpleMasterView(QWidget):
     def _action_toolbar(self) -> CompactActionToolbar:
         self.action_toolbar = CompactActionToolbar(
             [
-                ActionSpec("New", self.clear_form, "Clear the form and start a new record.", role="positive"),
+                ActionSpec("New", self.clear_form, "Clear the form and start a new record. Ctrl+N", role="positive"),
                 ActionSpec(
                     f"Save {self.spec.title.replace(' Master', '')}",
                     self.save_draft,
-                    "Validate and save this master record.",
+                    "Validate and save this master record. Ctrl+S / F8",
                     role="primary",
                 ),
                 ActionSpec("Refresh", self.refresh, "Reload the current master list."),
+                ActionSpec("Print", self.print_list, "Print the visible master rows. Ctrl+P"),
             ]
         )
         return self.action_toolbar
@@ -382,12 +393,16 @@ class SimpleMasterView(QWidget):
         layout.setContentsMargins(8, 6, 8, 6)
         layout.setSpacing(6)
 
+        if self.spec.mode == "company":
+            self.company_brand = CompanyBrandingWidget(self.config)
+            layout.addWidget(self.company_brand)
+
         fields: list[tuple[str, QWidget, int]] = []
         for field in self.spec.fields:
             control = self._make_control(field)
             self.controls[field.key] = control
             # If this is the company admin view, hide or readonly restricted fields
-            if self.spec.mode == "company" and field.key in {"gstin", "fssai_no", "business_type_code", "invoice_template_code", "subscription_plan_code", "license_key", "installation_key"}:
+            if self.spec.mode == "company" and field.key in {"gstin", "fssai_no", "drug_license_no", "business_type_code", "invoice_template_code", "subscription_plan_code", "license_key", "installation_key"}:
                 # Show read-only and tooltip
                 if isinstance(control, QLineEdit):
                     control.setReadOnly(True)
@@ -411,6 +426,7 @@ class SimpleMasterView(QWidget):
             if field.options:
                 control.addItems(list(field.options))
             control.setMaxVisibleItems(12)
+            configure_smart_combo(control)
         elif field.kind == "check":
             control = QCheckBox(field.label)
             control.setChecked(field.checked)
@@ -514,6 +530,11 @@ class SimpleMasterView(QWidget):
             self.rows = []
             self.source_status.setText(f"Source unavailable: {exc}")
         self._redraw_table()
+        if self.spec.mode == "company" and hasattr(self, "company_brand"):
+            try:
+                self.company_brand.set_company(CompanyProfileService(self.source.sqlite_path).current_profile())
+            except Exception:
+                self.company_brand.set_company({})
         # Apply profile-driven control attributes where applicable
         try:
             company = self.source.company() or {}
@@ -608,6 +629,8 @@ class SimpleMasterView(QWidget):
         self.current_id = selected_id
         for field in self.spec.fields:
             self._set_control_value(field, selected.get(field.key))
+        if self.spec.mode == "company" and hasattr(self, "company_brand"):
+            self.company_brand.set_company(selected)
 
     def clear_form(self) -> None:
         self.current_id = 0
@@ -660,6 +683,34 @@ class SimpleMasterView(QWidget):
             return control.isChecked()
         return ""
 
+    def print_list(self) -> None:
+        query = self.search.text().strip().lower()
+        rows = [
+            row
+            for row in self.rows
+            if not query or query in " ".join(str(value) for value in row.values()).lower()
+        ]
+        if not rows:
+            QMessageBox.information(self, self.spec.title, "No visible rows to print.")
+            return
+        columns = [column for column in self.spec.columns if column.lower() != "id"]
+        payload = [{column: row.get(column, "") for column in columns} for row in rows]
+        path = self.config.project_root / "reports" / f"{self.spec.mode}_{datetime.now():%Y%m%d_%H%M%S}.pdf"
+        try:
+            write_report_pdf(
+                path,
+                f"{self.spec.title} List",
+                self.source.company(),
+                payload,
+                {"Search": self.search.text().strip(), "Rows": len(payload)},
+                db_path=self.source.sqlite_path,
+                document_type="report",
+            )
+        except Exception as exc:
+            QMessageBox.warning(self, self.spec.title, f"List print failed:\n{exc}")
+            return
+        show_print_preview(self, path, f"{self.spec.title} List Print Preview")
+
     def _set_control_value(self, field: FieldSpec, value: Any) -> None:
         control = self.controls[field.key]
         if isinstance(control, QLineEdit):
@@ -690,3 +741,20 @@ class SimpleMasterView(QWidget):
         if isinstance(value, str):
             return value.strip().lower() not in {"", "0", "false", "no", "inactive"}
         return bool(value)
+
+    def _register_hotkeys(self) -> None:
+        shortcuts = (
+            ("Ctrl+N", self.clear_form),
+            ("Ctrl+S", self.save_draft),
+            ("F8", self.save_draft),
+            ("Ctrl+P", self.print_list),
+            ("F10", self.print_list),
+            ("Ctrl+F", lambda: self.search.setFocus()),
+            ("F3", lambda: self.search.setFocus()),
+            ("Esc", self.clear_form),
+        )
+        self._shortcuts = []
+        for sequence, handler in shortcuts:
+            shortcut = QShortcut(QKeySequence(sequence), self)
+            shortcut.activated.connect(handler)
+            self._shortcuts.append(shortcut)

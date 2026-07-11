@@ -1,5 +1,27 @@
 # Product Master
 
+## 2026-07-12 Conversion and GST save contract
+
+- Purchase UOM may differ from Sale UOM when a positive explicit
+  Purchase-to-Sale Factor is supplied. A legitimate conversion must not be
+  rejected merely because pack units differ.
+- `UomPriceService.validate_product_conversions()` is the single validation
+  boundary. `MasterRepository.save_product()` validates before opening the
+  write transaction and synchronizes product-specific conversion rows inside
+  the same transaction as the item and package rows.
+- Single-UOM products require a factor of 1 when purchase and sale units are
+  identical. Multi-UOM/Pack Conversion products require valid units and a
+  positive factor; explicit purchase conversion takes precedence over a pack
+  row's pack size.
+- Selecting a category may apply its default GST rate. Persisted item GST then
+  takes precedence in transactions, followed by HSN tax code and category
+  default.
+- Global smart-combo behavior is installed by the shell. Product Master must
+  not create a second completer or use `.text()`/`.setText()` on combo boxes.
+- Regression coverage includes single UOM, Multi-UOM, Pack Conversion,
+  multiple packs, barcode, MRP/PTR/PTS, purchase/sale prices, save/reload/edit
+  and rollback on invalid conversion.
+
 ## Current scope
 - Product master persistence is now safe on fresh SQLite databases.
 - The shared repository handles schema migrations and product pack persistence without breaking existing databases.

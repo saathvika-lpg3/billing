@@ -28,7 +28,11 @@ COMPACT_TEXT_FIELD_HEIGHT = 56
 
 
 def prepare_form_control(widget: QWidget, minimum_width: int = 96, fixed_height: int = 28) -> QWidget:
-    widget.setMinimumWidth(min(minimum_width, 120))
+    # Respect page-specific business widths and let FlowLayout wrap fields;
+    # shrinking every control to 120px made party/master dropdown text unreadable.
+    responsive_minimum = min(max(minimum_width, 96), 200)
+    widget.setProperty("erpMinimumWidth", responsive_minimum)
+    widget.setMinimumWidth(max(widget.minimumWidth(), responsive_minimum))
     if isinstance(widget, (QLineEdit, QComboBox, QDateEdit)):
         widget.setMinimumHeight(min(fixed_height, 28))
         widget.setMaximumHeight(max(30, widget.minimumHeight()))
@@ -51,6 +55,9 @@ def field_box(label: str, widget: QWidget, minimum_width: int = 120) -> QFrame:
     box = QFrame()
     box.setObjectName("fieldBox")
     box.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+    responsive_minimum = min(max(minimum_width, 96), 200)
+    box.setProperty("erpMinimumWidth", responsive_minimum)
+    box.setMinimumWidth(responsive_minimum)
     box.setMinimumHeight(46 if not isinstance(widget, (QTextEdit, QPlainTextEdit)) else COMPACT_TEXT_FIELD_HEIGHT)
     layout = QVBoxLayout(box)
     layout.setContentsMargins(0, 0, 0, 0)

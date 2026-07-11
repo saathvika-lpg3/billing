@@ -1,5 +1,55 @@
 # Current Status
 
+## 2026-07-12 Production Stabilization And Installer 1.7.6
+
+- Safety checkpoint: `backups/production_stabilization_checkpoint_20260711_224546.zip`
+  (788,135 bytes, SHA-256
+  `55BE66DAB4B8B05BFEB7576D962BED2597BF10942BA91075A6CA3CAA053A278C`).
+- Client branding is now one reusable component on Login, Dashboard, the main
+  header and Company Settings. Report, statement, transaction and voucher PDFs
+  use the same logo-above-name hierarchy and include GSTIN, FSSAI, drug
+  licence, phone, email and business type when supplied.
+- Product conversion validation was repaired at the save-pipeline root. The
+  repository now validates and synchronizes explicit purchase-to-sale UOM
+  conversion atomically with the product and its pack rows. Single-UOM,
+  Multi-UOM and Pack Conversion saves no longer reject legitimate differing
+  purchase/sale units, and a failed conversion cannot partially save.
+- Customer, Supplier and Product masters use readable business groups,
+  horizontal actions, consistent shortcuts and width-aware controls. Editable
+  combo boxes use the shared type-to-filter completer with keyboard and mouse
+  support throughout live pages.
+- GST resolution now follows item -> HSN tax code -> category default -> zero,
+  and party state/place-of-supply data drives CGST/SGST versus IGST on the
+  sales, purchase, order, quotation, challan and return transaction families.
+- Email delivery attaches the actual PDF through SMTP, Outlook COM where
+  available, or Windows Simple MAPI. `mailto:` remains an explicit manual
+  fallback because that protocol cannot attach a local file reliably.
+- Runtime WhatsApp sharing no longer launches a PowerShell helper. Native
+  Windows clipboard/file-drop APIs perform attachment handoff; PowerShell is
+  used only by developer build scripts and is not a client runtime dependency.
+- List/master/report printing routes through the shared professional PDF
+  engine. Dispatch/loading totals use an allowlist of business measures and
+  never total record IDs. Profit & Loss, Balance Sheet, receipt and payment
+  voucher parity remains locked by multi-page PDF tests.
+- Live UI audit: **59/59 routes passed** at 1366x768, 1440x900 and 1920x1080;
+  no route fallback, clipping, overlap, unreadable dropdown or missing initial
+  Grand Total was found. Typed-widget audit: **35 files, 0 unsafe calls**.
+- Performance gate: Product open 0.1402s, add 20 packs 0.0146s, filter
+  0.0128s, save/reload 0.1070s, refresh 0.0554s, New response 0.0012s, Sales
+  Bill open 0.0683s and Purchase Entry open 0.0530s; all thresholds passed.
+- Release test gate: source compile passed and the full native suite completed
+  with **213 passed in 183.75 seconds**. Installer version is **1.7.6**; final
+  artifact identifiers and install certification are recorded in
+  `INSTALLER.md` and `TEST_REPORT.md`.
+- Certified setup: 51,873,806 bytes, SHA-256
+  `E769D2216540AE04632ACA0E419D013A3D1020C67DD5ED12B865BDDF985FA8E7`.
+  Clean install, frozen startup, authenticated installed-resource smoke,
+  renamed-license upgrade, byte-identical database preservation and uninstall
+  preservation all passed.
+- Remaining external release dependency: a trusted Authenticode certificate is
+  required only when Windows publisher signing is desired. Live SMTP/Outlook
+  delivery also requires the client's mail account/application configuration.
+
 ## 2026-07-11 Fast-Track UI Stabilization And Installer 1.7.5
 
 - Created and verified the pre-change source checkpoint

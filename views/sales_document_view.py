@@ -192,6 +192,7 @@ class SalesDocumentView(QWidget):
         self.customer = QComboBox()
         self.customer.setEditable(True)
         self.customer.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        self.customer.currentTextChanged.connect(self._party_changed)
         self.area = QComboBox()
         self.area.setEditable(True)
         self.area.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
@@ -636,7 +637,9 @@ class SalesDocumentView(QWidget):
             QMessageBox.warning(self, str(self.meta["title"]), "Quantity must be greater than zero.")
             return
         calculator = SalesCalculator(str(self.company.get("state") or ""))
-        self.computed_lines.append(calculator.compute_line(line))
+        self.computed_lines.append(
+            calculator.compute_line(line, place_of_supply=self._line_place_of_supply(line))
+        )
         self._redraw_lines()
         self.qty.setText("1")
         self.free_qty.setText("0")
@@ -711,7 +714,7 @@ class SalesDocumentView(QWidget):
         except ValueError:
             return
         calculator = SalesCalculator(str(self.company.get("state") or ""))
-        place = "Interstate" if line.tax_mode == "igst" else ""
+        place = self._line_place_of_supply(line)
         self.computed_lines[row_index] = calculator.compute_line(line, place_of_supply=place)
         self._redraw_lines()
 
@@ -722,6 +725,22 @@ class SalesDocumentView(QWidget):
         for row_index in selected:
             if 0 <= row_index < len(self.computed_lines):
                 self.computed_lines.pop(row_index)
+        self._redraw_lines()
+
+    def _line_place_of_supply(self, line: SalesLine | None = None) -> str:
+        if line is not None and line.tax_mode:
+            return "Interstate" if line.tax_mode == "igst" else str(self.company.get("state") or "")
+        party = self.customer_by_label.get(self.customer.currentText(), {})
+        return str(party.get("place_of_supply") or party.get("state") or "").strip()
+
+    def _party_changed(self, _label: str) -> None:
+        if not self.computed_lines:
+            return
+        calculator = SalesCalculator(str(self.company.get("state") or ""))
+        self.computed_lines = [
+            calculator.compute_line(row.source, place_of_supply=self._line_place_of_supply(row.source))
+            for row in self.computed_lines
+        ]
         self._redraw_lines()
 
     def _update_summary(self) -> None:
@@ -1111,4 +1130,11 @@ class SalesDocumentView(QWidget):
     def _register_hotkeys(self) -> None:
         QShortcut(QKeySequence("F4"), self, activated=self.add_line)
         QShortcut(QKeySequence("Ctrl+S"), self, activated=self.save_draft)
+        QShortcut(QKeySequence("F8"), self, activated=self.save_draft)
+        QShortcut(QKeySequence("Ctrl+P"), self, activated=self.print_document_pdf)
+        QShortcut(QKeySequence("F9"), self, activated=self.print_document_pdf)
+        QShortcut(QKeySequence("F10"), self, activated=self.print_document_pdf)
+        QShortcut(QKeySequence("Ctrl+N"), self, activated=self.clear_document)
+        QShortcut(QKeySequence("Ctrl+F"), self, activated=lambda: self.product.setFocus())
+        QShortcut(QKeySequence("F3"), self, activated=lambda: self.product.setFocus())
         QShortcut(QKeySequence("Delete"), self, activated=self.remove_selected_line)

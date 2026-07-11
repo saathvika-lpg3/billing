@@ -1,5 +1,29 @@
 # Desktop UI System
 
+## 2026-07-12 Production UI Foundation
+
+- `widgets/company_branding.py` is the canonical client identity surface. It
+  places an aspect-ratio-preserving client logo above the company name, uses an
+  initials placeholder when no logo is available, and renders configured
+  GSTIN, FSSAI, drug licence, phone, email and friendly business type details.
+- `widgets/smart_combo.py` enhances editable combo boxes application-wide with
+  case-insensitive contains filtering and normal arrow/Enter/Escape/mouse
+  behavior. Combo values continue to pass through typed widget access; no view
+  may call line-edit-only APIs on a `QComboBox`.
+- Customer and Supplier masters use four consistent business cards; Product
+  Master uses the Basic, Inventory/UOM, Identification/Notes and
+  Package/Variant structure. Field boxes carry readable minimum-width metadata
+  so wrapping occurs before text becomes clipped.
+- Master actions are horizontal-first and share Ctrl+S/F8, Ctrl+N,
+  Ctrl+F/F3, Ctrl+E/F2, Ctrl+P/F10 and Escape behavior where applicable.
+- Lazy pages are explicitly relaid out and scrolled to the top when opened.
+  The shared transaction details deck is height-capped so the item grid,
+  totals, tax summary and high-contrast Grand Total remain visible at the
+  supported desktop sizes.
+- Accepted evidence: **59/59 live routes** at 1366x768, 1440x900 and
+  1920x1080; **35 UI files / 0 unsafe typed-widget calls**; eight performance
+  checks within limits; and **213 automated tests passed**.
+
 ## 2026-07-11 Accepted UI Foundation
 
 - `widgets/action_toolbar.py` is the master/list/report action surface. Actions

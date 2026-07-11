@@ -18,7 +18,7 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-from services.business_rules import equivalent_business_type_codes, normalize_business_type
+from services.business_rules import equivalent_business_type_codes, normalize_business_type, profile_for
 
 
 DISTRIBUTOR_A2_TYPES = {
@@ -588,9 +588,6 @@ def _draw_statement_page_header(
     top = height - margin
     bottom = margin + 20
     _draw_box(pdf, margin, margin, content_width, height - (2 * margin), "#FFFFFF", "#0F172A", radius=6, stroke_width=0.85)
-    logo = _resolve_asset(company.get("logo_path"))
-    if logo:
-        _draw_image(pdf, logo, margin + 8, top - 52, 42, 42)
     _section_company_center_text(pdf, company, margin, top, content_width)
     strip_y = top - 76
     _section_title_strip(pdf, margin + 5, strip_y, content_width - 10, str(statement.get("title") or title).upper(), size=7.6, title_left=8)
@@ -750,9 +747,6 @@ def _draw_report_page_header(
     _draw_box(pdf, margin, bottom, content_width, header_height, "#FFFFFF", "#CBD5E1", radius=4, stroke_width=0.65)
     # draw header only once per page to avoid duplicates
     if not getattr(pdf, "_header_drawn", False):
-        logo = _resolve_asset(company.get("logo_path"))
-        if logo:
-            _draw_image(pdf, logo, margin + 6, top - 23 * mm, 18 * mm, 18 * mm)
         _section_company_center_text(pdf, company, margin, top, content_width)
         try:
             pdf._header_drawn = True
@@ -926,10 +920,6 @@ def _draw_sample_header(
     pdf.rect(x, top - 23, width, 5, stroke=0, fill=1)
     # draw company header only once per page
     if not getattr(pdf, "_header_drawn", False):
-        logo = _resolve_asset(company.get("logo_path"))
-        if logo:
-            _draw_box(pdf, x + 6, top - 86, 62, 62, "#FFFFFF", "#CBD5E1", radius=5)
-            _draw_image(pdf, logo, x + 11, top - 81, 52, 52)
         _section_company_center_text(pdf, company, x, top, width)
         try:
             pdf._header_drawn = True
@@ -1193,9 +1183,6 @@ def _draw_transaction_header(
 
     # draw company header only once per page
     if not getattr(pdf, "_header_drawn", False):
-        logo = _resolve_asset(company.get("logo_path"))
-        if logo:
-            _draw_image(pdf, logo, margin + 12, top - 45, 45, 45)
         _section_company_center_text(pdf, company, margin, top, inner_width)
         try:
             pdf._header_drawn = True
@@ -1338,13 +1325,8 @@ def _draw_voucher(
     top = height - margin
     inner_width = width - (2 * margin)
     _draw_box(pdf, margin, margin, inner_width, height - (2 * margin), "#FFFFFF", "#0F172A", radius=8, stroke_width=1.2)
-    logo = _resolve_asset(company.get("logo_path"))
-    if logo:
-        _draw_image(pdf, logo, margin + 12, top - 44, 40, 40)
-    _center_text(pdf, _company_name(company).upper(), margin, top - 16, inner_width, font="Helvetica-Bold", size=12, color="#0F172A")
-    _center_text(pdf, _company_address(company), margin, top - 31, inner_width, size=7.2, color="#475569")
-    _center_text(pdf, _company_contact_line(company), margin, top - 43, inner_width, font="Helvetica-Bold", size=7.0, color="#475569")
-    strip_y = top - 58
+    _section_company_center_text(pdf, company, margin, top, inner_width)
+    strip_y = top - 62
     pdf.setFillColor(colors.HexColor("#DFF4FF"))
     pdf.rect(margin + 6, strip_y, inner_width - 12, 14, stroke=0, fill=1)
     _draw_text(pdf, title.upper(), margin + 12, strip_y + 4, font="Helvetica-Bold", size=8, color="#0F172A")
@@ -1487,9 +1469,22 @@ def _draw_page_footer(pdf: canvas.Canvas, width: float, margin: float, page_inde
 
 
 def _section_company_center_text(pdf: canvas.Canvas, company: dict[str, Any], x: float, top: float, width: float) -> None:
-    _center_text(pdf, _company_name(company).upper(), x, top - 18, width, font="Helvetica-Bold", size=11 if width > (150 * mm) else 9.2, color="#0F172A")
-    _center_text(pdf, _company_address(company), x, top - 28, width, size=6.7, color="#475569")
-    _center_text(pdf, _company_contact_line(company), x, top - 38, width, font="Helvetica-Bold", size=6.4, color="#475569")
+    logo_width = 34.0
+    logo_height = 13.0
+    logo_x = x + ((width - logo_width) / 2)
+    logo_y = top - 17
+    logo = _resolve_asset(company.get("logo_path"))
+    if logo:
+        _draw_image(pdf, logo, logo_x, logo_y, logo_width, logo_height)
+    else:
+        _draw_box(pdf, logo_x, logo_y, logo_width, logo_height, "#EAF2FF", "#94A3B8", radius=3, stroke_width=0.5)
+        _center_text(pdf, _company_initials(company), logo_x, logo_y + 4, logo_width, font="Helvetica-Bold", size=6.4, color="#1E3A8A")
+    name = _fit_text(pdf, _company_name(company).upper(), width - 16, "Helvetica-Bold", 11 if width > (150 * mm) else 9.2)
+    address = _fit_text(pdf, _company_address(company), width - 16, "Helvetica", 6.7)
+    contact = _fit_text(pdf, _company_contact_line(company), width - 16, "Helvetica-Bold", 6.4)
+    _center_text(pdf, name, x, top - 27, width, font="Helvetica-Bold", size=11 if width > (150 * mm) else 9.2, color="#0F172A")
+    _center_text(pdf, address, x, top - 36, width, size=6.7, color="#475569")
+    _center_text(pdf, contact, x, top - 45, width, font="Helvetica-Bold", size=6.4, color="#475569")
 
 
 def _section_party_block(pdf: canvas.Canvas, label: str, values: list[str], x: float, y: float, width: float, height: float) -> None:
@@ -1844,7 +1839,7 @@ def _number_to_words(number: int) -> str:
 
 
 def _company_name(company: dict[str, Any]) -> str:
-    return str(company.get("business_name") or company.get("name") or "PRM Billing Inventory").strip()
+    return str(company.get("business_name") or company.get("company_name") or company.get("name") or "PRM Billing Inventory").strip()
 
 
 def _company_address(company: dict[str, Any]) -> str:
@@ -1861,16 +1856,27 @@ def _company_address(company: dict[str, Any]) -> str:
 
 def _company_contact_line(company: dict[str, Any]) -> str:
     parts = []
+    business_code = str(company.get("business_type_code") or company.get("business_type") or "").strip()
+    business_type = profile_for(business_code).name if business_code else ""
+    if business_type:
+        parts.append(f"Business: {business_type}")
     if company.get("gstin"):
         parts.append(f"GSTIN: {company.get('gstin')}")
     if company.get("fssai_no"):
         parts.append(f"FSSAI: {company.get('fssai_no')}")
+    if company.get("drug_license_no"):
+        parts.append(f"Drug Lic.: {company.get('drug_license_no')}")
     phone = company.get("phone") or company.get("mobile")
     if phone:
         parts.append(f"Phone: {phone}")
     if company.get("email"):
         parts.append(f"Email: {company.get('email')}")
     return " | ".join(_single_line(part) for part in parts if _single_line(part))
+
+
+def _company_initials(company: dict[str, Any]) -> str:
+    words = re.findall(r"[A-Za-z0-9]+", _company_name(company))
+    return "".join(word[0].upper() for word in words[:3]) or "CO"
 
 
 def _single_line(value: Any) -> str:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
@@ -28,9 +29,12 @@ from PyQt6.QtWidgets import (
 from config.app_config import AppConfig
 from services.master_repository import MasterRepository
 from services.mysql_source import MySqlSource
+from services.pdf_print import write_report_pdf
+from services.print_preview import show_print_preview
 from widgets.action_toolbar import ActionSpec, CompactActionToolbar
 from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 from widgets.form_layout_helpers import build_field_section
+from widgets.smart_combo import configure_smart_combo
 
 
 class PartyMasterView(QWidget):
@@ -58,6 +62,8 @@ class PartyMasterView(QWidget):
         root.addWidget(self._action_toolbar())
         root.addWidget(self._form_card())
         root.addWidget(self._list_card(), stretch=1)
+        self._register_hotkeys()
+        self._register_form_navigation()
 
     def _title_bar(self) -> QWidget:
         header = ERPPageHeader(
@@ -71,14 +77,15 @@ class PartyMasterView(QWidget):
     def _action_toolbar(self) -> CompactActionToolbar:
         self.action_toolbar = CompactActionToolbar(
             [
-                ActionSpec("New", self.clear_form, "Clear the form and start a new party.", role="positive"),
+                ActionSpec("New", self.clear_form, "Clear the form and start a new party. Ctrl+N", role="positive"),
                 ActionSpec(
                     f"Save {self.party_type.title()}",
                     self.save_draft,
-                    f"Validate and save this {self.party_type}.",
+                    f"Validate and save this {self.party_type}. Ctrl+S / F8",
                     role="primary",
                 ),
                 ActionSpec("Refresh", self.refresh, f"Reload the {self.party_type} list."),
+                ActionSpec("Print", self.print_list, f"Print the visible {self.party_type} list. Ctrl+P"),
             ]
         )
         return self.action_toolbar
@@ -93,6 +100,7 @@ class PartyMasterView(QWidget):
             widget.setFixedHeight(min(fixed_height, 28))
             widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         if isinstance(widget, QComboBox):
+            configure_smart_combo(widget)
             widget.setMaxVisibleItems(12)
             widget.setMinimumContentsLength(10)
             widget.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
@@ -144,40 +152,69 @@ class PartyMasterView(QWidget):
         self.shipping_address = QTextEdit()
         self.remarks = QTextEdit()
 
-        fields = [
+        identity_fields = [
             ("Code", self.code, 180),
             ("Name", self.name, 240),
             (f"{self.title.split()[0]} Type", self.party_type_control, 180),
             ("Status", self.status, 140),
-            ("GSTIN", self.gstin, 170),
-            ("PAN", self.pan, 130),
             ("Phone / Mobile", self.phone, 150),
             ("Email", self.email, 200),
             ("Contact Person", self.contact, 160),
+        ]
+        compliance_fields = [
+            ("GSTIN", self.gstin, 170),
+            ("PAN", self.pan, 130),
+            ("GST Treatment", self.gst_treatment, 150),
+            ("Place of Supply", self.place_supply, 150),
+            ("HSN Code", self.hsn_code, 120),
+            ("FSSAI No", self.fssai, 150),
+            ("Drug License", self.drug_license, 150),
+            ("Reverse Charge", self.reverse_charge, 140),
+        ]
+        location_fields = [
             ("City", self.city, 140),
             ("State", self.state, 140),
             ("PIN Code", self.pin_code, 110),
             ("Country", self.country, 130),
             ("Area / Route", self.area, 160),
-            ("Place of Supply", self.place_supply, 150),
             ("Opening Balance", self.balance, 120),
             ("Balance Type", self.balance_type, 120),
             ("Credit Limit", self.credit_limit, 120),
-            ("GST Treatment", self.gst_treatment, 150),
             ("Default Print Format", self.default_print_format, 160),
-            ("HSN Code", self.hsn_code, 120),
-            ("FSSAI No", self.fssai, 150),
-            ("Drug License", self.drug_license, 150),
-            ("Reverse Charge", self.reverse_charge, 140),
+        ]
+        address_fields = [
             ("Remarks", self.remarks, 260),
             ("Billing Address", self.address, 260),
             ("Shipping Address", self.shipping_address, 260),
         ]
-        layout.addWidget(build_field_section(fields, spacing=6, margin=0))
+        sections = QGridLayout()
+        sections.setContentsMargins(0, 0, 0, 0)
+        sections.setHorizontalSpacing(7)
+        sections.setVerticalSpacing(7)
+        sections.addWidget(self._master_section("Identity & Contact", identity_fields), 0, 0)
+        sections.addWidget(self._master_section("GST & Compliance", compliance_fields), 0, 1)
+        sections.addWidget(self._master_section("Location & Credit", location_fields), 1, 0)
+        sections.addWidget(self._master_section("Addresses & Notes", address_fields), 1, 1)
+        sections.setColumnStretch(0, 1)
+        sections.setColumnStretch(1, 1)
+        layout.addLayout(sections)
+        fields = identity_fields + compliance_fields + location_fields + address_fields
         for _, widget, _ in fields:
             self.form_controls.append(widget)
 
         return frame
+
+    def _master_section(self, title: str, fields: list[tuple[str, QWidget, int]]) -> QWidget:
+        section = QFrame()
+        section.setObjectName("masterSectionCard")
+        section_layout = QVBoxLayout(section)
+        section_layout.setContentsMargins(7, 5, 7, 6)
+        section_layout.setSpacing(4)
+        heading = QLabel(title)
+        heading.setObjectName("cardTitle")
+        section_layout.addWidget(heading)
+        section_layout.addWidget(build_field_section(fields, spacing=6, margin=0))
+        return section
 
     def _list_card(self) -> QWidget:
         frame = QFrame()
@@ -221,8 +258,6 @@ class PartyMasterView(QWidget):
             self.parties = []
             self.source_status.setText(f"Source unavailable: {exc}")
         self._redraw_table()
-        self._register_hotkeys()
-        self._register_form_navigation()
 
     def _redraw_table(self) -> None:
         query = self.search.text().strip().lower()
@@ -382,11 +417,60 @@ class PartyMasterView(QWidget):
             index = combo.findText(value)
         combo.setCurrentIndex(index)
 
+    def print_list(self) -> None:
+        query = self.search.text().strip().lower()
+        rows = [
+            row
+            for row in self.parties
+            if not query or query in " ".join(str(value) for value in row.values()).lower()
+        ]
+        if not rows:
+            QMessageBox.information(self, self.title, "No visible rows to print.")
+            return
+        columns = (
+            "code", "name", f"{self.party_type}_type", "gstin", "phone", "email",
+            "city", "state", "balance", "status",
+        )
+        payload = [{column: row.get(column, "") for column in columns} for row in rows]
+        path = self.config.project_root / "reports" / f"{self.party_type}_master_{datetime.now():%Y%m%d_%H%M%S}.pdf"
+        try:
+            write_report_pdf(
+                path,
+                f"{self.title} List",
+                self.source.company(),
+                payload,
+                {"Search": self.search.text().strip(), "Rows": len(payload)},
+                db_path=self.source.sqlite_path,
+                document_type="report",
+            )
+        except Exception as exc:
+            QMessageBox.warning(self, self.title, f"List print failed:\n{exc}")
+            return
+        show_print_preview(self, path, f"{self.title} List Print Preview")
+
     def _register_hotkeys(self) -> None:
-        QShortcut(QKeySequence("Ctrl+S"), self, activated=self.save_draft)
-        QShortcut(QKeySequence("Ctrl+N"), self, activated=self.clear_form)
-        QShortcut(QKeySequence("Ctrl+F"), self, activated=lambda: self.search.setFocus())
-        QShortcut(QKeySequence("Esc"), self, activated=self.clear_form)
+        bindings = (
+            ("Ctrl+S", self.save_draft),
+            ("F8", self.save_draft),
+            ("Ctrl+P", self.print_list),
+            ("F10", self.print_list),
+            ("Ctrl+N", self.clear_form),
+            ("Ctrl+F", lambda: self.search.setFocus()),
+            ("F3", lambda: self.search.setFocus()),
+            ("Ctrl+E", self._load_current_selection),
+            ("F2", self._load_current_selection),
+            ("Esc", self.clear_form),
+        )
+        self._shortcuts = []
+        for sequence, handler in bindings:
+            shortcut = QShortcut(QKeySequence(sequence), self)
+            shortcut.activated.connect(handler)
+            self._shortcuts.append(shortcut)
+
+    def _load_current_selection(self) -> None:
+        row = self.table.currentRow()
+        if row >= 0:
+            self.load_selected_row(row, 0)
 
     def _register_form_navigation(self) -> None:
         for control in self.form_controls:

@@ -149,7 +149,7 @@ def test_installer_release_includes_stabilized_ui_resources() -> None:
     inno = (ROOT / "installer" / "prm_billing_inventory.iss").read_text(encoding="utf-8")
     smoke_source = (ROOT / "tools" / "smoke_installed_ui.py").read_text(encoding="utf-8")
 
-    assert '#define MyAppVersion "1.7.5"' in inno
+    assert '#define MyAppVersion "1.7.6"' in inno
     for packaged_folder in ("themes", "assets", "docs", "print_templates"):
         assert f'root / "{packaged_folder}"' in spec
     assert 'root / "audit"' not in spec
@@ -157,6 +157,8 @@ def test_installer_release_includes_stabilized_ui_resources() -> None:
         ROOT / "widgets" / "action_toolbar.py",
         ROOT / "widgets" / "widget_values.py",
         ROOT / "widgets" / "erp_components.py",
+        ROOT / "widgets" / "company_branding.py",
+        ROOT / "widgets" / "smart_combo.py",
         ROOT / "views" / "product_master_view.py",
         ROOT / "views" / "sales_bill_view.py",
         ROOT / "views" / "purchase_entry_view.py",
@@ -168,6 +170,17 @@ def test_installer_release_includes_stabilized_ui_resources() -> None:
     assert "TemporaryDirectory" in smoke_source
     assert "shutil.copy2(installed_db_path, db_path)" in smoke_source
     assert 'result["installed_database_unchanged"] = True' in smoke_source
+
+
+def test_installer_browse_accepts_any_valid_client_prmlic_filename() -> None:
+    inno = (ROOT / "installer" / "prm_billing_inventory.iss").read_text(encoding="utf-8")
+    assert "CreateInputFilePage" in inno
+    assert "Browse and select client .prmlic file:" in inno
+    assert "PRM license files (*.prmlic)|*.prmlic" in inno
+    assert "ExtractFileExt(FileName)" in inno
+    assert "CopyFile(ClientLicenseFile, DestFile, False)" in inno
+    assert "DestFile := DestDir + '\\client.prmlic'" in inno
+    assert "lakshmi.prmlic" not in inno.lower()
 
 
 def test_startup_log_does_not_expose_the_client_license_key() -> None:

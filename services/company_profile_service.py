@@ -107,6 +107,7 @@ class CompanyProfileService:
                 ("company", "business_type_code", "TEXT"),
                 ("company", "invoice_template_code", "TEXT"),
                 ("company", "subscription_plan_code", "TEXT"),
+                ("company", "drug_license_no", "TEXT"),
                 ("dev_companies", "fssai_no", "TEXT"),
                 ("dev_companies", "pan", "TEXT"),
                 ("dev_companies", "drug_license_no", "TEXT"),

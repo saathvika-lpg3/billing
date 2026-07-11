@@ -1,5 +1,79 @@
 # Test Report
 
+## 2026-07-12 Production Stabilization And Installer 1.7.6 Gate
+
+### Source, UI and performance
+
+- Source compile: **PASSED**.
+- Final full pytest gate: **213 passed in 183.75 seconds**.
+- Live route audit: **59/59 passed**, 0 review findings, at 1366x768,
+  1440x900 and 1920x1080. Evidence:
+  `audit/live_page_ui_inventory.md` and `.csv`.
+- Typed widget API audit: **35 source files / 0 unsafe calls**. Evidence:
+  `audit/widget_api_audit.md` and `.json`.
+- Performance: **8/8 passed** against the defined thresholds. Product Master
+  open 0.1402s; add 20 pack rows 0.0146s; filter 0.0128s; save/reload 0.1070s;
+  refresh 0.0554s; New feedback 0.0012s; Sales Bill open 0.0683s; Purchase
+  Entry open 0.0530s. Evidence: `audit/ui_performance_results.md` and `.json`.
+
+### Functional regression coverage
+
+- Product: single UOM, Multi-UOM, Pack Conversion, explicit
+  purchase-to-sale factor, multiple pack rows, barcode, MRP/PTR/PTS,
+  purchase/sale rates, save/reload and atomic rejection: **PASSED**.
+- GST: combined slab sources, item/HSN/category precedence and intrastate
+  CGST+SGST versus interstate IGST across sales and purchase documents:
+  **PASSED**.
+- UI: company branding, searchable combos, master readability, shortcuts,
+  horizontal action surfaces, button feedback, Grand Total visibility, route
+  relayout and supported resolution fit: **PASSED**.
+- Communication: SMTP PDF attachment, Outlook attachment path, Simple MAPI
+  attachment path, report/statement handoff and visible failures: **PASSED**.
+  `mailto:` is intentionally not claimed as an attachment transport because
+  the protocol has no portable attachment support.
+- Print: list/report professional renderer, A4/A2 portrait/landscape,
+  multi-page repeated heading/footer/page numbering, GST/Grand Total,
+  Tally-style Profit & Loss and Balance Sheet, receipt/payment vouchers and
+  dispatch/loading measure-only totals: **PASSED**.
+- Runtime dependency audit: application source has no PowerShell or `.ps1`
+  invocation; native Windows sharing replaces the former helper: **PASSED**.
+- Installer source regression: version 1.7.6, sanitized seed, upgrade database
+  preservation, required resources and arbitrary valid `.prmlic` basename
+  acceptance: **PASSED**.
+
+### Safe screenshot evidence
+
+- Dashboard/company branding, Product Master, Customer Master, Supplier Master,
+  Sales Bill, Purchase Entry, Delivery Challan, Sales Return, Company Settings
+  and Profit & Loss captures are under `screenshots/` with the prefix
+  `production_stabilization_after_` and date `20260712`.
+
+### External validation boundary
+
+- Actual mail delivery requires a configured SMTP account or installed/default
+  Windows mail client on the client machine. Authenticode trust requires a
+  publisher certificate; neither item is embedded in source or installer.
+
+### Final installer certification
+
+- PyInstaller 6.21.0 / Python 3.13.7 / Inno Setup 6.7.3 build: **PASSED**.
+- Setup artifact: 51,873,806 bytes, SHA-256
+  `E769D2216540AE04632ACA0E419D013A3D1020C67DD5ED12B865BDDF985FA8E7`.
+- Sanitized first-install database integrity/privacy: **PASSED**; no client
+  license, activation, user or transaction rows were packaged.
+- Client payload privacy/runtime audit: **PASSED**; zero `.prmlic` and zero
+  `.ps1` files, with zero application PowerShell runtime references.
+- Clean install and actual frozen startup: **PASSED**; process remained healthy
+  after 12 seconds with zero startup failure markers.
+- Installed-resource UI smoke: **PASSED**; authenticated admin, Product Master
+  two-pack save/reload, Sales Bill, Purchase Entry, Sales, Reports, both Grand
+  Totals, horizontal list toolbar, two themes and SQLite integrity.
+- Renamed license upgrade using `lakshmi.prmlic`: **PASSED**. Setup installed it
+  as the canonical `license/client.prmlic`; database SHA-256 remained
+  byte-identical before and after upgrade.
+- Silent uninstall preservation: **PASSED**; application binaries were removed
+  while database and license remained byte-identical with integrity `ok`.
+
 ## 2026-07-11 Fast-Track UI And Installer 1.7.5 Certification
 
 - Source checkpoint: **PASSED**; backup hash verified.

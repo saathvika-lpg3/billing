@@ -173,6 +173,7 @@ class DeveloperConsoleView(QWidget):
             ("gstin", "GSTIN Optional", QLineEdit(), 150),
             ("pan", "PAN Optional", QLineEdit(), 140),
             ("fssai_no", "FSSAI Optional", QLineEdit(), 150),
+            ("drug_license_no", "Drug License", QLineEdit(), 150),
             ("invoice_prefix", "Invoice Prefix", QLineEdit(), 110),
             ("state", "State", QLineEdit(), 140),
         ]
@@ -467,7 +468,7 @@ class DeveloperConsoleView(QWidget):
         form.setHorizontalSpacing(8)
         form.setVerticalSpacing(5)
         self.email_delivery_mode = QComboBox()
-        self.email_delivery_mode.addItems(["handoff", "smtp"])
+        self.email_delivery_mode.addItems(["handoff", "outlook", "mapi", "mailto", "smtp"])
         self.email_smtp_host = QLineEdit()
         self.email_smtp_host.setPlaceholderText("smtp.example.com")
         self.email_smtp_port = QSpinBox()
@@ -955,7 +956,7 @@ class DeveloperConsoleView(QWidget):
 
     def _load_email_settings(self) -> None:
         config = SmtpEmailConfig.from_sources(db_path=self.db_path)
-        mode = config.delivery_mode if config.delivery_mode in {"handoff", "smtp"} else "handoff"
+        mode = config.delivery_mode if config.delivery_mode in {"handoff", "outlook", "mapi", "mailto", "smtp"} else "handoff"
         self.email_delivery_mode.setCurrentText(mode)
         self.email_smtp_host.setText(config.host)
         self.email_smtp_port.setValue(int(config.port or 587))

@@ -1,5 +1,35 @@
 # PRM Current Status
 
+## Production stabilization release - 2026-07-12
+
+- Status: **all code-controlled release gates passed** for client branding,
+  Product UOM/pack conversion, master readability, global smart dropdowns, GST
+  propagation, PDF attachment delivery, list printing, dispatch totals and
+  shared print parity.
+- Product save is transactional across `items`, `product_packs` and
+  product-specific UOM conversions. The prior consistency rule confused a
+  valid purchase-to-sale conversion with inconsistent pack data; validation is
+  now explicit, positive-factor based and covered for single and multi-UOM
+  products.
+- Tax slabs are read from both supported GST master sources. Item GST wins,
+  then HSN tax code, then category default; party place-of-supply determines
+  split intrastate tax versus IGST across the shared transaction family.
+- Client `.prmlic` selection is **not bound to one filename**. The installer
+  accepts any valid export ending in `.prmlic` (for example `lakshmi.prmlic` or
+  `sairam.prmlic`), validates its content, and installs it internally as
+  `license/client.prmlic` for that client installation.
+- Runtime evidence: 59/59 live routes clean at three supported resolutions, 35
+  typed-widget files with zero unsafe API use, eight performance checks within
+  limits, and **213 automated tests passed**.
+- Release target: installer **1.7.6**. The installed client runtime has no
+  PowerShell dependency; its only unavoidable external release items are mail
+  account/client setup and an optional commercial code-signing certificate.
+- Certified artifact: `installer_output/PRM_Billing_Inventory_Setup.exe`,
+  51,873,806 bytes, SHA-256
+  `E769D2216540AE04632ACA0E419D013A3D1020C67DD5ED12B865BDDF985FA8E7`.
+  Clean install, frozen launch, installed UI smoke, byte-identical upgrade and
+  uninstall data preservation passed.
+
 ## Fast-track commercial UI release - 2026-07-11
 
 - Status: **release gates passed** for the Product Master crash/redesign,

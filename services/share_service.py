@@ -1,17 +1,22 @@
 from __future__ import annotations
 
-import base64
+import ctypes
 import re
 import os
+import struct
 import subprocess
-import tempfile
+import time
 import webbrowser
 from pathlib import Path
 from urllib.parse import quote
 
 from services.communication_log_service import CommunicationLogService
 from services.communication_template_service import CommunicationTemplateService
-from services.email_service import EmailDeliveryService
+from services.email_service import (
+    EmailDeliveryService,
+    open_mapi_email_with_attachment,
+    open_outlook_email_with_attachment,
+)
 
 
 def normalize_phone(value: object) -> str:
@@ -138,14 +143,26 @@ def prepare_email_document(
         result = {"ok": False, "code": "missing_pdf", "message": "PDF attachment file is not ready."}
         _log_email_result(log_service, db_path, recipient, subject, message, file_path, result)
         return result
-    body = f"{message or ''}\n\nPDF: {file_path}".strip()
+    body = str(message or "").strip()
     service = delivery_service or EmailDeliveryService.from_environment(db_path)
     smtp_result = service.send_pdf(recipient, subject, body, file_path)
     if smtp_result.get("code") != "smtp_not_enabled":
         _log_email_result(log_service, db_path, recipient, subject, body, file_path, smtp_result)
         return smtp_result
+    delivery_mode = str(getattr(getattr(service, "config", None), "delivery_mode", "") or "").strip().lower()
+    if delivery_mode in {"handoff", "auto", "outlook", "mapi"}:
+        attachment_attempts = []
+        if delivery_mode in {"handoff", "auto", "outlook"}:
+            attachment_attempts.append(open_outlook_email_with_attachment(recipient, subject, body, file_path))
+        if delivery_mode in {"handoff", "auto", "outlook", "mapi"} and not any(result.get("ok") for result in attachment_attempts):
+            attachment_attempts.append(open_mapi_email_with_attachment(recipient, subject, body, file_path))
+        attached = next((result for result in attachment_attempts if result.get("ok")), None)
+        if attached:
+            _log_email_result(log_service, db_path, recipient, subject, body, file_path, attached)
+            return attached
+    mailto_body = f"{body}\n\nAttachment path (mailto cannot attach files): {file_path}".strip()
     try:
-        url = open_email_share(recipient, subject, body)
+        url = open_email_share(recipient, subject, mailto_body)
     except Exception as exc:
         result = {"ok": False, "code": "open_failed", "message": str(exc), "file": str(file_path)}
         _log_email_result(log_service, db_path, recipient, subject, body, file_path, result)
@@ -154,7 +171,7 @@ def prepare_email_document(
         result = {
             "ok": True,
             "code": "missing_recipient",
-            "message": "Email draft opened. Add the recipient and attach/send the PDF from the shown path.",
+            "message": "Email draft opened. Add the recipient and attach the PDF from the shown path; mailto cannot attach files.",
             "url": url,
             "file": str(file_path),
         }
@@ -163,9 +180,11 @@ def prepare_email_document(
     result = {
         "ok": True,
         "code": "opened",
-        "message": "Email draft opened. Attach/send the PDF from the shown path if your mail client does not attach files automatically.",
+        "message": "Mailto draft opened. Attach the PDF from the shown path; the mailto protocol cannot carry attachments.",
         "url": url,
         "file": str(file_path),
+        "attached": False,
+        "manual_attachment_required": True,
     }
     _log_email_result(log_service, db_path, recipient, subject, body, file_path, result)
     return result
@@ -252,7 +271,7 @@ def _log_email_result(
 
 
 def prepare_whatsapp_document(phone: object, message: str, pdf_path: Path, *, timeout: int = 90) -> dict[str, object]:
-    """Open WhatsApp Web and paste the PDF into the active chat when Windows allows it."""
+    """Open WhatsApp and paste a PDF using native Windows clipboard APIs."""
     file_path = Path(pdf_path)
     if os.name != "nt":
         return {"ok": False, "code": "unsupported_os", "message": "Automatic PDF attachment is available only on Windows."}
@@ -261,53 +280,45 @@ def prepare_whatsapp_document(phone: object, message: str, pdf_path: Path, *, ti
     digits = normalize_phone(phone)
     if not digits:
         return {"ok": False, "code": "missing_phone", "message": "Customer WhatsApp number is missing."}
-
-    powershell = Path(r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe")
-    ps_exe = str(powershell) if powershell.exists() else "powershell.exe"
-    script = _whatsapp_attach_script()
-    replacements = {
-        "__PHONE64__": _b64(digits),
-        "__FILE64__": _b64(str(file_path.resolve())),
-        "__CAPTION64__": _b64(message or ""),
-    }
-    for marker, value in replacements.items():
-        script = script.replace(marker, value)
-
-    tmp_name = ""
     try:
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".ps1", encoding="utf-8-sig") as handle:
-            handle.write(script)
-            tmp_name = handle.name
-        completed = subprocess.run(
-            [ps_exe, "-NoProfile", "-STA", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", tmp_name],
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-    except subprocess.TimeoutExpired:
-        return {"ok": False, "code": "timeout", "message": "WhatsApp attachment is taking too long. WhatsApp may still be loading; try again after login."}
-    except OSError as exc:
-        return {"ok": False, "code": "helper_start_failed", "message": f"Local WhatsApp attachment helper could not start: {exc}"}
-    finally:
-        if tmp_name:
-            try:
-                Path(tmp_name).unlink(missing_ok=True)
-            except OSError:
-                pass
+        open_whatsapp_share(digits, "")
+        _set_windows_file_clipboard(file_path.resolve())
+    except Exception as exc:
+        return {
+            "ok": False,
+            "code": "helper_start_failed",
+            "message": f"WhatsApp attachment could not be prepared: {exc}",
+            "file": str(file_path),
+        }
 
-    details = " ".join(part.strip() for part in [completed.stdout, completed.stderr] if part and part.strip())
-    if completed.returncode == 0:
+    window = _wait_for_whatsapp_window(min(max(int(timeout), 1), 20))
+    if not window:
         return {
             "ok": True,
-            "code": "attached",
-            "message": details or "PDF is ready in WhatsApp. Press Send in WhatsApp, then return to PRM.",
+            "code": "clipboard_ready",
+            "message": "WhatsApp opened and the PDF is on the clipboard. Select the chat and press Ctrl+V, then Send.",
+            "file": str(file_path),
+        }
+    try:
+        ctypes.windll.user32.SetForegroundWindow.argtypes = [ctypes.c_void_p]
+        ctypes.windll.user32.SetForegroundWindow(ctypes.c_void_p(window))
+        time.sleep(0.5)
+        _send_ctrl_v()
+        if str(message or "").strip():
+            time.sleep(2.5)
+            _set_windows_text_clipboard(str(message).strip())
+            _send_ctrl_v()
+    except Exception as exc:
+        return {
+            "ok": True,
+            "code": "clipboard_ready",
+            "message": f"PDF is on the clipboard. Press Ctrl+V in WhatsApp, then Send. ({exc})",
             "file": str(file_path),
         }
     return {
-        "ok": False,
-        "code": "attach_failed",
-        "message": f"Automatic PDF attachment failed{': ' + details if details else '.'}",
+        "ok": True,
+        "code": "attached",
+        "message": "PDF is ready in WhatsApp. Press Send in WhatsApp, then return to PRM.",
         "file": str(file_path),
     }
 
@@ -319,68 +330,91 @@ def pdf_share_note(path: Path) -> str:
     )
 
 
-def _b64(value: str) -> str:
-    return base64.b64encode(value.encode("utf-8")).decode("ascii")
+def _set_windows_file_clipboard(path: Path) -> None:
+    # DROPFILES followed by a UTF-16 double-null-terminated path list.
+    payload = struct.pack("<IiiII", 20, 0, 0, 0, 1) + (str(path) + "\0\0").encode("utf-16le")
+    _set_windows_clipboard_data(15, payload)
 
 
-def _whatsapp_attach_script() -> str:
-    return r'''
-$ErrorActionPreference = 'Stop'
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type @'
-using System;
-using System.Runtime.InteropServices;
-public static class PrmWin32 {
-  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
-  [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
-  [DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint dx, uint dy, uint data, UIntPtr extraInfo);
-  public struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
-}
-'@
-$utf8 = [System.Text.Encoding]::UTF8
-$phone = $utf8.GetString([System.Convert]::FromBase64String('__PHONE64__'))
-$file = $utf8.GetString([System.Convert]::FromBase64String('__FILE64__'))
-$caption = $utf8.GetString([System.Convert]::FromBase64String('__CAPTION64__'))
-if ($phone -notmatch '^\d{10,15}$') { throw 'Invalid WhatsApp phone number.' }
-if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw 'PDF file was not found.' }
-$pdfPath = (Resolve-Path -LiteralPath $file).Path
-$url = 'https://web.whatsapp.com/send?phone=' + [System.Uri]::EscapeDataString($phone)
-Start-Process $url | Out-Null
-Start-Sleep -Milliseconds 9000
-$shell = New-Object -ComObject WScript.Shell
-for ($i = 0; $i -lt 12; $i++) {
-    if ($shell.AppActivate('WhatsApp')) { break }
-    if ($shell.AppActivate('Google Chrome')) { break }
-    if ($shell.AppActivate('Microsoft Edge')) { break }
-    Start-Sleep -Milliseconds 500
-}
-Start-Sleep -Milliseconds 1200
-$browser = Get-Process msedge,chrome -ErrorAction SilentlyContinue |
-    Where-Object { $_.MainWindowHandle -ne 0 -and $_.MainWindowTitle -match 'WhatsApp|web\.whatsapp|Microsoft Edge|Google Chrome' } |
-    Sort-Object StartTime -Descending |
-    Select-Object -First 1
-if ($browser) {
-    [void][PrmWin32]::SetForegroundWindow($browser.MainWindowHandle)
-    Start-Sleep -Milliseconds 700
-    $rect = New-Object PrmWin32+RECT
-    if ([PrmWin32]::GetWindowRect($browser.MainWindowHandle, [ref]$rect)) {
-        $x = [Math]::Max($rect.Left + 120, [Math]::Min($rect.Right - 120, [int]($rect.Left + (($rect.Right - $rect.Left) * 0.72))))
-        $y = [Math]::Max($rect.Top + 120, [Math]::Min($rect.Bottom - 35, [int]($rect.Bottom - 48)))
-        [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($x, $y)
-        [PrmWin32]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)
-        Start-Sleep -Milliseconds 80
-        [PrmWin32]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)
-    }
-}
-Start-Sleep -Milliseconds 900
-$files = New-Object System.Collections.Specialized.StringCollection
-[void]$files.Add($pdfPath)
-[System.Windows.Forms.Clipboard]::SetFileDropList($files)
-[System.Windows.Forms.SendKeys]::SendWait('^v')
-Start-Sleep -Milliseconds 4200
-if ($caption.Trim().Length -gt 0) {
-    [System.Windows.Forms.Clipboard]::SetText($caption)
-    [System.Windows.Forms.SendKeys]::SendWait('^v')
-}
-Write-Output 'PDF is ready in WhatsApp. Press Send in WhatsApp.'
-'''
+def _set_windows_text_clipboard(value: str) -> None:
+    _set_windows_clipboard_data(13, (value + "\0").encode("utf-16le"))
+
+
+def _set_windows_clipboard_data(format_id: int, payload: bytes) -> None:
+    kernel32 = ctypes.windll.kernel32
+    user32 = ctypes.windll.user32
+    kernel32.GlobalAlloc.argtypes = [ctypes.c_uint, ctypes.c_size_t]
+    kernel32.GlobalAlloc.restype = ctypes.c_void_p
+    kernel32.GlobalLock.argtypes = [ctypes.c_void_p]
+    kernel32.GlobalLock.restype = ctypes.c_void_p
+    kernel32.GlobalUnlock.argtypes = [ctypes.c_void_p]
+    kernel32.GlobalFree.argtypes = [ctypes.c_void_p]
+    user32.SetClipboardData.argtypes = [ctypes.c_uint, ctypes.c_void_p]
+    user32.SetClipboardData.restype = ctypes.c_void_p
+    handle = kernel32.GlobalAlloc(0x0002, len(payload))
+    if not handle:
+        raise ctypes.WinError()
+    pointer = kernel32.GlobalLock(handle)
+    if not pointer:
+        kernel32.GlobalFree(handle)
+        raise ctypes.WinError()
+    ctypes.memmove(pointer, payload, len(payload))
+    kernel32.GlobalUnlock(handle)
+    if not user32.OpenClipboard(None):
+        kernel32.GlobalFree(handle)
+        raise ctypes.WinError()
+    transferred = False
+    try:
+        user32.EmptyClipboard()
+        if not user32.SetClipboardData(format_id, handle):
+            raise ctypes.WinError()
+        transferred = True
+    finally:
+        user32.CloseClipboard()
+        if not transferred:
+            kernel32.GlobalFree(handle)
+
+
+def _wait_for_whatsapp_window(timeout: int) -> int:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        found = _find_whatsapp_window()
+        if found:
+            return found
+        time.sleep(0.5)
+    return 0
+
+
+def _find_whatsapp_window() -> int:
+    user32 = ctypes.windll.user32
+    matches: list[int] = []
+    callback_type = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+    user32.IsWindowVisible.argtypes = [ctypes.c_void_p]
+    user32.GetWindowTextLengthW.argtypes = [ctypes.c_void_p]
+    user32.GetWindowTextW.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_int]
+    user32.EnumWindows.argtypes = [callback_type, ctypes.c_void_p]
+
+    @callback_type
+    def visit(hwnd: int, _lparam: int) -> bool:
+        handle = ctypes.c_void_p(hwnd)
+        if not user32.IsWindowVisible(handle):
+            return True
+        length = user32.GetWindowTextLengthW(handle)
+        if length <= 0:
+            return True
+        buffer = ctypes.create_unicode_buffer(length + 1)
+        user32.GetWindowTextW(handle, buffer, length + 1)
+        if "whatsapp" in buffer.value.casefold():
+            matches.append(int(hwnd))
+        return True
+
+    user32.EnumWindows(visit, 0)
+    return matches[0] if matches else 0
+
+
+def _send_ctrl_v() -> None:
+    user32 = ctypes.windll.user32
+    user32.keybd_event(0x11, 0, 0, 0)
+    user32.keybd_event(0x56, 0, 0, 0)
+    user32.keybd_event(0x56, 0, 0x0002, 0)
+    user32.keybd_event(0x11, 0, 0x0002, 0)

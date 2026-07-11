@@ -1,50 +1,10 @@
 [
-  {
-    "operation": "product_master_open",
-    "seconds": 0.1626,
-    "threshold_seconds": 5.0,
-    "status": "PASS"
-  },
-  {
-    "operation": "add_20_pack_rows",
-    "seconds": 0.108,
-    "threshold_seconds": 2.0,
-    "status": "PASS"
-  },
-  {
-    "operation": "product_filter",
-    "seconds": 0.0067,
-    "threshold_seconds": 1.0,
-    "status": "PASS"
-  },
-  {
-    "operation": "product_save_reload",
-    "seconds": 0.3277,
-    "threshold_seconds": 5.0,
-    "status": "PASS"
-  },
-  {
-    "operation": "product_refresh",
-    "seconds": 0.29,
-    "threshold_seconds": 5.0,
-    "status": "PASS"
-  },
-  {
-    "operation": "new_button_response",
-    "seconds": 0.0151,
-    "threshold_seconds": 0.25,
-    "status": "PASS"
-  },
-  {
-    "operation": "sales_bill_open",
-    "seconds": 0.1283,
-    "threshold_seconds": 5.0,
-    "status": "PASS"
-  },
-  {
-    "operation": "purchase_entry_open",
-    "seconds": 0.0853,
-    "threshold_seconds": 5.0,
-    "status": "PASS"
-  }
+  {"operation": "product_master_open", "seconds": 0.1402, "threshold_seconds": 5.0, "status": "PASS"},
+  {"operation": "add_20_pack_rows", "seconds": 0.0146, "threshold_seconds": 2.0, "status": "PASS"},
+  {"operation": "product_filter", "seconds": 0.0128, "threshold_seconds": 1.0, "status": "PASS"},
+  {"operation": "product_save_reload", "seconds": 0.1070, "threshold_seconds": 5.0, "status": "PASS"},
+  {"operation": "product_refresh", "seconds": 0.0554, "threshold_seconds": 5.0, "status": "PASS"},
+  {"operation": "new_button_response", "seconds": 0.0012, "threshold_seconds": 0.25, "status": "PASS"},
+  {"operation": "sales_bill_open", "seconds": 0.0683, "threshold_seconds": 5.0, "status": "PASS"},
+  {"operation": "purchase_entry_open", "seconds": 0.0530, "threshold_seconds": 5.0, "status": "PASS"}
 ]

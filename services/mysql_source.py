@@ -441,10 +441,10 @@ class MySqlSource:
         return found
 
     def customers(self) -> list[dict[str, Any]]:
-        return self.rows("SELECT id,name,COALESCE(area,'') area,COALESCE(gstin,'') gstin,COALESCE(phone,'') phone,COALESCE(balance,0) balance,COALESCE(shipping_address,address,'') shipping_address FROM customers ORDER BY name LIMIT 2000")
+        return self.rows("SELECT id,name,COALESCE(area,'') area,COALESCE(state,'') state,COALESCE(place_of_supply,state,'') place_of_supply,COALESCE(gstin,'') gstin,COALESCE(phone,'') phone,COALESCE(balance,0) balance,COALESCE(shipping_address,address,'') shipping_address FROM customers ORDER BY name LIMIT 2000")
 
     def suppliers(self) -> list[dict[str, Any]]:
-        return self.rows("SELECT id,name,COALESCE(gstin,'') gstin,COALESCE(phone,'') phone FROM suppliers ORDER BY name")
+        return self.rows("SELECT id,name,COALESCE(area,'') area,COALESCE(state,'') state,COALESCE(place_of_supply,state,'') place_of_supply,COALESCE(gstin,'') gstin,COALESCE(phone,'') phone,COALESCE(balance,0) balance FROM suppliers ORDER BY name")
 
     def item_categories(self) -> list[dict[str, Any]]:
         return self.rows("SELECT id,name,COALESCE(code,'') code,COALESCE(default_gst,0) default_gst FROM item_categories WHERE COALESCE(is_active,1)=1 ORDER BY sort_order,name")
@@ -456,7 +456,21 @@ class MySqlSource:
         return self.rows("SELECT name FROM units ORDER BY name")
 
     def tax_slabs(self) -> list[dict[str, Any]]:
-        return self.rows("SELECT rate,COALESCE(name,'') name FROM tax_slabs WHERE COALESCE(is_active,1)=1 ORDER BY rate")
+        rates: dict[float, dict[str, Any]] = {}
+        queries = (
+            "SELECT rate,COALESCE(name,'') name FROM tax_slabs WHERE COALESCE(is_active,1)=1",
+            "SELECT gst_rate rate,COALESCE(tax_name,'') name FROM tax_codes WHERE COALESCE(is_active,1)=1",
+        )
+        for query in queries:
+            try:
+                for row in self.rows(query):
+                    rate = float(row.get("rate") or 0)
+                    existing = rates.get(rate)
+                    if existing is None or (not existing.get("name") and row.get("name")):
+                        rates[rate] = {"rate": rate, "name": str(row.get("name") or "")}
+            except (sqlite3.Error, RuntimeError, ValueError, TypeError):
+                continue
+        return [rates[rate] for rate in sorted(rates)]
 
     def users(self) -> list[dict[str, Any]]:
         return self.rows("SELECT id,name,COALESCE(role,'') role FROM users ORDER BY name")
@@ -485,7 +499,23 @@ class MySqlSource:
 
         item_code_expr = "COALESCE(i.code, '')" if "code" in item_columns else "''"
         item_hsn_expr = "COALESCE(i.hsn, '')" if "hsn" in item_columns else "''"
-        item_gst_expr = "COALESCE(i.gst, 0)" if "gst" in item_columns else "0"
+        gst_candidates: list[str] = []
+        if "gst" in item_columns:
+            gst_candidates.append("NULLIF(COALESCE(i.gst,0),0)")
+        tax_columns = self._table_columns("tax_codes")
+        if "gst_rate" in tax_columns and "hsn_sac" in tax_columns and "hsn" in item_columns:
+            gst_candidates.append(
+                "(SELECT tc.gst_rate FROM tax_codes tc "
+                "WHERE COALESCE(tc.is_active,1)=1 AND TRIM(COALESCE(tc.hsn_sac,''))<>'' "
+                "AND TRIM(COALESCE(i.hsn,''))<>'' AND TRIM(COALESCE(tc.hsn_sac,''))=TRIM(COALESCE(i.hsn,'')) "
+                "ORDER BY COALESCE(tc.effective_from,'') DESC,tc.id DESC LIMIT 1)"
+            )
+        category_columns = self._table_columns("item_categories")
+        has_category_gst = "category_id" in item_columns and "default_gst" in category_columns
+        if has_category_gst:
+            gst_candidates.append("NULLIF(COALESCE(ic.default_gst,0),0)")
+        gst_candidates.append("0")
+        item_gst_expr = f"COALESCE({', '.join(gst_candidates)})"
         item_supplier_expr = "COALESCE(i.supplier_id, 0)" if "supplier_id" in item_columns else "0"
         item_unit_expr = "COALESCE(i.unit, 'PCS')" if "unit" in item_columns else "'PCS'"
         item_mrp_expr = "COALESCE(i.mrp, 0)" if "mrp" in item_columns else "0"
@@ -539,6 +569,7 @@ class MySqlSource:
                 {pack_size_expr} pack_size
             FROM items i
             LEFT JOIN suppliers s ON s.id=i.supplier_id
+            {"LEFT JOIN item_categories ic ON ic.id=i.category_id" if has_category_gst else ""}
             LEFT JOIN product_packs pp ON pp.product_id=i.id AND {pack_is_active_expr}=1
             WHERE COALESCE(i.status,'Active')='Active'
             ORDER BY i.name, {pack_is_default_expr} DESC, pp.id

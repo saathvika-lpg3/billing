@@ -1,5 +1,27 @@
 # Print Engine Guide
 
+## 2026-07-12 production lock
+
+- The company logo/initials block is drawn above the company name by the shared
+  renderer. GSTIN, FSSAI, drug licence, phone, email and business type are
+  included only when configured; individual views must not implement a
+  competing header.
+- Canonical A4/A2 portrait/landscape rendering retains 9 mm safe margins,
+  printable-area calculations, repeated page/column headings, page numbering,
+  continuation footers and final-page GST, Grand Total, amount words and
+  signature safety.
+- Product, Customer, Supplier and generic master lists now use the same report
+  renderer as transaction lists and Report Center. Profit & Loss and Balance
+  Sheet stay on the approved Tally-style two-sided statement renderer;
+  receipt/payment output stays on the shared voucher renderer.
+- Dispatch and loading totals are allowlisted business measures (quantity,
+  weight, boxes/cartons and invoice value). Record IDs and unrelated numeric
+  metadata must never be totaled.
+- Print/report parity regressions cover paper/orientation variants, multi-page
+  repetition, statements, vouchers, list output and dispatch totals. Physical
+  printer margins remain an operator/site acceptance item because hardware
+  non-printable areas differ by printer driver.
+
 ## Future print/report requirements
 
 - Support A2 Landscape in print preview, export, and bulk print workflows.

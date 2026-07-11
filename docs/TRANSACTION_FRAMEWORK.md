@@ -1,5 +1,29 @@
 # Transaction Entry Framework
 
+## 2026-07-12 GST, Communication And Output Contract
+
+- Party selectors carry state/place-of-supply into the transaction model.
+  Intrastate documents recompute CGST+SGST; interstate documents recompute
+  IGST. This applies to Sales Bill, Purchase Entry, orders, quotations,
+  delivery challans and the shared sales/purchase return families.
+- Product GST resolution uses the first non-zero configured value in this
+  order: item, matching HSN tax code, category default, then zero. The master
+  source reads both supported tax slab/code stores, so the transaction grid,
+  totals, ledger posting and PDF use the same resolved percentage.
+- The compact shared details deck and route-layout refresh keep totals visible
+  when Delivery Challan and return pages are first opened at 1366x768. Grand
+  Total remains numerically bound, high contrast and scroll-accessible at
+  smaller viewports.
+- Email actions build the approved PDF first and attach that file through SMTP,
+  Outlook or Windows Simple MAPI. Report Center uses the same rule for reports,
+  statements, dispatch and loading output. `mailto:` is manual fallback only.
+- Product, party and generic master lists, transaction lists, reports,
+  statements and vouchers reuse the shared professional PDF/report engine;
+  page-specific generic table printers are not permitted.
+- Current evidence: 59/59 live routes passed at all three supported desktop
+  resolutions, the print/report parity batch passed, and the full suite
+  completed with **213 passed**.
+
 ## 2026-07-11 Shared Transaction Acceptance
 
 - Sales Bill and Purchase Entry now use `TransactionDetailsDeck`,

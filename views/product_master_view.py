@@ -10,7 +10,6 @@ from PyQt6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
     QComboBox,
-    QCompleter,
     QDialog,
     QDialogButtonBox,
     QFileDialog,
@@ -35,8 +34,12 @@ from PyQt6.QtWidgets import (
 from config.app_config import AppConfig
 from services.master_repository import MasterRepository
 from services.mysql_source import MySqlSource
+from services.pdf_print import write_report_pdf
+from services.print_preview import show_print_preview
+from services.uom_price_service import UomPriceService
 from widgets.action_toolbar import ActionSpec, CompactActionToolbar
 from widgets.erp_components import ERPFieldBox, ERPPageHeader
+from widgets.smart_combo import configure_smart_combo
 from widgets.widget_values import set_widget_value, widget_text
 
 
@@ -58,10 +61,12 @@ class ProductMasterView(QWidget):
         self.config = config
         self.source = MySqlSource()
         self.repository = MasterRepository(self.source.sqlite_path)
+        self.uom_service = UomPriceService(self.source.sqlite_path)
         self.products: list[dict[str, Any]] = []
         self.product_by_id: dict[int, dict[str, Any]] = {}
         self.supplier_labels: dict[str, int] = {}
         self.category_labels: dict[str, int] = {}
+        self.category_gst_by_label: dict[str, float] = {}
         self.brand_labels: dict[str, int] = {}
         self.form_controls: list[QWidget] = []
         self._build()
@@ -98,6 +103,7 @@ class ProductMasterView(QWidget):
                 ActionSpec("Advanced", self.open_notes, "Edit extended product details."),
                 ActionSpec("Import", self.open_import, "Open the product import workspace."),
                 ActionSpec("Export", self.export_products, "Export the current product list to CSV."),
+                ActionSpec("Print", self.print_product_list, "Print the visible product list (Ctrl+P)."),
                 ActionSpec("Close", self.close_page, "Return to the previous ERP page.", role="destructive"),
             ],
             self,
@@ -114,6 +120,7 @@ class ProductMasterView(QWidget):
             widget.setMaximumHeight(70)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         if isinstance(widget, QComboBox):
+            configure_smart_combo(widget)
             widget.setMaxVisibleItems(18)
             widget.setMinimumContentsLength(min(widget.minimumContentsLength(), 8))
             widget.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
@@ -146,6 +153,11 @@ class ProductMasterView(QWidget):
         self.purchase_unit.setEditable(True)
         self.purchase_unit.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.purchase_unit.setToolTip("Select purchase unit or type to add/search")
+        self.conversion_factor = QLineEdit("1")
+        self.conversion_factor.setPlaceholderText("1 purchase = N sale units")
+        self.conversion_factor.setToolTip(
+            "Purchase-to-sale factor. Example: Purchase UoM BOX, Sale UoM PCS, factor 12."
+        )
         self.valuation = QComboBox()
         self.valuation.addItems(["weighted_average", "fifo", "standard_cost"])
         self.sku_alias = QLineEdit()
@@ -163,6 +175,10 @@ class ProductMasterView(QWidget):
         self.category.setToolTip("Required product category")
         self.sale_unit.setToolTip("Default unit used on sales documents")
         self.purchase_unit.setToolTip("Default unit used on purchase documents")
+        self.category.currentTextChanged.connect(self._apply_category_gst)
+        self.pack_conversion.toggled.connect(self._sync_conversion_controls)
+        self.sale_unit.currentTextChanged.connect(self._sync_conversion_controls)
+        self.purchase_unit.currentTextChanged.connect(self._sync_conversion_controls)
 
         basic_fields = [
             ("Product Code *", self.code, 140),
@@ -179,6 +195,7 @@ class ProductMasterView(QWidget):
         inventory_fields = [
             ("Sale UoM *", self.sale_unit, 120),
             ("Purchase UoM *", self.purchase_unit, 120),
+            ("Purchase-to-Sale Factor", self.conversion_factor, 170),
             ("Lead Time (Days)", self.lead_time, 120),
             ("Shelf Life (Days)", self.shelf_life, 120),
             ("Near Expiry Alert (Days)", self.near_expiry, 160),
@@ -240,6 +257,7 @@ class ProductMasterView(QWidget):
         self.form_grid.setVerticalSpacing(6)
         self._form_layout_compact: bool | None = None
         self._arrange_form_cards(compact=self.width() < 1180)
+        self._sync_conversion_controls()
         return host
 
     def _section_card(
@@ -430,16 +448,14 @@ class ProductMasterView(QWidget):
         self.product_by_id = {int(row["id"]): row for row in self.products}
         self._fill_id_combo(self.supplier, {"No Company": 0} | {s["name"]: int(s["id"]) for s in suppliers}, self.supplier_labels)
         self._fill_id_combo(self.category, {"Choose Category": 0} | {c["name"]: int(c["id"]) for c in categories}, self.category_labels)
+        self.category_gst_by_label = {
+            str(category.get("name") or ""): float(category.get("default_gst") or 0)
+            for category in categories
+        }
         self._fill_id_combo(self.brand, {"No Brand": 0} | {b["name"]: int(b["id"]) for b in brands}, self.brand_labels)
-        # make supplier/category/brand editable and provide MatchContains completers
+        # Make all lookup fields use the shared contains-filter dropdown behaviour.
         for combo in (self.supplier, self.category, self.brand):
-            combo.setEditable(True)
-            combo.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
-            completer = QCompleter([combo.itemText(i) for i in range(combo.count())], self)
-            completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
-            completer.setFilterMode(Qt.MatchFlag.MatchContains)
-            combo.setCompleter(completer)
-            combo.setToolTip("Type to filter; press Enter to select")
+            configure_smart_combo(combo)
         self.units = [u["name"] for u in units] or ["PCS"]
         # Populate the two persistent combo models explicitly. New/reset must
         # change only their selection, never discard the available UoMs.
@@ -449,6 +465,7 @@ class ProductMasterView(QWidget):
         self.purchase_unit.addItems(self.units)
         self.gst.clear()
         self.gst.addItems([f"{float(s['rate']):.2f}" for s in slabs] or ["0.00", "5.00", "12.00", "18.00", "28.00"])
+        configure_smart_combo(self.gst)
         # Check for UOM/price foundation availability in DB and show small indicator
         try:
             import sqlite3
@@ -522,6 +539,7 @@ class ProductMasterView(QWidget):
         self.hsn.setText(str(product.get("hsn") or ""))
         self.item_type.setCurrentText(str(product.get("item_type") or "Stock Item"))
         self.status.setCurrentText(str(product.get("status") or "Active"))
+        self._set_combo_id(self.category, self.category_labels, int(product.get("category_id") or 0))
         self.gst.setCurrentText(f"{float(product.get('gst') or 0):.2f}")
         set_widget_value(self.sale_unit, product.get("sale_unit") or "")
         set_widget_value(self.purchase_unit, product.get("purchase_unit") or "")
@@ -532,11 +550,16 @@ class ProductMasterView(QWidget):
         self.near_expiry.setText(str(int(product.get("near_expiry_days") or 0)))
         self.multi_uom.setChecked(int(product.get("multi_uom") or 0) == 1)
         self.pack_conversion.setChecked(int(product.get("pack_conversion") or 0) == 1)
+        factor = self.uom_service.get_conversion(
+            str(product.get("purchase_unit") or ""),
+            str(product.get("sale_unit") or ""),
+            self.product_id,
+        )
+        self.conversion_factor.setText(f"{float(factor or 1):g}")
         self.batch_required.setChecked(int(product.get("batch_required") or 0) == 1)
         self.expiry_required.setChecked(int(product.get("expiry_required") or 0) == 1)
         self.notes.setPlainText(str(product.get("item_notes") or ""))
         self._set_combo_id(self.supplier, self.supplier_labels, int(product.get("supplier_id") or 0))
-        self._set_combo_id(self.category, self.category_labels, int(product.get("category_id") or 0))
         self._set_combo_id(self.brand, self.brand_labels, int(product.get("brand_id") or 0))
         packs = self.source.product_pack_rows(self.product_id)
         self._load_packs(packs or [self._default_pack(product)])
@@ -558,6 +581,7 @@ class ProductMasterView(QWidget):
         self.near_expiry.setText("0")
         self.multi_uom.setChecked(False)
         self.pack_conversion.setChecked(False)
+        self.conversion_factor.setText("1")
         self.item_type.setCurrentText("Stock Item")
         self.status.setCurrentText("Active")
         self.valuation.setCurrentText("weighted_average")
@@ -570,6 +594,7 @@ class ProductMasterView(QWidget):
             self.gst.setCurrentText("18.00" if self.gst.findText("18.00") >= 0 else self.gst.itemText(0))
         self.pack_table.setRowCount(0)
         self.add_pack_row()
+        self._sync_conversion_controls()
         self.code.setFocus()
 
     def _default_pack(self, product: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -637,15 +662,10 @@ class ProductMasterView(QWidget):
 
     def _create_unit_combo_cell(self, current: str) -> QComboBox:
         combo = QComboBox()
-        combo.setEditable(True)
-        combo.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         combo.addItems(self.units)
         combo.setCurrentText(current)
         combo.setToolTip("Type unit name to filter or select from list")
-        completer = QCompleter(self.units, combo)
-        completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
-        completer.setFilterMode(Qt.MatchFlag.MatchContains)
-        combo.setCompleter(completer)
+        configure_smart_combo(combo)
         combo.installEventFilter(self.pack_table)
         return combo
 
@@ -807,6 +827,13 @@ class ProductMasterView(QWidget):
         sale_unit = widget_text(self.sale_unit) or "PCS"
         purchase_unit = widget_text(self.purchase_unit) or sale_unit
         try:
+            conversion_factor = float(self.conversion_factor.text() or 1)
+            if conversion_factor <= 0:
+                errors.append("Purchase-to-Sale Factor must be greater than zero.")
+        except ValueError:
+            conversion_factor = 0
+            errors.append("Purchase-to-Sale Factor must be numeric.")
+        try:
             shelf_life_days = int(float(self.shelf_life.text() or 0))
             if shelf_life_days < 0:
                 errors.append("Shelf Life Days cannot be negative.")
@@ -833,6 +860,7 @@ class ProductMasterView(QWidget):
             "gst": float(self.gst.currentText() or 0),
             "sale_unit": sale_unit,
             "purchase_unit": purchase_unit,
+            "conversion_factor": conversion_factor,
             "valuation_method": self.valuation.currentText(),
             "sku_alias": self.sku_alias.text().strip(),
             "lead_time_days": lead_time_days,
@@ -924,6 +952,37 @@ class ProductMasterView(QWidget):
         self.action_toolbar.mark_success("Export")
         QMessageBox.information(self, "Product Export", f"Exported {len(self.products)} products to:\n{path}")
 
+    def print_product_list(self) -> None:
+        query = self.search.text().strip().lower()
+        rows = [
+            row
+            for row in self.products
+            if not query or query in " ".join(str(value) for value in row.values()).lower()
+        ]
+        if not rows:
+            QMessageBox.information(self, "Product Master", "No visible products to print.")
+            return
+        columns = (
+            "code", "name", "category_name", "brand_name", "supplier_name", "hsn", "gst",
+            "sale_unit", "purchase_unit", "default_pack_name", "default_mrp", "default_sale_rate", "status",
+        )
+        payload = [{column: row.get(column, "") for column in columns} for row in rows]
+        path = self.config.project_root / "reports" / f"product_master_{date.today():%Y%m%d}.pdf"
+        try:
+            write_report_pdf(
+                path,
+                "Product Master List",
+                self.source.company(),
+                payload,
+                {"Search": self.search.text().strip(), "Rows": len(payload)},
+                db_path=self.source.sqlite_path,
+                document_type="report",
+            )
+        except Exception as exc:
+            QMessageBox.warning(self, "Product Master", f"Product list print failed:\n{exc}")
+            return
+        show_print_preview(self, path, "Product Master List Print Preview")
+
     def close_page(self) -> None:
         go_back = getattr(self.window(), "go_back", None)
         if callable(go_back):
@@ -945,11 +1004,35 @@ class ProductMasterView(QWidget):
 
     def _register_hotkeys(self) -> None:
         QShortcut(QKeySequence("Ctrl+S"), self, activated=self.save_draft)
+        QShortcut(QKeySequence("F8"), self, activated=self.save_draft)
+        QShortcut(QKeySequence("Ctrl+P"), self, activated=self.print_product_list)
+        QShortcut(QKeySequence("F10"), self, activated=self.print_product_list)
         QShortcut(QKeySequence("Ctrl+N"), self, activated=self.clear_form)
         QShortcut(QKeySequence("Ctrl+F"), self, activated=lambda: self.search.setFocus())
+        QShortcut(QKeySequence("F3"), self, activated=lambda: self.search.setFocus())
         QShortcut(QKeySequence("F4"), self, activated=self.add_pack_row)
         QShortcut(QKeySequence("Delete"), self, activated=self.remove_selected_pack)
         QShortcut(QKeySequence("Esc"), self, activated=self.clear_form)
+
+    def _apply_category_gst(self, label: str) -> None:
+        rate = self.category_gst_by_label.get(str(label), 0.0)
+        if rate <= 0 or not hasattr(self, "gst"):
+            return
+        text = f"{rate:.2f}"
+        if self.gst.findText(text) < 0:
+            self.gst.addItem(text)
+        self.gst.setCurrentText(text)
+
+    def _sync_conversion_controls(self, *_args: object) -> None:
+        if not hasattr(self, "conversion_factor"):
+            return
+        sale_uom = self.sale_unit.currentText().strip().casefold()
+        purchase_uom = self.purchase_unit.currentText().strip().casefold()
+        needed = bool(sale_uom and purchase_uom and sale_uom != purchase_uom)
+        self.conversion_factor.setEnabled(needed and self.pack_conversion.isChecked())
+        self.conversion_factor.setProperty("required", needed and self.pack_conversion.isChecked())
+        if not needed:
+            self.conversion_factor.setText("1")
 
     def _register_form_navigation(self) -> None:
         for control in self.form_controls:

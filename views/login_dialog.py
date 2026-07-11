@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (
     QDialog,
     QFrame,
@@ -14,7 +13,9 @@ from PyQt6.QtWidgets import (
 )
 
 from config.app_config import AppConfig
+from services.company_profile_service import CompanyProfileService
 from services.license_service import LicenseContext, LicenseService
+from widgets.company_branding import CompanyBrandingWidget
 
 
 class LoginDialog(QDialog):
@@ -34,17 +35,6 @@ class LoginDialog(QDialog):
         root.setSpacing(12)
 
         header = QHBoxLayout()
-        logo = QLabel()
-        logo.setFixedSize(82, 48)
-        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        logo_path = self.config.assets_dir / "PRM_SoftSolutions.jpg"
-        if logo_path.exists():
-            pixmap = QPixmap(str(logo_path))
-            logo.setPixmap(
-                pixmap.scaled(92, 52, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-            )
-        else:
-            logo.setText("PRM")
         title_box = QVBoxLayout()
         title = QLabel("PRM BILLING INVENTORY")
         title.setObjectName("brandTitle")
@@ -52,7 +42,6 @@ class LoginDialog(QDialog):
         caption.setObjectName("caption")
         title_box.addWidget(title)
         title_box.addWidget(caption)
-        header.addWidget(logo)
         header.addLayout(title_box)
         header.addStretch(1)
         root.addLayout(header)
@@ -60,8 +49,15 @@ class LoginDialog(QDialog):
         license_card = QFrame()
         license_card.setObjectName("card")
         card_layout = QVBoxLayout(license_card)
-        company = QLabel(self.license_context.company_name)
-        company.setObjectName("cardTitle")
+        try:
+            company_profile = CompanyProfileService(self.license_service.db_path).current_profile()
+        except Exception:
+            company_profile = {}
+        company_profile["company_name"] = company_profile.get("company_name") or self.license_context.company_name
+        company_profile["business_type_code"] = (
+            company_profile.get("business_type_code") or self.license_context.business_type_code
+        )
+        company = CompanyBrandingWidget(self.config, company_profile)
         details = QLabel(
             f"{self.license_context.area} | Plan: {self.license_context.plan} | Valid till: {self.license_context.expiry_date}"
         )

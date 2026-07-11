@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any, Callable
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QApplication, QFrame, QGridLayout, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from config.app_config import AppConfig
 from services.dashboard_service import DashboardService
+from widgets.company_branding import CompanyBrandingWidget
 from widgets.erp_components import (
     ERPBarChart,
     ERPDashboardCard,
@@ -30,11 +29,7 @@ class DashboardView(QWidget):
         self.metric_layouts: dict[str, QGridLayout] = {}
         self.tables: dict[str, ERPDashboardTable] = {}
         self.charts: dict[str, QWidget] = {}
-        self.client_logo = QLabel()
-        self.company_name = QLabel()
-        self.company_meta = QLabel()
-        self.company_detail = QLabel()
-        self.company_contact = QLabel()
+        self.company_brand = CompanyBrandingWidget(self.config)
         self._build()
         self.refresh()
 
@@ -103,24 +98,8 @@ class DashboardView(QWidget):
         return card
 
     def _create_company_card(self) -> None:
-        card = self._add_card("company", "Company Information", 140)
-        row = QHBoxLayout()
-        row.setSpacing(6)
-        self.client_logo.setObjectName("clientLogo")
-        self.client_logo.setFixedSize(46, 46)
-        self.client_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        row.addWidget(self.client_logo)
-        text = QVBoxLayout()
-        text.setSpacing(2)
-        self.company_name.setObjectName("clientName")
-        self.company_meta.setObjectName("clientMeta")
-        self.company_detail.setObjectName("clientMeta")
-        self.company_contact.setObjectName("clientMeta")
-        for label in [self.company_name, self.company_meta, self.company_detail, self.company_contact]:
-            label.setWordWrap(True)
-            text.addWidget(label)
-        row.addLayout(text, stretch=1)
-        card.content_layout.addLayout(row)
+        card = self._add_card("company", "Company Information", 180)
+        card.content_layout.addWidget(self.company_brand)
 
     def _create_metric_card(self, key: str, title: str, chart: QWidget | None = None, min_height: int = 212) -> None:
         card = self._add_card(key, title, min_height)
@@ -220,29 +199,7 @@ class DashboardView(QWidget):
         if not company:
             card.set_empty()
             return
-        name = str(company.get("name") or company.get("business_name") or "Client Company").strip()
-        owner = str(company.get("owner_name") or "").strip()
-        business = str(company.get("business_type_code") or "").replace("_", " ").strip().title()
-        plan = str(company.get("subscription_plan_code") or "").strip().title()
-        gstin = str(company.get("gstin") or "").strip()
-        fssai = str(company.get("fssai_no") or "").strip()
-        phone = str(company.get("phone") or company.get("mobile") or "").strip()
-        email = str(company.get("email") or "").strip()
-        city = str(company.get("city") or "").strip()
-        state = str(company.get("state") or "").strip()
-        self.company_name.setText(name)
-        self.company_meta.setText(" | ".join(part for part in [owner, business, plan] if part) or "Client profile")
-        self.company_detail.setText(" | ".join(part for part in [f"GSTIN {gstin}" if gstin else "", f"FSSAI {fssai}" if fssai else ""] if part) or "Registration details not available")
-        self.company_contact.setText(" | ".join(part for part in [phone, email, city, state] if part) or "Contact details not available")
-        logo_path = self._resolve_company_logo(str(company.get("logo_path") or ""))
-        if logo_path:
-            pixmap = QPixmap(str(logo_path))
-            if not pixmap.isNull():
-                self.client_logo.setPixmap(pixmap.scaled(44, 44, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-                card.set_ready()
-                return
-        self.client_logo.setPixmap(QPixmap())
-        self.client_logo.setText(self._initials(name))
+        self.company_brand.set_company(company)
         card.set_ready()
 
     def _render_metric_section(self, key: str, metrics: list[dict[str, Any]]) -> None:
@@ -345,23 +302,6 @@ class DashboardView(QWidget):
             self.card_grid.addWidget(self.cards[key], index // columns, index % columns)
         for column in range(columns):
             self.card_grid.setColumnStretch(column, 1)
-
-    def _resolve_company_logo(self, raw_path: str) -> Path | None:
-        if not raw_path:
-            return None
-        path = Path(raw_path)
-        candidates = [path] if path.is_absolute() else []
-        if not path.is_absolute():
-            candidates.extend([self.config.project_root / raw_path, self.config.resource_root / raw_path])
-        for candidate in candidates:
-            if candidate.exists():
-                return candidate
-        return None
-
-    def _initials(self, name: str) -> str:
-        parts = [part for part in name.split() if part]
-        initials = "".join(part[0].upper() for part in parts[:2])
-        return initials or "CO"
 
     def _clear_grid(self, layout: QGridLayout) -> None:
         while layout.count():
