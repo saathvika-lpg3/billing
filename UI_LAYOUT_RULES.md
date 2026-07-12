@@ -7,6 +7,40 @@ desktop application. The goal is to preserve all business controls and logic
 while preventing page-level overflow, clipped labels, clipped buttons, and
 overlapping widgets on normal desktop screens.
 
+## 2026-07-12 Locked Product/Client Identity And Dispatch Rules
+
+- Product and client identity are separate component contracts.
+  `ProductBrandHeader` is the only full branding component allowed in the fixed
+  shell header and login product area. It always resolves the PRM product logo,
+  **PRM BILLING INVENTORY** name and product tagline; it must not accept or
+  render a client profile.
+- `ClientCompanyIdentityCard` is for licensed-company context only: Dashboard
+  Company Information, Company Settings/Profile and similar company-detail
+  cards. Login may show this card only as a separate **Licensed Company** area,
+  never as a replacement for the PRM product header.
+- Client-logo rendering must preserve aspect ratio with smooth scaling. Full
+  identity cards reserve a 144x96 logo area; compact cards reserve 84x56.
+  Missing client logos use client initials. They must never silently resolve to
+  a PRM product asset.
+- Brand and logo widgets marked `erpPreserveGeometry` are outside the generic
+  fit-to-width rewrite. Responsive fitting may reflow their containing card,
+  but must not erase their minimum/maximum geometry or compress the logo into a
+  narrow vertical strip.
+- Printed/PDF document headers belong to the licensed client company. Shared
+  product footers belong to PRM Software. Do not use one ambiguous logo
+  resolver for both ownership domains.
+- Dispatch Summary has one destination:
+  `reports:daily_dispatch_summary`, which selects
+  `daily_dispatch_summary` in Report Center. Sidebar, Dashboard, Reports hub
+  and Global Search must reuse that route instead of creating another page.
+- Sidebar navigation must expose keyboard focus, arrow traversal, Enter
+  activation and Escape/back behavior. Active highlighting follows the full
+  current route so Dispatch Summary remains selected while its Report Center
+  report is open.
+- Report shortcuts, search results and Report Center choices must use the same
+  role/plan permission filter as direct route opening. A hidden report must not
+  remain reachable through search or a hand-built shortcut.
+
 ## 2026-07-12 Locked Master, Branding And Dropdown Rules
 
 - Editable `QComboBox` controls are enhanced once through
@@ -24,9 +58,10 @@ overlapping widgets on normal desktop screens.
 - Master shortcuts use the same handlers as their buttons: Ctrl+S/F8 Save,
   Ctrl+N New, Ctrl+F/F3 Search, Ctrl+E/F2 Edit, Ctrl+P/F10 Print and Escape for
   the safe local back/cancel action. Tooltips expose the available shortcuts.
-- `CompanyBrandingWidget` owns logo-above-company-name rendering, aspect-ratio
-  scaling, initials fallback and company regulatory/contact details. Login,
-  Dashboard, shell and Company Settings must reuse it.
+- `ClientCompanyIdentityCard` owns licensed-company logo-above-name rendering,
+  aspect-ratio scaling, initials fallback and regulatory/contact details on
+  client-context surfaces. It must not be placed in the fixed PRM product
+  shell; follow the ownership rules above.
 - Lazy route activation must invalidate and reactivate the active page layout,
   then reset the page scroll position. This prevents a hidden route from
   retaining stale widths or opening below its header.

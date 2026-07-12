@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QApplication, QFrame, QGridLayout, QHBoxLayout, QLab
 
 from config.app_config import AppConfig
 from services.dashboard_service import DashboardService
-from widgets.company_branding import CompanyBrandingWidget
+from widgets.company_branding import ClientCompanyIdentityCard
 from widgets.erp_components import (
     ERPBarChart,
     ERPDashboardCard,
@@ -19,17 +19,23 @@ from widgets.erp_components import (
 
 
 class DashboardView(QWidget):
-    def __init__(self, config: AppConfig, open_page: Callable[[str], None]) -> None:
+    def __init__(
+        self,
+        config: AppConfig,
+        open_page: Callable[[str], None],
+        route_allowed: Callable[[str], bool] | None = None,
+    ) -> None:
         super().__init__()
         self.config = config
         self.open_page = open_page
+        self.route_allowed = route_allowed or (lambda _route: True)
         self.service = DashboardService()
         self.cards: dict[str, ERPDashboardCard] = {}
         self.card_order: list[str] = []
         self.metric_layouts: dict[str, QGridLayout] = {}
         self.tables: dict[str, ERPDashboardTable] = {}
         self.charts: dict[str, QWidget] = {}
-        self.company_brand = CompanyBrandingWidget(self.config)
+        self.company_brand = ClientCompanyIdentityCard(self.config)
         self._build()
         self.refresh()
 
@@ -59,6 +65,13 @@ class DashboardView(QWidget):
         refresh_button = QPushButton("Refresh All")
         refresh_button.setObjectName("primaryButton")
         refresh_button.clicked.connect(self.refresh)
+        if self.route_allowed("reports:daily_dispatch_summary"):
+            dispatch_button = QPushButton("Dispatch Summary")
+            dispatch_button.setObjectName("quickButton")
+            dispatch_button.setAccessibleName("Open Dispatch Summary")
+            dispatch_button.clicked.connect(lambda: self.open_page("reports:daily_dispatch_summary"))
+            self.dispatch_summary_button = dispatch_button
+            header.layout().addWidget(dispatch_button)
         header.layout().addWidget(refresh_button)
         return header
 
@@ -98,7 +111,8 @@ class DashboardView(QWidget):
         return card
 
     def _create_company_card(self) -> None:
-        card = self._add_card("company", "Company Information", 180)
+        card = self._add_card("company", "Company Information", 310)
+        card.setProperty("erpPreserveGeometry", True)
         card.content_layout.addWidget(self.company_brand)
 
     def _create_metric_card(self, key: str, title: str, chart: QWidget | None = None, min_height: int = 212) -> None:

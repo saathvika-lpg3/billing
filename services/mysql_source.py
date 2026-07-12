@@ -296,7 +296,11 @@ class MySqlSource:
             ("Products", "product_master", "product item barcode hsn pack fmcg"),
             ("Customers", "customer_master", "customer party receivable"),
             ("Suppliers", "supplier_master", "supplier party payable"),
-            ("Daily Dispatch Summary", "reports:daily_dispatch_summary", "dispatch route vehicle summary"),
+            (
+                "Dispatch Summary",
+                "reports:daily_dispatch_summary",
+                "daily dispatch route vehicle summary loading loading sheet load challan",
+            ),
             ("Loading Sheet", "reports:loading_sheet", "load challan dispatch loading sheet"),
             ("Item Loading Sheet", "reports:item_loading_sheet", "item loading picking sheet"),
             ("Dispatch Return", "dispatch_return_entry", "dispatch return damaged accepted route stock credit note"),

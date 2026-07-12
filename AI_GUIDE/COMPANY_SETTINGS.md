@@ -1,5 +1,18 @@
 # Company Settings Rules
 
+## Product and client branding ownership
+
+- The fixed desktop shell and login product area belong to PRM Software and
+  must use `ProductBrandHeader` with the original PRM logo, **PRM BILLING
+  INVENTORY** and **Way to future, Today**.
+- Company Settings/Profile and Dashboard Company Information belong to the
+  licensed client and use `ClientCompanyIdentityCard`.
+- A client logo is aspect-ratio preserved in a protected 144x96 area. Missing
+  client logos may use client initials only inside client-context components.
+- Client document/report headers use client identity; the accepted shared PDF
+  footer uses PRM Software attribution. Never use one ambiguous logo resolver
+  for both ownership domains.
+
 Administration → Company page rules
 
 Editable by Business Owner (Admin):

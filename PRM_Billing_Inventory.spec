@@ -13,9 +13,8 @@ datas = [
     (str(root / "themes"), "themes"),
     (str(installer_database), "database"),
     (str(root / "assets"), "assets"),
-    (str(root / "docs"), "docs"),
     (str(root / "print_templates"), "print_templates"),
-    (str(root / "requirements.txt"), "."),
+    (str(root / "requirements-runtime.txt"), "."),
 ]
 
 a = Analysis(
@@ -41,7 +40,10 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    # openpyxl detects both packages optionally and has standard-library
+    # fallbacks. The application does not import them, so excluding them avoids
+    # shipping large development-only binary trees.
+    excludes=["numpy", "lxml"],
     noarchive=False,
     optimize=0,
 )

@@ -1,5 +1,58 @@
 # Test Report
 
+## 2026-07-12 Branding/Dispatch And Certified Installer 1.7.7 Gate
+
+### Completed implementation checks
+
+- Explicit PRM product header versus licensed-client identity ownership:
+  **PASSED** in focused source/UI coverage.
+- Client logo aspect-ratio rendering and protected identity-card geometry:
+  **PASSED** at the implementation checkpoint; the final consolidated
+  multi-resolution rerun remains part of the open release gate.
+- Canonical Dispatch Summary route, Report Center selection, sidebar active
+  state, Dashboard shortcut, Global Search aliases and keyboard activation:
+  **PASSED** in focused navigation coverage.
+- Direct route/search/report filtering uses the same reports role/plan
+  boundary: **PASSED** in focused permission coverage.
+- Shared PDF ownership check (client company in document header, PRM Software
+  in footer): **PASSED** in focused print parity coverage.
+- Combined branding/navigation/installer/print focused regression batch:
+  **44 passed** at the implementation checkpoint.
+
+### Visual evidence captured
+
+- Dashboard/product header at 1366x768, 1440x900 and 1920x1080.
+- Dashboard client-company card, Company Profile and Dispatch Summary route.
+- Client-branded Sales Invoice and Profit & Loss PDF pages with PRM product
+  footer. Evidence files use the `branding_after_` prefix under `screenshots/`.
+
+### Completed release gates
+
+- Final card geometry and focused branding/navigation/installer/print batch:
+  **44 passed**; the refreshed 1366x768 card has no logo/name overlap.
+- Complete native regression suite: **220 passed in 369.44 seconds**.
+- Updated live all-route audit: **59/59 routes passed** at 1366x768,
+  1440x900 and 1920x1080.
+- Post-build packaging/branding/navigation gate: **14 passed**. New tests and
+  capture tooling were then isolated from the live client database; **7 passed**
+  and the database SHA-256 stayed byte-identical across the run.
+- PyInstaller/Inno Setup 1.7.7 clean build and privacy audit: **PASSED**. Setup
+  size 43,193,577 bytes; no private licence, PowerShell, logs, uploads, tests,
+  audit/backups, `numpy` or `lxml` were found in the runtime payload.
+- Clean install with renamed `sairam.prmlic`, frozen executable startup,
+  authenticated installed-resource smoke, canonical Dispatch Summary,
+  Product Master two-pack persistence, Grand Total visibility, themes and
+  database integrity: **PASSED**.
+- Upgrade with renamed `lakshmi.prmlic`: **PASSED**. Database, licence, uploaded
+  client logo, print marker and user-settings marker were preserved; database
+  SHA-256 was byte-identical.
+- Silent uninstall: **PASSED**. Binaries/uninstaller/shortcut were removed while
+  database, licence, upload and user settings remained. The real local 1.7.7
+  upgrade then preserved its existing database/licence byte-for-byte.
+- The installed-smoke tool initially found its own post-`DeferredDelete` Qt
+  access error. Value capture was moved before window deletion; the rerun passed
+  and temporary database cleanup completed normally.
+
 ## 2026-07-12 Production Stabilization And Installer 1.7.6 Gate
 
 ### Source, UI and performance

@@ -46,7 +46,7 @@ REPORT_CATALOG = [
     ("Sales / Purchase", "Sales List", "sales_list"),
     ("Sales / Purchase", "Sales Register", "sales_register"),
     ("Sales / Purchase", "Purchase Register", "purchase_register"),
-    ("Dispatch", "Daily Dispatch Summary", "daily_dispatch_summary"),
+    ("Dispatch", "Dispatch Summary", "daily_dispatch_summary"),
     ("Dispatch", "Item Loading Sheet", "item_loading_sheet"),
     ("Dispatch", "Route Loading Sheet", "route_loading_sheet"),
     ("Dispatch", "Pending Dispatch", "pending_dispatch"),
@@ -86,9 +86,10 @@ class ReportCenterView(QWidget):
         }
     )
 
-    def __init__(self, config: AppConfig) -> None:
+    def __init__(self, config: AppConfig, allowed_report_keys: set[str] | None = None) -> None:
         super().__init__()
         self.config = config
+        self.allowed_report_keys = set(allowed_report_keys) if allowed_report_keys is not None else None
         self.source = MySqlSource()
         self.gst_payloads = GstPayloadService(self.source.sqlite_path)
         self.ca_export = CaExportService(self.source.sqlite_path)
@@ -309,7 +310,10 @@ class ReportCenterView(QWidget):
         self._redraw_table()
 
     def open_report(self, key: str) -> None:
-        for group, _label, report_key in REPORT_CATALOG:
+        if self.allowed_report_keys is not None and key not in self.allowed_report_keys:
+            self.status_label.setText("Report unavailable for the current plan/user")
+            return
+        for group, _label, report_key in self._catalog():
             if report_key == key:
                 self.report_group.setCurrentText(group)
                 break
@@ -322,7 +326,7 @@ class ReportCenterView(QWidget):
 
     def _report_groups(self) -> list[str]:
         groups: list[str] = []
-        for group, _label, _key in REPORT_CATALOG:
+        for group, _label, _key in self._catalog():
             if group not in groups:
                 groups.append(group)
         return groups
@@ -332,7 +336,7 @@ class ReportCenterView(QWidget):
         group_filter = self.report_group.currentText() if hasattr(self, "report_group") else "All Reports"
         self.report.blockSignals(True)
         self.report.clear()
-        for group, label, key in REPORT_CATALOG:
+        for group, label, key in self._catalog():
             if group_filter != "All Reports" and group != group_filter:
                 continue
             self.report.addItem(label, key)
@@ -342,6 +346,11 @@ class ReportCenterView(QWidget):
                     self.report.setCurrentIndex(index)
                     break
         self.report.blockSignals(False)
+
+    def _catalog(self) -> list[tuple[str, str, str]]:
+        if self.allowed_report_keys is None:
+            return list(REPORT_CATALOG)
+        return [row for row in REPORT_CATALOG if row[2] in self.allowed_report_keys]
 
     def _redraw_table(self) -> None:
         if self._is_statement_report():

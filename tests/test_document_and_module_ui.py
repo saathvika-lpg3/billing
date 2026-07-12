@@ -929,6 +929,7 @@ def test_main_window_shell_matches_locked_navigation_surface() -> None:
             "Sales Order",
             "Quotation",
             "Delivery Challan",
+            "Dispatch Summary",
             "Sales Return",
             "Purchase",
             "Purchase Order",

@@ -7,7 +7,7 @@ from pypdf import PdfReader
 
 from config.app_config import AppConfig
 from services.pdf_print import write_report_pdf
-from widgets.company_branding import CompanyBrandingWidget, company_identity_lines
+from widgets.company_branding import ClientCompanyIdentityCard, CompanyBrandingWidget, company_identity_lines
 
 
 def _app() -> QApplication:
@@ -61,3 +61,5 @@ def test_report_pdf_repeats_complete_client_identity_with_placeholder_logo(tmp_p
     assert "GSTIN: 36ABCDE1234F1Z5" in text
     assert "FSSAI: FSSAI-1001" in text
     assert "Drug Lic.: DL-2026-01" in text
+    assert "PRM Software Solutions" in text
+    assert ClientCompanyIdentityCard is CompanyBrandingWidget

@@ -1,5 +1,44 @@
 # Changelog
 
+## 2026-07-12 - Product/client branding correction and certified installer 1.7.7
+
+- Replaced the licensed-client widget in the fixed desktop header with an
+  explicit PRM-owned `ProductBrandHeader`, using the original PRM logo, product
+  name and tagline. Restored the same product ownership to the login header and
+  application icon path.
+- Introduced an explicit `ClientCompanyIdentityCard` contract for Dashboard
+  Company Information, Company Settings/Profile and other client-context
+  surfaces. Client logos preserve aspect ratio, use a bounded identity area and
+  fall back to client initials only when no client logo resolves.
+- Prevented generic page-width fitting from rewriting protected brand/logo
+  geometry, which had compressed the client logo into a narrow vertical mark.
+- Split document branding resolution into client-company header identity and
+  PRM product-footer identity. Client profile paths no longer fall back to a
+  same-named product asset.
+- Added one permission-aware Dispatch Summary route,
+  `reports:daily_dispatch_summary`, backed by the existing Report Center
+  `daily_dispatch_summary` report. Added the same destination to the daily-work
+  sidebar, Dashboard quick action, Reports operations and Global Search aliases.
+- Added route-aware sidebar state, keyboard-capable navigation buttons and
+  filtered report/search destinations so hidden report permissions cannot be
+  bypassed through a direct shortcut.
+- Bumped installer source version to 1.7.7, added PRM setup/uninstall icons,
+  split runtime and development dependency manifests, and removed runtime
+  documentation from the frozen package definition.
+- Added focused branding-ownership, Dispatch-navigation and installed-UI smoke
+  coverage plus multi-resolution branding/document capture tooling.
+- Certified the final 1.7.7 candidate: 220-test full suite, 59-route
+  multi-resolution audit, renamed-license clean install, frozen startup,
+  authenticated installed-resource smoke, byte-identical upgrade, preserving
+  uninstall and real local upgrade all passed. The optimized setup is
+  43,193,577 bytes, SHA-256
+  `E4ADC9CCCF76E2E1C38ACD042F42C6C9FF44A20329DC5E353A3EA8B83A6EE54C`.
+- Completed classified workspace cleanup. Possible client print/report output
+  and the legacy delivery bundle were quarantined; generated builds, caches,
+  logs, test installs and the rebuildable virtual environment were removed.
+  Database, licences, uploads, settings, source, assets, templates, backups and
+  release evidence were retained.
+
 ## 2026-07-12 - Production stabilization and installer 1.7.6
 
 - Added reusable client branding with aspect-ratio-preserving logo/initials,

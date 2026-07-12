@@ -4,6 +4,10 @@ This project is the Python desktop ERP for PRM Billing Inventory.
 It runs from its own application folder with a local SQLite database, without
 requiring XAMPP on client machines.
 
+Current certified local installer: **1.7.7**. It uses fixed PRM product branding
+and accepts a separately exported `.prmlic` file for each client through the
+installer Browse page.
+
 ## Target
 
 - Python desktop ERP application
@@ -22,9 +26,7 @@ requiring XAMPP on client machines.
 ## Git Status
 
 - Official origin: `https://github.com/saathvika-lpg3/billing.git`
-- Current branch after repair: `main`
-- The official remote was empty at the 2026-07-10 repair pass, so the live
-  source tree is prepared for a user-reviewed first commit.
+- Active release branch: `business-flow-audit-20260710`.
 - Do not commit local databases, `.prmlic` files, uploads, generated PDFs,
   screenshots, logs, backups, sessions/cookies, SMTP/WhatsApp secrets or build
   output.

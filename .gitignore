@@ -49,6 +49,7 @@ app_startup_trace.txt
 # Backups and invalid metadata snapshots
 backups/
 .git_invalid_backup_*/
+cleanup_quarantine_*/
 
 # Runtime/client data
 database/*.db

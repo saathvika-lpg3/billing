@@ -62,14 +62,16 @@ def _run_smoke_on_database(
     os.environ["PRM_USE_SQLITE"] = "0"
 
     from PyQt6.QtCore import QCoreApplication, QEvent
-    from PyQt6.QtWidgets import QApplication, QMessageBox
+    from PyQt6.QtWidgets import QApplication, QFrame, QMessageBox
 
     from config.app_config import AppConfig
     from services.license_service import LicenseService
     from services.master_repository import MasterRepository
     from views.main_window import MainWindow
     from widgets.action_toolbar import CompactActionToolbar
+    from widgets.company_branding import ClientCompanyIdentityCard
     from widgets.erp_components import TransactionTotalsPanel
+    from widgets.product_branding import PRODUCT_NAME, ProductBrandHeader
 
     config = AppConfig(install_root, install_root)
     license_service = LicenseService(config, db_path=db_path)
@@ -113,6 +115,20 @@ def _run_smoke_on_database(
     window.show()
     application.processEvents()
 
+    product_brand = window.findChild(ProductBrandHeader, "productBrandHeader")
+    if product_brand is None or product_brand.title_label.text() != PRODUCT_NAME:
+        raise RuntimeError("Installed shell is missing PRM product branding")
+    if product_brand.logo.pixmap() is None or product_brand.logo.pixmap().isNull():
+        raise RuntimeError("Installed PRM product logo did not load")
+    top_bar = window.findChild(QFrame, "topBar")
+    if top_bar is None or top_bar.findChildren(ClientCompanyIdentityCard):
+        raise RuntimeError("Installed shell incorrectly contains client branding in the product header")
+    dashboard_brand = window.pages["dashboard"].company_brand
+    if dashboard_brand.logo.width() < 120 or dashboard_brand.logo.height() < 80:
+        raise RuntimeError("Installed dashboard client logo area is not professionally sized")
+    if "reports:daily_dispatch_summary" not in window.sidebar_buttons:
+        raise RuntimeError("Installed sidebar is missing Dispatch Summary")
+
     route_results: dict[str, str] = {}
     for route in ("product_master", "sales_bill", "purchase_entry", "sales", "reports"):
         window.open_page(route, remember=False)
@@ -122,6 +138,14 @@ def _run_smoke_on_database(
         if page.property("factoryFallback") is True:
             raise RuntimeError(f"Installed route opened fallback page: {route}")
         route_results[route] = type(page).__name__
+
+    window.open_page("reports:daily_dispatch_summary", remember=False)
+    application.processEvents()
+    report_view = window.pages["reports"]
+    if window.current_route != "reports:daily_dispatch_summary" or report_view.report.currentData() != "daily_dispatch_summary":
+        raise RuntimeError("Installed Dispatch Summary route did not open the canonical report")
+    dispatch_summary_route = window.current_route
+    route_results["reports:daily_dispatch_summary"] = type(report_view).__name__
 
     product_view = window.pages["product_master"]
     unique = str(int(time.time() * 1000))
@@ -195,6 +219,13 @@ def _run_smoke_on_database(
     window.apply_theme("light")
     application.processEvents()
 
+    # Capture Qt-owned values before closing/deleting the window. Accessing a
+    # wrapped child widget after DeferredDelete raises and can also skip the
+    # outer smoke cleanup, leaving the disposable database locked on Windows.
+    product_name = product_brand.title_label.text()
+    dashboard_client_logo_area = [dashboard_brand.logo.width(), dashboard_brand.logo.height()]
+    product_reloaded = product_view.product_id == saved_id
+
     for page in window.pages.values():
         source = getattr(page, "source", None)
         closer = getattr(source, "close_database_resources", None)
@@ -224,10 +255,17 @@ def _run_smoke_on_database(
         "routes": route_results,
         "product_save_rows": saved_count,
         "product_pack_rows": saved_pack_count,
-        "product_reloaded": product_view.product_id == saved_id,
+        "product_reloaded": product_reloaded,
         "product_id": saved_id,
         "grand_total_visible": grand_total_routes,
         "horizontal_list_toolbar": horizontal_toolbar,
+        "product_branding": {
+            "product_name": product_name,
+            "product_logo_loaded": True,
+            "client_identity_in_top_bar": False,
+        },
+        "dashboard_client_logo_area": dashboard_client_logo_area,
+        "dispatch_summary_route": dispatch_summary_route,
         "themes_loaded": ["dark", "light"],
         "license_activation_rows": activation_rows,
         "user_rows": user_rows,

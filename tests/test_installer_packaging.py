@@ -149,15 +149,19 @@ def test_installer_release_includes_stabilized_ui_resources() -> None:
     inno = (ROOT / "installer" / "prm_billing_inventory.iss").read_text(encoding="utf-8")
     smoke_source = (ROOT / "tools" / "smoke_installed_ui.py").read_text(encoding="utf-8")
 
-    assert '#define MyAppVersion "1.7.6"' in inno
-    for packaged_folder in ("themes", "assets", "docs", "print_templates"):
+    assert '#define MyAppVersion "1.7.7"' in inno
+    for packaged_folder in ("themes", "assets", "print_templates"):
         assert f'root / "{packaged_folder}"' in spec
+    assert 'root / "docs"' not in spec
     assert 'root / "audit"' not in spec
+    assert 'excludes=["numpy", "lxml"]' in spec
     for runtime_file in (
         ROOT / "widgets" / "action_toolbar.py",
         ROOT / "widgets" / "widget_values.py",
         ROOT / "widgets" / "erp_components.py",
         ROOT / "widgets" / "company_branding.py",
+        ROOT / "widgets" / "product_branding.py",
+        ROOT / "widgets" / "navigation.py",
         ROOT / "widgets" / "smart_combo.py",
         ROOT / "views" / "product_master_view.py",
         ROOT / "views" / "sales_bill_view.py",
@@ -170,6 +174,9 @@ def test_installer_release_includes_stabilized_ui_resources() -> None:
     assert "TemporaryDirectory" in smoke_source
     assert "shutil.copy2(installed_db_path, db_path)" in smoke_source
     assert 'result["installed_database_unchanged"] = True' in smoke_source
+    assert "SetupIconFile=..\\assets\\PRM_SoftSolutions.ico" in inno
+    assert "UninstallDisplayIcon={app}\\{#MyAppExeName}" in inno
+    assert "ClientCompanyIdentityCard" not in inno
 
 
 def test_installer_browse_accepts_any_valid_client_prmlic_filename() -> None:
@@ -188,3 +195,5 @@ def test_startup_log_does_not_expose_the_client_license_key() -> None:
 
     assert "license_context.license_key" not in app_source
     assert "status={license_context.status}" in app_source
+    main_source = (ROOT / "views" / "main_window.py").read_text(encoding="utf-8")
+    assert 'f"company={self.company_profile}"' not in main_source

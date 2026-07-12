@@ -1,5 +1,30 @@
 # PRM Current Status
 
+## Branding correction and certified installer 1.7.7 - 2026-07-12
+
+- Status: branding ownership, Dispatch Summary navigation, cleanup, installer
+  build, clean/upgrade/uninstall certification and the real local upgrade have
+  passed their code-controlled release gates.
+- `ProductBrandHeader` owns the immutable PRM identity in the login product
+  area and fixed desktop shell. The application/window icon and Inno Setup
+  setup/uninstall icon also resolve from the original PRM assets.
+- `ClientCompanyIdentityCard` owns only licensed-company identity surfaces such
+  as Dashboard Company Information and Company Settings/Profile. Shared print
+  headers use the client company and its uploaded logo, while shared print
+  footers identify PRM Software. The client card is never embedded in the
+  fixed product header.
+- Dispatch Summary has one canonical route and one report implementation:
+  `reports:daily_dispatch_summary` -> `daily_dispatch_summary` in Report
+  Center. Sidebar, Dashboard, Reports and Global Search reuse it and apply the
+  existing report-role and plan filters.
+- Certified 1.7.7 setup: 43,193,577 bytes, SHA-256
+  `E4ADC9CCCF76E2E1C38ACD042F42C6C9FF44A20329DC5E353A3EA8B83A6EE54C`.
+  The real installed executable matches the certified frozen hash and its
+  database/licence were byte-identical across the upgrade.
+- Cleanup quarantined uncertain/client-facing historical output and deleted
+  only generated/rebuildable material. The exact inventory, hashes and measured
+  size accounting are in `audit/cleanup_manifest_20260712.md`.
+
 ## Production stabilization release - 2026-07-12
 
 - Status: **all code-controlled release gates passed** for client branding,

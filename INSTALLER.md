@@ -1,5 +1,48 @@
 # Installer Runtime Certification
 
+## Release 1.7.7 - certified 2026-07-12
+
+- Artifact: `installer_output/PRM_Billing_Inventory_Setup.exe`
+- Size: 43,193,577 bytes (8,680,229 bytes / 16.73% smaller than 1.7.6)
+- SHA-256: `E4ADC9CCCF76E2E1C38ACD042F42C6C9FF44A20329DC5E353A3EA8B83A6EE54C`
+- Frozen executable: 9,839,737 bytes, SHA-256
+  `FC98A4E26C206D1D70AA1EB80F81751E1DA8902F091667E21C5E41FF280A42BF`
+- Build: PyInstaller 6.21.0 / Python 3.13.7 / Inno Setup 6.7.3
+- Product metadata: PRM Billing Inventory 1.7.7, PRM Software Solutions;
+  PRM setup/uninstall/application icon.
+- Result: clean install, real frozen startup, authenticated installed-resource
+  UI smoke, byte-identical upgrade preservation, preserving uninstall and real
+  local upgrade all passed.
+
+### Per-client licence selection
+
+- The Browse page accepts any valid export whose filename ends in `.prmlic`.
+  Certification used `sairam.prmlic` for clean install and `lakshmi.prmlic` for
+  upgrade, proving setup is not bound to the repository's `client.prmlic`.
+- Setup validates the selected content and copies it to
+  `<app>\license\client.prmlic` as the stable internal runtime path.
+- The packaged payload contains no private `.prmlic`; each client installation
+  receives its own file exported from PRM Client Management.
+
+### Payload and preservation
+
+- Runtime documentation, tests, audit output, backups, logs, uploads,
+  PowerShell files, `numpy` and `lxml` are excluded. Assets, themes, print
+  templates, the public verification key and the sanitized database seed remain.
+- The clean seed contains zero licence, activation, user or transaction rows and
+  passes SQLite integrity checks.
+- Reinstall uses `onlyifdoesntexist` for the mutable database. The certified
+  test preserved database, licence, uploaded client logo, print settings and
+  user settings. Uninstall removed binaries/shortcut while retaining those
+  client-owned files.
+- The real local installation under `%LOCALAPPDATA%\Programs\PRM Billing
+  Inventory` was upgraded to the certified executable; its existing database
+  and licence hashes remained byte-identical.
+- The repository's PowerShell scripts are build-time helpers only. No
+  PowerShell file or runtime dependency is installed.
+- Authenticode remains the only external distribution limitation: no commercial
+  signing certificate was supplied.
+
 ## Release 1.7.6 - certified 2026-07-12
 
 - Artifact: `installer_output/PRM_Billing_Inventory_Setup.exe`

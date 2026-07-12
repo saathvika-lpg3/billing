@@ -1,5 +1,5 @@
 #define MyAppName "PRM Billing Inventory"
-#define MyAppVersion "1.7.6"
+#define MyAppVersion "1.7.7"
 #define MyAppPublisher "PRM Software Solutions"
 #define MyAppExeName "PRM_Billing_Inventory.exe"
 
@@ -16,6 +16,8 @@ OutputBaseFilename=PRM_Billing_Inventory_Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=..\assets\PRM_SoftSolutions.ico
+UninstallDisplayIcon={app}\{#MyAppExeName}
 LicenseFile=PRM_Billing_Inventory_Electronic_Agreement.txt
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible

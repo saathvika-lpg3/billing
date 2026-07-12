@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 
 from config.app_config import AppConfig
 from config.qt_fonts import ensure_application_font
+from widgets.product_branding import resolve_product_icon
 from services.license_service import LicenseError, LicenseService
 from views.login_dialog import LoginDialog
 from views.main_window import MainWindow
@@ -114,8 +115,8 @@ def main() -> int:
     app.setOrganizationName("PRM Software Solutions")
     _append_startup_log("app_icon", "START", "Preparing application icon")
     try:
-        icon_path = config.assets_dir / "PRM_SoftSolutions.jpg"
-        if icon_path.exists():
+        icon_path = resolve_product_icon(config)
+        if icon_path:
             app.setWindowIcon(QIcon(str(icon_path)))
             _append_startup_log("app_icon", "SUCCESS", f"icon_path={icon_path}")
         else:
@@ -182,7 +183,7 @@ def main() -> int:
             session=login.session,
         )
         _append_startup_log("main_window", "SUCCESS", "MainWindow created")
-        if icon_path.exists():
+        if icon_path:
             window.setWindowIcon(QIcon(str(icon_path)))
         _append_startup_log("show_window", "START", "Showing MainWindow")
         try:

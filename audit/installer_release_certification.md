@@ -1,5 +1,68 @@
 # Installer Release Certification
 
+## Installer 1.7.7 - 2026-07-12
+
+**PASSED** - current branding/navigation source was rebuilt, installed from a
+renamed client licence, launched as the actual frozen executable, exercised with
+authenticated installed resources, upgraded byte-identically, uninstalled with
+client data preserved, and finally installed over the real local application.
+
+### Certified artifact and payload
+
+- Setup: `installer_output/PRM_Billing_Inventory_Setup.exe`
+- Size: 43,193,577 bytes
+- SHA-256: `E4ADC9CCCF76E2E1C38ACD042F42C6C9FF44A20329DC5E353A3EA8B83A6EE54C`
+- Frozen executable: 9,839,737 bytes; SHA-256
+  `FC98A4E26C206D1D70AA1EB80F81751E1DA8902F091667E21C5E41FF280A42BF`
+- Sanitized seed: 933,888 bytes; SHA-256
+  `848DB97732B44CBDEB08066AEF28FE78A0C28E0BF50E8420ADF860B1BB08134B`
+- Builder: PyInstaller 6.21.0, Python 3.13.7, Inno Setup 6.7.3.
+- Setup version metadata: PRM Billing Inventory 1.7.7 / PRM Software Solutions.
+- Runtime payload: 132,497,168 bytes / 238 files before Inno compression.
+- Privacy scan: zero private `.prmlic`, `.ps1`, log, upload, test, audit or
+  backup files; no `numpy` or `lxml` package directory.
+- Authenticode: unsigned because no organization certificate was supplied.
+
+### Clean install, startup and installed smoke
+
+- Silent clean installation with source basename `sairam.prmlic`: passed.
+  Executable, sanitized database, normalized installed licence, PRM assets,
+  themes, shortcut and uninstaller were present.
+- Actual frozen process remained alive/responding at licensed login. Startup
+  logging confirmed PRM `.ico` loading, valid licence, database initialization
+  and LoginDialog creation without traceback/import/resource failure.
+- Authenticated installed-resource smoke: SQLite `ok`; Product Master saved and
+  reloaded one two-pack synthetic product in a disposable database; Sales and
+  Purchase Grand Totals were visible; Sales toolbar was horizontal; light/dark
+  themes loaded; PRM header/logo loaded with no client identity in the top bar;
+  Dashboard client logo area was 144x96; canonical Dispatch Summary opened.
+- Installed database stayed byte-identical during the disposable-copy smoke.
+
+### Upgrade, uninstall and real installation
+
+- Upgrade with source basename `lakshmi.prmlic`: passed.
+- Test database SHA-256 remained byte-identical at
+  `89A8863137F3EE714B5B651AB34777221796746BC89EF48B5D6EDAE28AAB1100`.
+  Installed licence and client-logo hashes remained unchanged; print/user
+  marker settings remained present.
+- Silent uninstall removed executable, uninstaller and Start Menu shortcut while
+  preserving database, licence, upload and user-settings marker.
+- Real local upgrade installed the same certified frozen SHA-256. Its existing
+  database stayed byte-identical at
+  `B294CE95487DD31CB22C3B842AD522267DFD8DEFA0EE6F909E36C4B4C6CEDDA4`;
+  licence SHA-256 remained
+  `CDC7C6BC5A136DD473E6F9C7C17E4B0A8E4CD21201F7B92E00A8255268A3C1F6`.
+
+### Supporting gates
+
+- Full source suite: 220 passed in 369.44 seconds.
+- Focused branding/navigation/installer/print parity: 44 passed.
+- Post-build packaging/branding/navigation: 14 passed.
+- New live-database isolation gate: 7 passed with identical before/after hash.
+- Live UI audit: 59/59 routes passed at 1366x768, 1440x900 and 1920x1080.
+- Visual evidence: PRM header, client Dashboard card, Company Profile, Dispatch
+  Summary, client-branded Sales Invoice and Profit & Loss with PRM footer.
+
 ## Installer 1.7.6 - 2026-07-12
 
 **PASSED** - the release was rebuilt from current source, installed, launched,

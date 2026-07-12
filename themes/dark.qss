@@ -12,6 +12,10 @@ QFrame#topBar, QFrame#ribbon, QFrame#card, QFrame#pageHeader, QFrame#actionToolb
 QFrame#topBar {
     border-radius: 8px;
 }
+QFrame#productBrandHeader, QFrame#productBrandHeader QLabel {
+    background: transparent;
+    border: none;
+}
 QFrame#ribbon {
     background: #061F43;
     border: 1px solid #0B3367;
@@ -138,6 +142,7 @@ QLabel#clientLogo {
     border-radius: 8px;
     color: #93C5FD;
     font-weight: 800;
+    font-size: 14pt;
 }
 QLabel#clientName {
     color: #F8FAFC;

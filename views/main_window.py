@@ -76,9 +76,10 @@ from views.scheme_master_view import SchemeMasterView
 from views.simple_master_view import SimpleMasterView
 from views.stock_dashboard_view import StockDashboardView
 from views.stock_out_view import StockOutView
-from widgets.company_branding import CompanyBrandingWidget
 from widgets.enter_key_flow import EnterKeyFlowFilter
 from widgets.erp_components import TransactionTotalsPanel, install_button_feedback_tree
+from widgets.navigation import SidebarNavigationButton
+from widgets.product_branding import ProductBrandHeader
 from widgets.smart_combo import install_smart_combos
 
 
@@ -155,12 +156,22 @@ class MainWindow(QMainWindow):
         self.source = MySqlSource()
         self.history: list[str] = []
         self.current_page = "dashboard"
+        self.current_route = "dashboard"
         self.dark_mode = False
         self.company_profile: dict[str, object] = {}
         self._startup_trace("company_profile_loading", "START", "Loading company profile")
         try:
             self.company_profile = CompanyProfileService(self.source.sqlite_path).current_profile()
-            self._startup_trace("company_profile_loading", "SUCCESS", f"company={self.company_profile}")
+            self._startup_trace(
+                "company_profile_loading",
+                "SUCCESS",
+                "company_id={company_id} name={name} business_type={business_type} logo_configured={logo}".format(
+                    company_id=int(self.company_profile.get("company_id") or 0),
+                    name=str(self.company_profile.get("company_name") or ""),
+                    business_type=str(self.company_profile.get("business_type_code") or ""),
+                    logo=bool(self.company_profile.get("logo_path")),
+                ),
+            )
         except Exception as exc:
             self._startup_trace_exception("company_profile_loading", exc)
         self._startup_trace("business_type_loading", "START", "Loading business type")
@@ -268,8 +279,10 @@ class MainWindow(QMainWindow):
             self._startup_trace_exception("toolbar_creation", exc)
             raise
         layout.addWidget(self.ribbon_layout)
-        self.page_factories["dashboard"] = lambda: DashboardView(self.config, self.open_page)
-        self.page_factories["erp_search"] = lambda: GlobalSearchView(self.config, self.open_page)
+        self.page_factories["dashboard"] = lambda: DashboardView(self.config, self.open_page, self.can_open_route)
+        self.page_factories["erp_search"] = lambda: GlobalSearchView(
+            self.config, self.open_page, self.can_open_route
+        )
         self.page_factories["audit"] = self._audit_page
         self.page_factories["ui_rules"] = self._ui_rules_page
         self.page_factories["migration_backlog"] = self._backlog_page
@@ -365,7 +378,9 @@ class MainWindow(QMainWindow):
             self.open_page,
             self.open_transaction_for_edit,
         )
-        self.page_factories["reports"] = lambda: ReportCenterView(self.config)
+        self.page_factories["reports"] = lambda: ReportCenterView(
+            self.config, allowed_report_keys=self._allowed_report_keys()
+        )
         self.page_factories["administration"] = lambda: ModuleHubView(
             self.config,
             "Administration",
@@ -419,12 +434,16 @@ class MainWindow(QMainWindow):
         subtitle = QLabel("ERP workspace")
         subtitle.setObjectName("sidebarSubtitle")
         layout.addWidget(subtitle)
-        for page_key, label in [
+        entries = [
             ("dashboard", "Dashboard"),
             ("sales", "Sales"),
             ("sales_order_entry", "Sales Order"),
             ("quotation_entry", "Quotation"),
             ("delivery_challan_entry", "Delivery Challan"),
+        ]
+        if self.can_open_route("reports:daily_dispatch_summary"):
+            entries.append(("reports:daily_dispatch_summary", "Dispatch Summary"))
+        entries.extend([
             ("sales_return_entry", "Sales Return"),
             ("purchase", "Purchase"),
             ("purchase_order_entry", "Purchase Order"),
@@ -432,18 +451,33 @@ class MainWindow(QMainWindow):
             ("purchase_return_entry", "Purchase Return"),
             ("inventory", "Inventory"),
             ("accounts", "Accounts"),
-            ("reports", "Reports"),
-            ("administration", "Settings"),
-        ]:
-            button = QPushButton(label)
+        ])
+        if self._module_visible("reports"):
+            entries.append(("reports", "Reports"))
+        if self._module_visible("administration"):
+            entries.append(("administration", "Settings"))
+        for page_key, label in entries:
+            button = SidebarNavigationButton(label)
             button.setObjectName("sidebarButton")
             button.setCheckable(True)
             button.setAutoExclusive(False)
+            button.setAccessibleName(f"Open {label}")
+            button.setAccessibleDescription("ERP Navigator item. Use Up or Down, Enter, Tab, mouse, or Escape.")
+            button.setToolTip(f"Open {label} | Up/Down navigate | Enter open | Esc back")
             button.clicked.connect(lambda checked=False, key=page_key: self.open_page(key))
+            button.moveRequested.connect(lambda offset, current=button: self._move_sidebar_focus(current, offset))
+            button.escapeRequested.connect(self.go_back)
             self.sidebar_buttons[page_key] = button
             layout.addWidget(button)
         layout.addStretch(1)
         return sidebar
+
+    def _move_sidebar_focus(self, current: QPushButton, offset: int) -> None:
+        buttons = [button for button in self.sidebar_buttons.values() if button.isVisible() and button.isEnabled()]
+        if not buttons or current not in buttons:
+            return
+        target = buttons[(buttons.index(current) + int(offset)) % len(buttons)]
+        target.setFocus(Qt.FocusReason.ShortcutFocusReason)
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
@@ -479,7 +513,7 @@ class MainWindow(QMainWindow):
 
     def _refresh_sidebar_state(self) -> None:
         for page_key, button in self.sidebar_buttons.items():
-            active = page_key == self.current_page
+            active = page_key == self.current_route
             button.setChecked(active)
             button.setProperty("active", active)
             button.style().unpolish(button)
@@ -488,7 +522,7 @@ class MainWindow(QMainWindow):
         self._refresh_ribbon_state()
 
     def _refresh_ribbon_state(self) -> None:
-        active_group = self._page_group(self.current_page)
+        active_group = self._page_group(self.current_route)
         for group, button in self.ribbon_buttons.items():
             active = group == active_group
             button.setProperty("active", active)
@@ -542,21 +576,8 @@ class MainWindow(QMainWindow):
         layout = QHBoxLayout(bar)
         layout.setContentsMargins(10, 7, 10, 7)
         layout.setSpacing(8)
-        brand_row = QHBoxLayout()
-        brand_row.setSpacing(8)
-        self.company_brand = CompanyBrandingWidget(self.config, self.company_profile, compact=True)
-        title = QLabel("PRM BILLING INVENTORY")
-        title.setObjectName("brandTitle")
-        caption = QLabel("Way to future, Today")
-        caption.setObjectName("caption")
-        title_box = QVBoxLayout()
-        title_box.setSpacing(0)
-        title_box.addWidget(title)
-        title_box.addWidget(caption)
-        brand_row.addWidget(self.company_brand)
-        brand_row.addLayout(title_box)
-        brand_row.addStretch(1)
-        layout.addLayout(brand_row, stretch=1)
+        self.product_brand = ProductBrandHeader(self.config, compact=True)
+        layout.addWidget(self.product_brand, stretch=1, alignment=Qt.AlignmentFlag.AlignLeft)
         self.command_search = QLineEdit()
         self.command_search.setPlaceholderText("Search menu, customer, product...        Ctrl+K")
         self.command_search.setProperty("enterSubmits", True)
@@ -634,7 +655,8 @@ class MainWindow(QMainWindow):
         self._add_ribbon_menu(layout, "Purchase", "purchase", PURCHASE_OPERATIONS)
         self._add_ribbon_menu(layout, "Inventory", "inventory", INVENTORY_OPERATIONS)
         self._add_ribbon_menu(layout, "Accounts", "accounts", ACCOUNTS_OPERATIONS)
-        self._add_ribbon_menu(layout, "Reports", "reports", REPORTS_OPERATIONS)
+        if self._module_visible("reports"):
+            self._add_ribbon_menu(layout, "Reports", "reports", REPORTS_OPERATIONS)
         if self._module_visible("document_center"):
             self._add_ribbon_menu(layout, "Document Center", "document_center", DOCUMENT_OPERATIONS)
         if self._module_visible("administration"):
@@ -893,7 +915,11 @@ class MainWindow(QMainWindow):
             return
         if key.startswith("reports:"):
             report_key = key.split(":", 1)[1]
-            self.open_page("reports", remember=remember)
+            if not self.can_open_route(key):
+                QMessageBox.information(self, "Access", "This report is not enabled for the current plan/user.")
+                return
+            previous_route = self.current_route
+            self.open_page("reports", remember=False)
             page = self.pages.get("reports")
             if hasattr(page, "open_report"):
                 page.open_report(report_key)
@@ -906,6 +932,14 @@ class MainWindow(QMainWindow):
                         page.table.clearSelection()
                         page.table.selectRow(0)
                         page.table.setFocus()
+            if remember and previous_route != key:
+                self.history.append(previous_route)
+            self.current_route = key
+            self._refresh_sidebar_state()
+            self.statusBar().showMessage(f"Open report: {report_key}")
+            return
+        if key == "reports" and not self._module_visible("reports"):
+            QMessageBox.information(self, "Access", "Reports are not enabled for the current plan/user.")
             return
         page = self._ensure_page(key)
         if page is None:
@@ -917,9 +951,10 @@ class MainWindow(QMainWindow):
         if key == "administration" and not self._module_visible("administration"):
             QMessageBox.information(self, "Access", "This menu is not enabled for the current plan/user.")
             return
-        if remember and self.current_page != key:
-            self.history.append(self.current_page)
+        if remember and self.current_route != key:
+            self.history.append(self.current_route)
         self.current_page = key
+        self.current_route = key
         self._fit_page_to_width(self.pages[key])
         self.stack.setCurrentWidget(self.pages[key])
         self.stack.updateGeometry()
@@ -1072,7 +1107,9 @@ class MainWindow(QMainWindow):
     def _module_visible(self, module: str) -> bool:
         role = (self.session.get("role") or "").lower()
         plan = (self.license_context.plan_code if self.license_context else "premium").lower()
-        if module in {"dashboard", "masters", "sales", "purchase", "inventory", "accounts", "reports"}:
+        if module == "reports":
+            return self._permission_allowed("reports")
+        if module in {"dashboard", "masters", "sales", "purchase", "inventory", "accounts"}:
             return True
         if module == "document_center":
             return plan in {"standard", "premium", "enterprise", "professional"}
@@ -1085,7 +1122,37 @@ class MainWindow(QMainWindow):
             }
         return True
 
+    def _permission_allowed(self, permission_key: str) -> bool:
+        role = str(self.session.get("role") or "").strip().lower()
+        if role in {"admin", "administrator", "developer", "super admin", "super_admin", "superadmin"}:
+            return True
+        try:
+            rows = self.source.rows(
+                "SELECT allowed FROM role_permissions WHERE LOWER(role_name)=LOWER(%s) AND permission_key=%s",
+                (role, permission_key),
+            )
+        except Exception:
+            return False
+        return bool(rows and int(rows[0].get("allowed") or 0))
+
+    def _allowed_report_keys(self) -> set[str]:
+        if not self._module_visible("reports"):
+            return set()
+        return {str(operation.key) for operation in self._filter_operations("reports", REPORTS_OPERATIONS)}
+
+    def can_open_route(self, route: str) -> bool:
+        target = str(route or "").strip()
+        if target == "reports":
+            return self._module_visible("reports")
+        if target.startswith("reports:"):
+            return target.split(":", 1)[1] in self._allowed_report_keys()
+        if target == "administration":
+            return self._module_visible("administration")
+        return True
+
     def _filter_operations(self, module: str, operations: list) -> list:
+        if module == "reports" and not self._module_visible("reports"):
+            return []
         plan = (self.license_context.plan_code if self.license_context else "premium").lower()
         if plan in {"premium", "enterprise", "professional"}:
             return list(operations)
@@ -1177,6 +1244,8 @@ class MainWindow(QMainWindow):
         page.setSizePolicy(QSizePolicy.Policy.Expanding, page.sizePolicy().verticalPolicy())
         controls = (QLineEdit, QComboBox, QDateEdit, QPushButton)
         for widget in page.findChildren(QWidget):
+            if widget.property("erpPreserveGeometry") is True:
+                continue
             requested_width = int(widget.property("erpMinimumWidth") or 0)
             widget.setMinimumWidth(min(requested_width, 200) if requested_width else 0)
             if widget.maximumWidth() < max_size and not isinstance(widget, QTableWidget):

@@ -34,7 +34,7 @@ from services.mysql_source import MySqlSource
 from services.pdf_print import write_report_pdf
 from services.print_preview import show_print_preview
 from widgets.action_toolbar import ActionSpec, CompactActionToolbar
-from widgets.company_branding import CompanyBrandingWidget
+from widgets.company_branding import ClientCompanyIdentityCard
 from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 from widgets.form_layout_helpers import build_field_section
 from widgets.smart_combo import configure_smart_combo
@@ -394,7 +394,7 @@ class SimpleMasterView(QWidget):
         layout.setSpacing(6)
 
         if self.spec.mode == "company":
-            self.company_brand = CompanyBrandingWidget(self.config)
+            self.company_brand = ClientCompanyIdentityCard(self.config)
             layout.addWidget(self.company_brand)
 
         fields: list[tuple[str, QWidget, int]] = []

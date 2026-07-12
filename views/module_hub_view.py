@@ -497,7 +497,13 @@ ACCOUNTS_OPERATIONS = [
 REPORTS_OPERATIONS = [
     ModuleOperation("Sales Reports", "sales_register", category="Sales / Purchase"),
     ModuleOperation("Purchase Reports", "purchase_register", category="Sales / Purchase"),
-    ModuleOperation("Daily Dispatch Summary", "daily_dispatch_summary", category="Dispatch"),
+    ModuleOperation(
+        "Dispatch Summary",
+        "daily_dispatch_summary",
+        "Open report",
+        "reports:daily_dispatch_summary",
+        "Dispatch",
+    ),
     ModuleOperation("Item Loading Sheet", "item_loading_sheet", category="Dispatch"),
     ModuleOperation("Route Loading Sheet", "route_loading_sheet", category="Dispatch"),
     ModuleOperation("Pending Dispatch", "pending_dispatch", category="Dispatch"),

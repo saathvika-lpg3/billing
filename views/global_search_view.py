@@ -24,10 +24,16 @@ from widgets.erp_components import ERPFieldBox, ERPPageHeader, ERPGrid
 
 
 class GlobalSearchView(QWidget):
-    def __init__(self, config: AppConfig, open_page: Callable[[str], None]) -> None:
+    def __init__(
+        self,
+        config: AppConfig,
+        open_page: Callable[[str], None],
+        route_allowed: Callable[[str], bool] | None = None,
+    ) -> None:
         super().__init__()
         self.config = config
         self.open_page = open_page
+        self.route_allowed = route_allowed or (lambda _route: True)
         self.source = MySqlSource()
         self.page_size = 25
         self.offset = 0
@@ -94,7 +100,7 @@ class GlobalSearchView(QWidget):
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table.verticalHeader().setDefaultSectionSize(26)
-        self.table.itemDoubleClicked.connect(self._open_current_row)
+        self.table.itemActivated.connect(self._open_current_row)
         layout.addWidget(self.table, stretch=1)
         return frame
 
@@ -105,9 +111,19 @@ class GlobalSearchView(QWidget):
 
     def run_search(self) -> None:
         self.offset = min(self.offset, self.total if self.total else 0)
-        result = self.source.global_search(self.search.text(), self.page_size, self.offset)
-        self.total = int(result.get("total") or 0)
-        self.rows = list(result.get("rows") or [])
+        # The source has a bounded maximum (fewer than 1,000 route/record
+        # candidates). Filter the complete bounded result set before paging so
+        # permission-hidden routes never distort totals or page boundaries.
+        result = self.source.global_search(self.search.text(), 1000, 0)
+        allowed_rows = [
+            row
+            for row in list(result.get("rows") or [])
+            if not str(row.get("target_page") or "")
+            or self.route_allowed(str(row.get("target_page") or ""))
+        ]
+        self.total = len(allowed_rows)
+        self.offset = min(self.offset, max(0, self.total - 1)) if self.total else 0
+        self.rows = allowed_rows[self.offset : self.offset + self.page_size]
         self._redraw_table()
 
     def _go_to(self, offset: int) -> None:
@@ -153,7 +169,7 @@ class GlobalSearchView(QWidget):
         if row_index < 0 or row_index >= len(self.rows):
             return
         target = str(self.rows[row_index].get("target_page") or "")
-        if target:
+        if target and self.route_allowed(target):
             self.open_page(target)
 
     def _update_page_label(self) -> None:

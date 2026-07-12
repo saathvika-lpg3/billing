@@ -1,5 +1,48 @@
 # Desktop UI System
 
+## 2026-07-12 Product/Client Ownership And Dispatch Navigation Lock
+
+- `widgets/product_branding.py` is the product-owned identity boundary.
+  `ProductBrandHeader`, `resolve_product_logo()`, `resolve_product_icon()` and
+  `product_icon()` resolve only the original PRM assets. The fixed desktop
+  header and login product area use this component; no company profile is
+  accepted by it.
+- `widgets/company_branding.py` is the client-owned identity boundary.
+  `ClientCompanyIdentityCard`, `client_company_name()` and
+  `resolve_client_company_logo()` resolve only the active licensed-company
+  profile. Legacy names remain compatibility aliases, but new code should use
+  the explicit client-owned names.
+- The client card is appropriate for Dashboard Company Information and Company
+  Settings/Profile. Login may contain it only in a separate Licensed Company
+  section below the PRM product identity. The fixed product shell never renders
+  the client's name, initials or logo.
+- Client cards use protected, aspect-ratio-preserving logo geometry and a
+  client-initials fallback. `MainWindow._fit_page_to_width()` skips widgets with
+  `erpPreserveGeometry`, preventing responsive fitting from collapsing the
+  identity mark.
+- The shared print engine uses `_resolve_client_document_logo()` for client
+  document headers and `_resolve_product_logo()` for the PRM footer. This keeps
+  customer-facing company ownership and product attribution explicit.
+- `MainWindow.current_route` retains the complete active destination separately
+  from the stacked page key. The canonical Dispatch Summary destination is
+  `reports:daily_dispatch_summary`; it opens the existing Report Center and
+  selects the single `daily_dispatch_summary` catalog entry.
+- Sidebar, Dashboard, Reports operations and Global Search all reuse that
+  destination. Global Search aliases include Dispatch, Dispatch Summary,
+  Loading and Loading Sheet. There is no second Dispatch Summary page.
+- `can_open_route()` and the filtered Report Center catalog enforce the same
+  reports permission and plan boundary. Administrator/developer roles are
+  allowed; non-admin roles require an allowed `role_permissions` row; Basic
+  plans exclude Dispatch-category reports.
+- `SidebarNavigationButton` supplies arrow-key traversal, Enter activation and
+  Escape/back signaling. Active state follows the complete route, including a
+  selected report subroute.
+- Multi-resolution product-header/client-card captures, Company Profile,
+  Dispatch Summary and client-header/PRM-footer PDF captures use the
+  `branding_after_` prefix under `screenshots/`. The 1.7.7 all-route and
+  installed-runtime certification passed; the evidence is locked in
+  `TEST_REPORT.md` and `audit/installer_release_certification.md`.
+
 ## 2026-07-12 Production UI Foundation
 
 - `widgets/company_branding.py` is the canonical client identity surface. It

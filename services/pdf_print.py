@@ -588,7 +588,7 @@ def _draw_statement_page_header(
     top = height - margin
     bottom = margin + 20
     _draw_box(pdf, margin, margin, content_width, height - (2 * margin), "#FFFFFF", "#0F172A", radius=6, stroke_width=0.85)
-    _section_company_center_text(pdf, company, margin, top, content_width)
+    _draw_document_company_header(pdf, company, margin, top, content_width)
     strip_y = top - 76
     _section_title_strip(pdf, margin + 5, strip_y, content_width - 10, str(statement.get("title") or title).upper(), size=7.6, title_left=8)
     _right_text(pdf, _text(statement.get("period") or ""), width - margin - 12, strip_y + 4, size=6.6, color="#475569")
@@ -692,7 +692,7 @@ def _draw_statement_controls(
     top = height - margin
     bottom = margin + 20
     _draw_box(pdf, margin, margin, content_width, height - (2 * margin), "#FFFFFF", "#0F172A", radius=6, stroke_width=0.85)
-    _section_company_center_text(pdf, company, margin, top, content_width)
+    _draw_document_company_header(pdf, company, margin, top, content_width)
     strip_y = top - 76
     support_title = str(statement.get("support_title") or "Supporting Analysis")
     _section_title_strip(pdf, margin + 5, strip_y, content_width - 10, f"{str(statement.get('title') or title).upper()} - {support_title.upper()}", size=7.1, title_left=8)
@@ -707,7 +707,7 @@ def _draw_statement_controls(
             pdf.showPage()
             page_index += 1
             _draw_box(pdf, margin, margin, content_width, height - (2 * margin), "#FFFFFF", "#0F172A", radius=6, stroke_width=0.85)
-            _section_company_center_text(pdf, company, margin, top, content_width)
+            _draw_document_company_header(pdf, company, margin, top, content_width)
             _section_title_strip(pdf, margin + 5, strip_y, content_width - 10, f"{support_title.upper()} - CONTINUED", size=7.1, title_left=8)
             y = strip_y - 28
             _draw_item_table_header(pdf, margin + 5, y, col_widths, headers, 16)
@@ -723,7 +723,7 @@ def _draw_statement_controls(
 
 
 def _draw_statement_footer(pdf: canvas.Canvas, width: float, margin: float) -> None:
-    logo = _resolve_asset("assets/PRM_SoftSolutions.jpg", logo=True)
+    logo = _resolve_product_logo()
     y = margin + 10
     if logo:
         _draw_image(pdf, logo, margin + 4, y - 2, 12, 12)
@@ -747,7 +747,7 @@ def _draw_report_page_header(
     _draw_box(pdf, margin, bottom, content_width, header_height, "#FFFFFF", "#CBD5E1", radius=4, stroke_width=0.65)
     # draw header only once per page to avoid duplicates
     if not getattr(pdf, "_header_drawn", False):
-        _section_company_center_text(pdf, company, margin, top, content_width)
+        _draw_document_company_header(pdf, company, margin, top, content_width)
         try:
             pdf._header_drawn = True
         except Exception:
@@ -920,7 +920,7 @@ def _draw_sample_header(
     pdf.rect(x, top - 23, width, 5, stroke=0, fill=1)
     # draw company header only once per page
     if not getattr(pdf, "_header_drawn", False):
-        _section_company_center_text(pdf, company, x, top, width)
+        _draw_document_company_header(pdf, company, x, top, width)
         try:
             pdf._header_drawn = True
         except Exception:
@@ -1151,7 +1151,7 @@ def _draw_sample_gst_row(pdf: canvas.Canvas, x: float, y: float, columns: list[f
 
 
 def _draw_sample_footer_strip(pdf: canvas.Canvas, page_width: float, bottom: float, page_index: int) -> None:
-    logo = _resolve_asset("assets/PRM_SoftSolutions.jpg", logo=True)
+    logo = _resolve_product_logo()
     y = bottom + 9
     if logo:
         _draw_image(pdf, logo, 54, y - 5, 18, 18)
@@ -1183,7 +1183,7 @@ def _draw_transaction_header(
 
     # draw company header only once per page
     if not getattr(pdf, "_header_drawn", False):
-        _section_company_center_text(pdf, company, margin, top, inner_width)
+        _draw_document_company_header(pdf, company, margin, top, inner_width)
         try:
             pdf._header_drawn = True
         except Exception:
@@ -1325,7 +1325,7 @@ def _draw_voucher(
     top = height - margin
     inner_width = width - (2 * margin)
     _draw_box(pdf, margin, margin, inner_width, height - (2 * margin), "#FFFFFF", "#0F172A", radius=8, stroke_width=1.2)
-    _section_company_center_text(pdf, company, margin, top, inner_width)
+    _draw_document_company_header(pdf, company, margin, top, inner_width)
     strip_y = top - 62
     pdf.setFillColor(colors.HexColor("#DFF4FF"))
     pdf.rect(margin + 6, strip_y, inner_width - 12, 14, stroke=0, fill=1)
@@ -1460,7 +1460,7 @@ def _draw_continue_marker(pdf: canvas.Canvas, x: float, bottom: float, width: fl
 
 
 def _draw_page_footer(pdf: canvas.Canvas, width: float, margin: float, page_index: int) -> None:
-    logo = _resolve_asset("assets/PRM_SoftSolutions.jpg", logo=True)
+    logo = _resolve_product_logo()
     y = margin + 10
     if logo:
         _draw_image(pdf, logo, margin + 4, y - 2, 12, 12)
@@ -1468,12 +1468,20 @@ def _draw_page_footer(pdf: canvas.Canvas, width: float, margin: float, page_inde
     _right_text(pdf, f"Page {page_index}", width - margin - 6, y, size=5.8, color="#94A3B8")
 
 
-def _section_company_center_text(pdf: canvas.Canvas, company: dict[str, Any], x: float, top: float, width: float) -> None:
+def _draw_document_company_header(
+    pdf: canvas.Canvas,
+    company: dict[str, Any],
+    x: float,
+    top: float,
+    width: float,
+) -> None:
+    """Draw client business identity; never substitute the PRM product logo."""
+
     logo_width = 34.0
     logo_height = 13.0
     logo_x = x + ((width - logo_width) / 2)
     logo_y = top - 17
-    logo = _resolve_asset(company.get("logo_path"))
+    logo = _resolve_client_document_logo(company)
     if logo:
         _draw_image(pdf, logo, logo_x, logo_y, logo_width, logo_height)
     else:
@@ -1697,7 +1705,7 @@ def _default_db_path() -> Path:
     return Path(__file__).resolve().parents[1] / "database" / "prm_billing_inventory.db"
 
 
-def _resolve_asset(value: Any, *, logo: bool = False) -> Path | None:
+def _resolve_asset(value: Any) -> Path | None:
     raw = str(value or "").strip()
     candidates: list[Path] = []
     if raw:
@@ -1707,13 +1715,22 @@ def _resolve_asset(value: Any, *, logo: bool = False) -> Path | None:
         else:
             for root in _resource_roots():
                 candidates.append(root / raw)
-    if logo:
-        for root in _resource_roots():
-            candidates.append(root / "assets" / "PRM_SoftSolutions.jpg")
     for candidate in candidates:
         if candidate.exists():
             return candidate
     return None
+
+
+def _resolve_product_logo() -> Path | None:
+    """Resolve the fixed PRM Software logo used only in product footers."""
+
+    return _resolve_asset("assets/PRM_SoftSolutions.jpg")
+
+
+def _resolve_client_document_logo(company: dict[str, Any]) -> Path | None:
+    """Resolve only the client-configured logo used in document headers."""
+
+    return _resolve_asset(company.get("logo_path"))
 
 
 def _resource_roots() -> Iterable[Path]:

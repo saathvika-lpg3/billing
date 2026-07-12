@@ -1,14 +1,69 @@
 # Current Status
 
+## 2026-07-12 Branding Ownership Correction, Dispatch Route And Certified Installer 1.7.7
+
+- Release state: **1.7.7 code-controlled gates passed and the real local
+  installation was upgraded successfully**. The certified setup is
+  `installer_output/PRM_Billing_Inventory_Setup.exe` (43,193,577 bytes,
+  SHA-256
+  `E4ADC9CCCF76E2E1C38ACD042F42C6C9FF44A20329DC5E353A3EA8B83A6EE54C`).
+- Safety checkpoint created before this correction:
+  `backups/branding_cleanup_checkpoint_20260712_015638.zip` (813,693 bytes,
+  SHA-256
+  `FF59AC6BAC163CF1A3C429FF114793BBB608DDFB72EB777873E979B11AC2F2A6`).
+- Corrected the branding ownership boundary. The fixed application product
+  header, login product header, executable/window icon and installer identity
+  are owned only by **PRM BILLING INVENTORY** and the original PRM assets.
+  A licensed client's name, initials or logo must never replace that product
+  identity.
+- Client identity is intentionally separate. `ClientCompanyIdentityCard` owns
+  the licensed-company presentation on Dashboard Company Information, Company
+  Settings/Profile and other company-context surfaces. Transaction, report,
+  statement and voucher document headers use the client company; shared PDF
+  footers retain PRM product ownership.
+- The root cause was direct use of the client-owned branding widget in the
+  fixed shell plus generic page-width fitting that overwrote fixed logo
+  geometry. `ProductBrandHeader` and `ClientCompanyIdentityCard` now have
+  explicit responsibilities, and identity-card geometry is protected from the
+  generic fitter.
+- Added a single canonical **Dispatch Summary** destination:
+  `reports:daily_dispatch_summary`, selecting Report Center key
+  `daily_dispatch_summary`. Sidebar, Dashboard quick access, Reports operations
+  and Global Search all route to that same report; no duplicate report page was
+  introduced.
+- Dispatch visibility follows the existing reports permission and licensed
+  plan filter. Admin/developer roles retain access; non-admin roles require the
+  reports permission; the Basic plan does not expose Dispatch-category reports.
+  Filtered routes are also removed from report selection and Global Search.
+- Installer **1.7.7** uses the PRM setup/uninstall icon, packages the smaller
+  runtime requirement manifest and omits development documentation, `numpy`
+  and `lxml`. Frozen startup and installed UI/resource smoke passed; the payload
+  contains no `.prmlic`, PowerShell, logs, uploads, tests, audit or backup data.
+- The installer accepts any valid per-client `.prmlic` basename through its
+  Browse control. Clean install with `sairam.prmlic` and upgrade with
+  `lakshmi.prmlic` both passed; setup stores the selected file internally as
+  `license/client.prmlic` for a stable runtime path.
+- Classified workspace cleanup is complete. Historical client-facing prints
+  and reports plus the legacy delivery bundle are preserved under
+  `cleanup_quarantine_20260712_075052`; generated caches, test installs, logs,
+  build/dist output and `.venv` were removed. Protected licence/upload hashes
+  match their pre-cleanup values. The live database is integrity-clean and new
+  UI tests/capture tools now operate on disposable database copies.
+- Validation: **220 passed** full suite, **44 passed** focused branding/
+  navigation/print gate, **14 passed** post-build release gate, **7 passed**
+  database-isolation gate, and **59/59 routes** passed all three target sizes.
+
 ## 2026-07-12 Production Stabilization And Installer 1.7.6
 
 - Safety checkpoint: `backups/production_stabilization_checkpoint_20260711_224546.zip`
   (788,135 bytes, SHA-256
   `55BE66DAB4B8B05BFEB7576D962BED2597BF10942BA91075A6CA3CAA053A278C`).
-- Client branding is now one reusable component on Login, Dashboard, the main
-  header and Company Settings. Report, statement, transaction and voucher PDFs
-  use the same logo-above-name hierarchy and include GSTIN, FSSAI, drug
-  licence, phone, email and business type when supplied.
+- The 1.7.6 checkpoint introduced one reusable client-branding component on
+  Login, Dashboard, the main header and Company Settings. The main-header
+  placement was subsequently classified as an ownership defect and is
+  superseded by the 1.7.7 correction above. Current document headers continue
+  to use the client logo-above-name hierarchy and supplied regulatory/contact
+  details.
 - Product conversion validation was repaired at the save-pipeline root. The
   repository now validates and synchronizes explicit purchase-to-sale UOM
   conversion atomically with the product and its pack rows. Single-UOM,
