@@ -1,0 +1,42 @@
+{
+  "install_root": "C:\\Users\\DELL\\AppData\\Local\\Programs\\PRM Billing Inventory",
+  "working_database": "C:\\Users\\DELL\\AppData\\Local\\Temp\\prm_installed_ui_smoke__hmpue2n\\prm_billing_inventory.db",
+  "integrity": "ok",
+  "authenticated_role": "admin",
+  "routes": {
+    "product_master": "ProductMasterView",
+    "sales_bill": "SalesBillView",
+    "purchase_entry": "PurchaseEntryView",
+    "sales": "ModuleHubView",
+    "reports": "ReportCenterView",
+    "reports:daily_dispatch_summary": "ReportCenterView"
+  },
+  "product_save_rows": 1,
+  "product_pack_rows": 2,
+  "product_reloaded": true,
+  "product_id": 1,
+  "grand_total_visible": {
+    "sales_bill": true,
+    "purchase_entry": true
+  },
+  "horizontal_list_toolbar": true,
+  "product_branding": {
+    "product_name": "PRM BILLING INVENTORY",
+    "product_logo_loaded": true,
+    "client_identity_in_top_bar": false
+  },
+  "dashboard_client_logo_area": [
+    144,
+    96
+  ],
+  "dispatch_summary_route": "reports:daily_dispatch_summary",
+  "themes_loaded": [
+    "dark",
+    "light"
+  ],
+  "license_activation_rows": 1,
+  "user_rows": 1,
+  "database_mode": "disposable-copy",
+  "installed_database_unchanged": true,
+  "installed_database_sha256": "0616056aecd4daf24f461ec9a2b5e280fce3b73d52a5f9400109e0a241f43417"
+}

@@ -149,7 +149,7 @@ def main() -> int:
     parser.add_argument(
         "--source",
         type=Path,
-        default=project_root / "database" / "prm_billing_inventory.db",
+        default=project_root / "database" / "prm_billing_inventory_seed.db",
     )
     parser.add_argument(
         "--output",

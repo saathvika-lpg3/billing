@@ -1,5 +1,13 @@
 # Print Engine Guide
 
+> **Official V1.0 release lock (2026-07-12):** [`RELEASE_LOCK.md`](../RELEASE_LOCK.md)
+> is authoritative. Its accepted print/PDF/report structure, document-family
+> mapping, A4/A2 portrait/landscape behavior and output parity are locked for
+> V1.0. Dated test counts and 1.7.x references below are preserved as historical
+> evidence, not current version identifiers or final-release certification.
+> Physical-printer margins, real SMTP credentials, a logged-in WhatsApp session
+> and government GST credentials remain external acceptance gates.
+
 ## 2026-07-12 production lock
 
 - The company logo/initials block is drawn above the company name by the shared
@@ -22,9 +30,9 @@
   printer margins remain an operator/site acceptance item because hardware
   non-printable areas differ by printer driver.
 
-## Future print/report requirements
+## Continuing print/report requirements
 
-- Support A2 Landscape in print preview, export, and bulk print workflows.
+- Preserve A2 Landscape support in print preview, export, and bulk print workflows.
 - Validate multi-page reports for:
   - repeated header rows on every page
   - repeated footer rows on every page if needed

@@ -183,7 +183,12 @@ def _error_handling(page: object) -> str:
 
 def audit() -> list[dict[str, str]]:
     app = QApplication.instance() or QApplication([])
-    source_db = PROJECT_ROOT / "database" / "prm_billing_inventory.db"
+    # Release/layout audits must never read workstation client rows. The
+    # product-owned seed has the complete schema/reference configuration but no
+    # company, licence, user or transaction data.
+    source_db = PROJECT_ROOT / "database" / "prm_billing_inventory_seed.db"
+    if not source_db.is_file():
+        raise FileNotFoundError(f"Sanitized UI-audit seed is missing: {source_db}")
     with tempfile.TemporaryDirectory(prefix="prm-live-ui-audit-", ignore_cleanup_errors=True) as temp_dir:
         audit_db = Path(temp_dir) / "audit.db"
         if source_db.exists():

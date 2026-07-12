@@ -1,0 +1,24 @@
+PRM BILLING INVENTORY V1.0
+Release date: 2026-07-12
+
+PRM_Billing_Inventory_V1.0_Setup.exe
+Bytes: 43187187
+SHA256: 04505DBEC75642B6345D547F4FC1536E3D901AE79DA3F6A0D0E2CAEF7CFBA584
+ProductVersion: 1.0.0
+FileVersion: 1.0.0
+
+PRM_Billing_Inventory.exe
+Bytes: 9842776
+SHA256: 0C521954DE709E1B1FA6CE5EBBD25CBBE9E9188F63D883ECEE9F8429F7748550
+ProductVersion: 1.0.0
+FileVersion: 1.0.0
+
+prm_billing_inventory_seed.db
+Bytes: 933888
+SHA256: E5EB868871F1F8AC120F8BF56CAD03AF3AB4D3D1505302D581FEE1B6AAB332CC
+Integrity: ok
+Client/license/user/transaction rows: 0
+
+Authenticode setup: NotSigned
+Authenticode executable: NotSigned
+Reason: organization code-signing certificate not supplied.

@@ -66,6 +66,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=str(root / "assets" / "PRM_SoftSolutions.ico"),
+    version=str(root / "installer" / "windows_version_info.txt"),
 )
 
 coll = COLLECT(

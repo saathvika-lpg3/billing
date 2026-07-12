@@ -1,6 +1,61 @@
 # Test Report
 
-## 2026-07-12 Branding/Dispatch And Certified Installer 1.7.7 Gate
+## 2026-07-12 Official PRM BILLING INVENTORY V1.0 Release Gate
+
+- Python compile/import gate: **PASSED**.
+- Complete native regression suite: **226 passed in 212.30 seconds**.
+- Live page audit: **59/59 routes passed** at 1366x768, 1440x900 and
+  1920x1080 using the sanitized product seed.
+- Windows metadata: **PASSED**. Runtime, frozen executable and setup report
+  technical version `1.0.0`; compact application surfaces report `V1.0`.
+- Final build/privacy audit: **PASSED**. Setup SHA-256
+  `04505DBEC75642B6345D547F4FC1536E3D901AE79DA3F6A0D0E2CAEF7CFBA584`;
+  238-file frozen payload with zero forbidden client/development artifacts.
+- Isolated clean install: **PASSED** with a separately named synthetic
+  `.prmlic`; frozen login was responsive with the exact title
+  `PRM BILLING INVENTORY V1.0 Login`.
+- Installed-resource smoke: **PASSED**. SQLite integrity, admin authentication,
+  Product Master two-pack save/reload, Sales/Purchase Grand Totals, horizontal
+  actions, themes, branding ownership and Dispatch Summary all passed on a
+  disposable database copy.
+- Preserving uninstall: **PASSED**. Database, licence, settings and upload
+  markers remained byte-identical; executable/uninstaller/shortcut were gone.
+- Real local upgrade: **PASSED**. Product/file version is `1.0.0`, installed
+  executable matches the certified build, existing database/licence hashes are
+  unchanged, and the final login is open and responsive.
+- Visual/PDF evidence: V1 login, 1366x768 Dashboard, product version header,
+  Sales Invoice A2 landscape and Tally-style Profit & Loss samples were
+  rendered and visually inspected from synthetic data.
+- External acceptance still required: Authenticode certificate, physical
+  printer output, real SMTP, logged-in WhatsApp and government GST credentials.
+
+## 2026-07-12 Installer 1.7.8 Upgrade-Residue Hotfix Gate
+
+- User-visible failure reproduced: **PASSED**. Hidden native launch showed
+  window title `Unhandled exception in script`; stderr captured the import path
+  `openpyxl.compat.numbers` -> stale `numpy` -> missing `numpy.short`.
+- Real installed residue audit: **FAILED on 1.7.7 / PASSED after 1.7.8**.
+  The upgrade cleanup removed `numpy`, `numpy.libs`, all numpy/lxml dist-info,
+  `lxml`, old docs and legacy `requirements.txt`; no target remained.
+- Preservation: **PASSED**. Database SHA-256
+  `B294CE95487DD31CB22C3B842AD522267DFD8DEFA0EE6F909E36C4B4C6CEDDA4`
+  and the installed licence hash were byte-identical across the corrective
+  upgrade.
+- Frozen launch: **PASSED**. Window title `PRM BILLING INVENTORY Login`, process
+  responsive, stderr empty, and startup log successful through LoginDialog.
+- Authenticated installed-resource smoke: **PASSED**. SQLite `ok`, admin
+  authentication, Product Master two-pack save/reload, Sales/Purchase Grand
+  Totals, horizontal Sales actions, both themes, fixed PRM header, 144x96 client
+  logo area and canonical Dispatch Summary all passed using a disposable DB.
+- Installer source regression: **7 passed**; the test locks version 1.7.8 and
+  every safe obsolete-runtime deletion entry.
+
+## 2026-07-12 Branding/Dispatch And Superseded Installer 1.7.7 Gate
+
+Historical correction: the clean 1.7.7 payload and same-generation test upgrade
+passed, but the real upgrade from 1.7.6 retained files absent from the optimized
+payload. That gap made the real installed frozen executable fail before logging;
+1.7.8 is the first certified optimized upgrade and supersedes these claims.
 
 ### Completed implementation checks
 

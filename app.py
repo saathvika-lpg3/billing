@@ -10,6 +10,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QMessageBox
 
 from config.app_config import AppConfig
+from config.product_version import PRODUCT_NAME, PRODUCT_VERSION, RELEASE_NAME
 from config.qt_fonts import ensure_application_font
 from widgets.product_branding import resolve_product_icon
 from services.license_service import LicenseError, LicenseService
@@ -90,7 +91,11 @@ def _install_global_handlers() -> None:
 
 
 def main() -> int:
-    _log_startup("app_start", "START", "Application starting")
+    _log_startup(
+        "app_start",
+        "START",
+        f"{RELEASE_NAME} starting; technical_version={PRODUCT_VERSION}",
+    )
     _install_global_handlers()
     if getattr(sys, "frozen", False):
         root = Path(sys.executable).resolve().parent
@@ -111,7 +116,8 @@ def main() -> int:
     except Exception as exc:
         _log_exception_details("app_qapplication", exc)
         raise
-    app.setApplicationName("PRM Billing Inventory")
+    app.setApplicationName(PRODUCT_NAME)
+    app.setApplicationVersion(PRODUCT_VERSION)
     app.setOrganizationName("PRM Software Solutions")
     _append_startup_log("app_icon", "START", "Preparing application icon")
     try:

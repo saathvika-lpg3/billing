@@ -1,6 +1,72 @@
 # Installer Runtime Certification
 
-## Release 1.7.7 - certified 2026-07-12
+## Official PRM BILLING INVENTORY V1.0 - certified 2026-07-12
+
+- Artifact: `installer_output/PRM_Billing_Inventory_V1.0_Setup.exe`
+- Product/display version: `1.0.0` / `V1.0`
+- Size: 43,187,187 bytes
+- SHA-256: `04505DBEC75642B6345D547F4FC1536E3D901AE79DA3F6A0D0E2CAEF7CFBA584`
+- Frozen executable: 9,842,776 bytes, SHA-256
+  `0C521954DE709E1B1FA6CE5EBBD25CBBE9E9188F63D883ECEE9F8429F7748550`
+- Sanitized seed: 933,888 bytes, SHA-256
+  `E5EB868871F1F8AC120F8BF56CAD03AF3AB4D3D1505302D581FEE1B6AAB332CC`
+- Build: PyInstaller 6.21.0 / Python 3.13.7 / Inno Setup 6.7.3.
+- Stable upgrade identity: unchanged AppId, executable name and install path;
+  exact seven-entry 1.7.8 cleanup allowlist retained.
+- Clean install and responsive frozen launch: **PASSED** with exact title
+  `PRM BILLING INVENTORY V1.0 Login`.
+- Authenticated installed-resource smoke: **PASSED** using a disposable copy;
+  Product Master save/reload, Sales/Purchase Grand Total, routing, branding,
+  themes and SQLite integrity all passed without changing the installed seed.
+- Preserving uninstall: **PASSED**. Executable, uninstaller and shortcut were
+  removed; database, licence, settings and uploads markers remained
+  byte-identical.
+- Real internal-pre-release-to-V1.0 upgrade: **PASSED**. Installed executable
+  matched the certified frozen hash, and the real client database and licence
+  were byte-identical across setup.
+- Payload privacy: 238 files / 132,500,207 bytes with zero private `.prmlic`,
+  PowerShell, logs, uploads, tests, audit, backups, NumPy or lxml findings.
+- Authenticode: unsigned because no organization code-signing certificate was
+  supplied. Signing is an external distribution gate, not a runtime failure.
+
+## Release 1.7.8 - certified 2026-07-12
+
+- Artifact: `installer_output/PRM_Billing_Inventory_Setup.exe`
+- Size: 43,187,727 bytes (8,686,079 bytes / 16.74% smaller than 1.7.6)
+- SHA-256: `0C57293DECCC94ED6FDE2CD6177DBA3D6DB55DFF638A02B98CA2C1D5B5E6B1A2`
+- Frozen executable: 9,839,737 bytes, SHA-256
+  `F721794BDED7023C84C6667C3707BE288BC9494BDC5F19338F86F140061EE1FB`
+- Sanitized seed SHA-256:
+  `E5EB868871F1F8AC120F8BF56CAD03AF3AB4D3D1505302D581FEE1B6AAB332CC`
+- Build: PyInstaller 6.21.0 / Python 3.13.7 / Inno Setup 6.7.3.
+- Corrective real upgrade: **PASSED**. Database and licence were byte-identical;
+  stale runtime packages were removed; frozen PRM login opened responsive with
+  empty stderr; authenticated installed-resource smoke passed.
+
+### Required optimized-upgrade cleanup
+
+Inno Setup does not remove files merely because a newer payload omits them.
+Release 1.7.7 therefore left partial `numpy`/`lxml` trees from 1.7.6 in a real
+upgrade. `openpyxl` found stale `numpy` and failed before `app.main()` with
+`AttributeError: module 'numpy' has no attribute 'short'`.
+
+Release 1.7.8 adds a narrow `[InstallDelete]` list for:
+
+- `_internal\numpy`, `_internal\numpy.libs`, `numpy-*.dist-info`;
+- `_internal\lxml`, `lxml-*.dist-info`;
+- old `_internal\docs` and `_internal\requirements.txt`.
+
+These are proven immutable/rebuildable runtime paths. The deletion list never
+targets `_internal\database`, `license`, uploads, settings, themes, print
+templates, user documents, prints, reports, archives or backups.
+
+The real broken 1.7.7 installation was used as the upgrade fixture. After 1.7.8
+all stale-path checks were false, while database SHA-256 remained
+`B294CE95487DD31CB22C3B842AD522267DFD8DEFA0EE6F909E36C4B4C6CEDDA4`
+across installation and the licence hash was unchanged. Normal application
+startup subsequently updated routine licence-check timestamps as designed.
+
+## Release 1.7.7 - superseded for upgrades 2026-07-12
 
 - Artifact: `installer_output/PRM_Billing_Inventory_Setup.exe`
 - Size: 43,193,577 bytes (8,680,229 bytes / 16.73% smaller than 1.7.6)
@@ -10,9 +76,10 @@
 - Build: PyInstaller 6.21.0 / Python 3.13.7 / Inno Setup 6.7.3
 - Product metadata: PRM Billing Inventory 1.7.7, PRM Software Solutions;
   PRM setup/uninstall/application icon.
-- Result: clean install, real frozen startup, authenticated installed-resource
-  UI smoke, byte-identical upgrade preservation, preserving uninstall and real
-  local upgrade all passed.
+- Historical result: clean install and an upgrade over the same optimized
+  payload passed. The later real 1.7.6-to-1.7.7 upgrade exposed stale omitted
+  packages and failed before startup. Do not distribute 1.7.7 for upgrades;
+  use 1.7.8.
 
 ### Per-client licence selection
 

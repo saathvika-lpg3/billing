@@ -1,27 +1,41 @@
-#define MyAppName "PRM Billing Inventory"
-#define MyAppVersion "1.7.7"
+#define MyAppName "PRM BILLING INVENTORY"
+#define MyAppVersion "1.0.0"
+#define MyAppDisplayVersion "V1.0"
 #define MyAppPublisher "PRM Software Solutions"
 #define MyAppExeName "PRM_Billing_Inventory.exe"
 
 [Setup]
+; Permanent upgrade identity: keep this AppId unchanged across all releases.
+; Official V1.0 intentionally supersedes the internal 1.7.8 prerelease. Inno
+; accepts that semantic-version reset because the AppId remains stable, and
+; ignoreversion on the runtime payload refreshes files during that upgrade.
 AppId={{7E5E6B90-836B-4D97-B252-7C08A6BE1001}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppDisplayVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={localappdata}\Programs\PRM Billing Inventory
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=..\installer_output
-OutputBaseFilename=PRM_Billing_Inventory_Setup
+OutputBaseFilename=PRM_Billing_Inventory_V1.0_Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 SetupIconFile=..\assets\PRM_SoftSolutions.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
+UninstallDisplayName={#MyAppName} {#MyAppDisplayVersion}
 LicenseFile=PRM_Billing_Inventory_Electronic_Agreement.txt
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+VersionInfoVersion=1.0.0.0
+VersionInfoProductVersion=1.0.0.0
+VersionInfoTextVersion={#MyAppVersion}
+VersionInfoProductTextVersion={#MyAppVersion}
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoDescription={#MyAppName} {#MyAppDisplayVersion} Setup
+VersionInfoProductName={#MyAppName}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -34,6 +48,22 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; database is a sanitized, unbound first-install seed produced by the build.
 Source: "..\dist\PRM_Billing_Inventory\*"; DestDir: "{app}"; Excludes: "_internal\database\prm_billing_inventory.db"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\dist\PRM_Billing_Inventory\_internal\database\prm_billing_inventory.db"; DestDir: "{app}\_internal\database"; Flags: ignoreversion onlyifdoesntexist uninsneveruninstall
+
+[InstallDelete]
+; Official V1.0 retains the exact cleanup allowlist verified for internal
+; installer 1.7.8. Inno Setup normally leaves files that are absent from a
+; newer payload, so an upgrade from an older internal installer
+; could retain an incomplete numpy/lxml tree. openpyxl then discovered that
+; stale numpy before startup and failed inside its compatibility import.
+; These paths are frozen-runtime dependencies only and never contain client
+; database, licence, uploads, settings, templates or generated documents.
+Type: filesandordirs; Name: "{app}\_internal\numpy"
+Type: filesandordirs; Name: "{app}\_internal\numpy.libs"
+Type: filesandordirs; Name: "{app}\_internal\numpy-*.dist-info"
+Type: filesandordirs; Name: "{app}\_internal\lxml"
+Type: filesandordirs; Name: "{app}\_internal\lxml-*.dist-info"
+Type: filesandordirs; Name: "{app}\_internal\docs"
+Type: files; Name: "{app}\_internal\requirements.txt"
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

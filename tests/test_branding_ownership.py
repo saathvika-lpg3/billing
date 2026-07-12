@@ -12,6 +12,7 @@ from PyQt6.QtGui import QColor, QImage
 from PyQt6.QtWidgets import QApplication, QFrame, QLabel
 
 from config.app_config import AppConfig
+from config.product_version import DISPLAY_VERSION, RELEASE_NAME
 from services.license_service import LicenseContext
 from views.login_dialog import LoginDialog
 from views.main_window import MainWindow
@@ -96,7 +97,9 @@ def test_main_shell_uses_prm_product_brand_and_never_client_identity(monkeypatch
         product = top_bar.findChild(ProductBrandHeader, "productBrandHeader")
         assert product is window.product_brand
         assert product.title_label.text() == PRODUCT_NAME
+        assert product.version_label.text() == DISPLAY_VERSION
         assert product.tagline_label.text() == PRODUCT_TAGLINE
+        assert window.windowTitle() == RELEASE_NAME
         assert product.logo.pixmap() is not None and not product.logo.pixmap().isNull()
         assert not top_bar.findChildren(ClientCompanyIdentityCard)
         top_text = " | ".join(label.text() for label in top_bar.findChildren(QLabel))
@@ -166,6 +169,8 @@ def test_login_keeps_product_and_client_branding_in_separate_components(tmp_path
     dialog = LoginDialog(_config(), context, license_service)
     try:
         assert dialog.product_brand.title_label.text() == PRODUCT_NAME
+        assert dialog.product_brand.version_label.text() == DISPLAY_VERSION
+        assert dialog.windowTitle() == f"{RELEASE_NAME} Login"
         assert dialog.product_brand.logo.pixmap() is not None
         assert dialog.client_company_identity.name_label.text()
         assert dialog.product_brand.findChild(QLabel, "clientLogo") is None

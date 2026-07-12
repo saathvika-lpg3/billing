@@ -77,9 +77,10 @@ are recreated after the move.
   logs, old `build`/`dist`, source caches, trace/analysis residues, superseded
   installer log and the rebuildable `.venv`. `requirements-runtime.txt` and
   `requirements-dev.txt` retain exact environment reconstruction guidance.
-- Final installer: 43,193,577 bytes, SHA-256
-  `E4ADC9CCCF76E2E1C38ACD042F42C6C9FF44A20329DC5E353A3EA8B83A6EE54C`;
-  8,680,229 bytes (16.73%) smaller than the 1.7.6 installer.
+- Final installer after the upgrade-residue correction: 43,187,727 bytes,
+  SHA-256
+  `0C57293DECCC94ED6FDE2CD6177DBA3D6DB55DFF638A02B98CA2C1D5B5E6B1A2`;
+  8,686,079 bytes (16.74%) smaller than the 1.7.6 installer.
 - Licence, exported-licence and all upload hashes match their pre-cleanup
   values exactly.
 - The source workspace database remained 1,585,152 bytes but its page hash was

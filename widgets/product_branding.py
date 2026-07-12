@@ -7,9 +7,9 @@ from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from config.app_config import AppConfig
+from config.product_version import DISPLAY_VERSION, PRODUCT_NAME
 
 
-PRODUCT_NAME = "PRM BILLING INVENTORY"
 PRODUCT_TAGLINE = "Way to future, Today"
 PRODUCT_LOGO_FILE = "PRM_SoftSolutions.jpg"
 PRODUCT_ICON_FILE = "PRM_SoftSolutions.ico"
@@ -85,6 +85,11 @@ class ProductBrandHeader(QFrame):
         self.title_label.setObjectName("brandTitle")
         self.title_label.setProperty("productName", True)
         self.title_label.setAccessibleName("Product name")
+        self.version_label = QLabel(DISPLAY_VERSION)
+        self.version_label.setObjectName("caption")
+        self.version_label.setProperty("productVersion", True)
+        self.version_label.setAccessibleName("Product version")
+        self.version_label.setToolTip(f"{PRODUCT_NAME} {DISPLAY_VERSION}")
         self.tagline_label = QLabel(PRODUCT_TAGLINE)
         self.tagline_label.setObjectName("caption")
         self.tagline_label.setProperty("productTagline", True)
@@ -92,7 +97,13 @@ class ProductBrandHeader(QFrame):
         title_box = QVBoxLayout()
         title_box.setContentsMargins(0, 0, 0, 0)
         title_box.setSpacing(0)
-        title_box.addWidget(self.title_label)
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.setSpacing(8)
+        title_row.addWidget(self.title_label)
+        title_row.addWidget(self.version_label, alignment=Qt.AlignmentFlag.AlignBottom)
+        title_row.addStretch(1)
+        title_box.addLayout(title_row)
         title_box.addWidget(self.tagline_label)
 
         layout.addWidget(self.logo)

@@ -1,11 +1,101 @@
 # Installer Release Certification
 
-## Installer 1.7.7 - 2026-07-12
+## Official PRM BILLING INVENTORY V1.0 - 2026-07-12
 
-**PASSED** - current branding/navigation source was rebuilt, installed from a
-renamed client licence, launched as the actual frozen executable, exercised with
-authenticated installed resources, upgraded byte-identically, uninstalled with
-client data preserved, and finally installed over the real local application.
+**PASSED** - official production baseline. Active runtime, Windows executable
+and setup metadata use technical version `1.0.0`; compact user-facing branding
+uses `V1.0`. Historical internal 1.7.x identifiers remain compatibility and
+upgrade evidence only.
+
+### Certified artifacts
+
+- Setup: `installer_output/PRM_Billing_Inventory_V1.0_Setup.exe`
+- Setup size/SHA-256: 43,187,187 bytes / `04505DBEC75642B6345D547F4FC1536E3D901AE79DA3F6A0D0E2CAEF7CFBA584`
+- Frozen executable size/SHA-256: 9,842,776 bytes / `0C521954DE709E1B1FA6CE5EBBD25CBBE9E9188F63D883ECEE9F8429F7748550`
+- Sanitized seed size/SHA-256: 933,888 bytes / `E5EB868871F1F8AC120F8BF56CAD03AF3AB4D3D1505302D581FEE1B6AAB332CC`
+- Payload: 238 files / 132,500,207 bytes; forbidden-content findings: zero.
+- Authenticode: not signed because no organization certificate was supplied.
+
+### Certification results
+
+- Complete regression: 226 passed in 212.30 seconds; compile gate passed.
+- Live all-route audit: 59/59 at 1366x768, 1440x900 and 1920x1080.
+- Isolated clean install and exact responsive V1.0 login title: passed.
+- Authenticated installed-resource smoke on a disposable database: passed.
+- Preserving uninstall: database, licence, settings and uploads byte-identical;
+  executable, uninstaller and Start Menu shortcut removed.
+- Real local in-place upgrade: installed executable matched the certified hash;
+  existing client database and licence were byte-identical across setup.
+- Final real installed process reached the responsive
+  `PRM BILLING INVENTORY V1.0 Login` window without a script-error dialog.
+
+`RELEASE_LOCK.md` and `release_validation/2026-07-12_v1.0/` hold the permanent
+behavior contract and safe evidence. The annotated `v1.0.0` tag identifies the
+immutable release commit; the H-drive distribution copy carries its own
+post-tag file/hash verification manifest.
+
+## Installer 1.7.8 - 2026-07-12
+
+**PASSED** - current certified, upgrade-safe release. The setup was rebuilt with
+an explicit correction for obsolete runtime packages left by earlier installed
+versions, applied over the reproduced affected installation, launched as the
+actual frozen executable, and exercised with authenticated installed resources.
+
+### Certified artifact and payload
+
+- Setup: `installer_output/PRM_Billing_Inventory_Setup.exe`
+- Size: 43,187,727 bytes
+- SHA-256: `0C57293DECCC94ED6FDE2CD6177DBA3D6DB55DFF638A02B98CA2C1D5B5E6B1A2`
+- Frozen executable SHA-256:
+  `F721794BDED7023C84C6667C3707BE288BC9494BDC5F19338F86F140061EE1FB`
+- Sanitized seed SHA-256:
+  `E5EB868871F1F8AC120F8BF56CAD03AF3AB4D3D1505302D581FEE1B6AAB332CC`
+- Setup version metadata: PRM Billing Inventory 1.7.8 / PRM Software Solutions.
+- Authenticode: unsigned because no organization certificate was supplied.
+
+### Corrective upgrade behavior
+
+- A real upgrade from an older payload exposed that Inno Setup does not remove
+  files merely because they are omitted from a newer payload. Stale `numpy`,
+  `numpy.libs`, `numpy-*.dist-info`, `lxml`, `lxml-*.dist-info`, packaged `docs`
+  and `requirements.txt` paths therefore survived the 1.7.7 installation.
+- The stale, incomplete NumPy package was imported by `openpyxl` during startup
+  and raised `AttributeError: module 'numpy' has no attribute 'short'` before
+  the login window could open.
+- Installer 1.7.8 adds a narrowly scoped Inno Setup `[InstallDelete]` section
+  for only those immutable, rebuildable runtime paths. It does not target the
+  client database, licence, uploads, user settings or other mutable client data.
+- The corrected setup was applied over the actual reproduced broken 1.7.7
+  installation. All targeted stale paths were absent afterward, while the
+  database and client licence remained byte-identical across the installer run.
+
+### Startup and installed smoke
+
+- The corrected installed executable opened `PRM BILLING INVENTORY Login`,
+  remained alive and responsive, and produced empty standard error. Startup
+  logging confirmed PRM icon loading, valid licence, successful database
+  initialization and LoginDialog creation.
+- Authenticated installed-resource smoke passed SQLite integrity, administrator
+  authentication, two-pack Product Master save/reload, Sales and Purchase Grand
+  Totals, horizontal list actions, PRM-only top branding, client Dashboard logo,
+  canonical Dispatch Summary, and light/dark themes.
+- The installed-resource smoke used a disposable database copy; the installed
+  database remained unchanged during that exercise.
+
+### Supporting gates
+
+- Focused installer packaging regression: 7 passed.
+- Corrected real-install startup diagnostic: passed with no traceback or script
+  error dialog.
+- Installed-resource functional and branding smoke: passed.
+
+## Installer 1.7.7 - 2026-07-12 (superseded for upgrades)
+
+**SUPERSEDED FOR UPGRADES** - its optimized payload, clean installation,
+branding/navigation, data-preservation and test-harness gates passed, but the
+upgrade model did not account for obsolete files retained from larger earlier
+payloads. A subsequent real installed launch exposed stale `numpy`/`lxml`
+runtime residue. Installer 1.7.8 is the corrected and certified replacement.
 
 ### Certified artifact and payload
 
@@ -38,20 +128,26 @@ client data preserved, and finally installed over the real local application.
   Dashboard client logo area was 144x96; canonical Dispatch Summary opened.
 - Installed database stayed byte-identical during the disposable-copy smoke.
 
-### Upgrade, uninstall and real installation
+### Historical upgrade evidence and later correction
 
 - Upgrade with source basename `lakshmi.prmlic`: passed.
+- That upgrade began from a clean optimized installation, so it proved licence
+  replacement and mutable-data preservation but did not model omitted runtime
+  files surviving from the larger 1.7.6 payload.
 - Test database SHA-256 remained byte-identical at
   `89A8863137F3EE714B5B651AB34777221796746BC89EF48B5D6EDAE28AAB1100`.
   Installed licence and client-logo hashes remained unchanged; print/user
   marker settings remained present.
 - Silent uninstall removed executable, uninstaller and Start Menu shortcut while
   preserving database, licence, upload and user-settings marker.
-- Real local upgrade installed the same certified frozen SHA-256. Its existing
-  database stayed byte-identical at
+- Real local upgrade installed the same frozen SHA-256 and its existing database
+  stayed byte-identical at
   `B294CE95487DD31CB22C3B842AD522267DFD8DEFA0EE6F909E36C4B4C6CEDDA4`;
   licence SHA-256 remained
   `CDC7C6BC5A136DD473E6F9C7C17E4B0A8E4CD21201F7B92E00A8255268A3C1F6`.
+- Those preservation checks did not establish a healthy post-upgrade startup.
+  The later launch reproduced the stale NumPy import failure documented in the
+  1.7.8 certification above.
 
 ### Supporting gates
 

@@ -1,12 +1,52 @@
 # Current Status
 
-## 2026-07-12 Branding Ownership Correction, Dispatch Route And Certified Installer 1.7.7
+## 2026-07-12 Official PRM BILLING INVENTORY V1.0 Release Lock
 
-- Release state: **1.7.7 code-controlled gates passed and the real local
-  installation was upgraded successfully**. The certified setup is
-  `installer_output/PRM_Billing_Inventory_Setup.exe` (43,193,577 bytes,
+- Active product identity is **PRM BILLING INVENTORY V1.0**; technical runtime,
+  package and installer version is `1.0.0`. Database migration/schema, licence
+  format and external payload versions remain unchanged compatibility IDs.
+- [`RELEASE_LOCK.md`](RELEASE_LOCK.md) is the authoritative non-regression and
+  change-control contract. The dated version-source matrix is under
+  `release_validation/2026-07-12_v1.0/`.
+- Runtime identity is centralized and presented in Qt application metadata,
+  the fixed PRM product header, login/window title, Dashboard, Developer
+  Console and diagnostics. Client identity remains confined to business/client
+  contexts.
+- The installer keeps the stable executable, install path and AppId for a real
+  internal-1.7.8-to-official-V1.0 in-place upgrade. Its exact seven cleanup
+  rules are unchanged and cannot target client data.
+- Pre-release safety: source-only checkpoint
+  `backups/v1_release_lock_source_20260712_193130.zip` (842,136 bytes, SHA-256
+  `83DC97D3C0F7A2A9BB199CD48E45528EBEBFDEB7580B2F9F9DC0E223B83FCFC6`);
+  the certified 1.7.8 setup is separately preserved with SHA-256
+  `0C57293DECCC94ED6FDE2CD6177DBA3D6DB55DFF638A02B98CA2C1D5B5E6B1A2`.
+- Final setup: `installer_output/PRM_Billing_Inventory_V1.0_Setup.exe`,
+  43,187,187 bytes, SHA-256
+  `04505DBEC75642B6345D547F4FC1536E3D901AE79DA3F6A0D0E2CAEF7CFBA584`.
+  The frozen executable is 9,842,776 bytes, SHA-256
+  `0C521954DE709E1B1FA6CE5EBBD25CBBE9E9188F63D883ECEE9F8429F7748550`.
+- Final code-controlled gates passed: Python compile, **226 tests in 212.30
+  seconds**, 59/59 live routes at all three supported resolutions, clean
+  install, responsive exact V1.0 login title, authenticated installed-resource
+  smoke, preserving uninstall and real local in-place upgrade.
+- Real upgrade installed product/file version `1.0.0`; the installed executable
+  matched the certified frozen hash, while the existing database and licence
+  stayed byte-identical across setup. The final installed V1.0 login is open
+  and responsive for manual acceptance.
+- Package privacy passed: 238 files / 132,500,207 bytes, zero private licence,
+  PowerShell, log, upload, test, audit, backup, NumPy or lxml findings. The only
+  database is the sanitized 933,888-byte product seed.
+- Git tag and H-drive distribution copy are post-commit release operations;
+  their immutable commit/copy manifests are resolved from annotated tag
+  `v1.0.0` and stored with the H-drive release bundle.
+
+## 2026-07-12 Branding Ownership Correction, Dispatch Route And Certified Installer 1.7.8
+
+- Release state: **1.7.8 fixes the user-reported upgraded-runtime script error
+  and is installed locally**. The certified setup is
+  `installer_output/PRM_Billing_Inventory_Setup.exe` (43,187,727 bytes,
   SHA-256
-  `E4ADC9CCCF76E2E1C38ACD042F42C6C9FF44A20329DC5E353A3EA8B83A6EE54C`).
+  `0C57293DECCC94ED6FDE2CD6177DBA3D6DB55DFF638A02B98CA2C1D5B5E6B1A2`).
 - Safety checkpoint created before this correction:
   `backups/branding_cleanup_checkpoint_20260712_015638.zip` (813,693 bytes,
   SHA-256
@@ -35,10 +75,17 @@
   plan filter. Admin/developer roles retain access; non-admin roles require the
   reports permission; the Basic plan does not expose Dispatch-category reports.
   Filtered routes are also removed from report selection and Global Search.
-- Installer **1.7.7** uses the PRM setup/uninstall icon, packages the smaller
+- Installer **1.7.8** uses the PRM setup/uninstall icon, packages the smaller
   runtime requirement manifest and omits development documentation, `numpy`
   and `lxml`. Frozen startup and installed UI/resource smoke passed; the payload
   contains no `.prmlic`, PowerShell, logs, uploads, tests, audit or backup data.
+- 1.7.7 clean installs were valid, but its first optimized real upgrade exposed
+  an Inno behavior missed by the earlier same-generation upgrade test: files
+  omitted from the new payload were not removed. A stale partial `numpy` made
+  `openpyxl` fail before startup. 1.7.8 explicitly removes only those obsolete
+  `_internal` package/docs paths. The real upgrade removed them, kept database
+  and licence byte-identical, and the frozen login diagnostic now has empty
+  stderr and the correct PRM login title.
 - The installer accepts any valid per-client `.prmlic` basename through its
   Browse control. Clean install with `sairam.prmlic` and upgrade with
   `lakshmi.prmlic` both passed; setup stores the selected file internally as

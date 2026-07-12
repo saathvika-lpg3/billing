@@ -1,6 +1,31 @@
 # PRM Current Status
 
-## Branding correction and certified installer 1.7.7 - 2026-07-12
+## Official PRM BILLING INVENTORY V1.0 release lock - 2026-07-12
+
+- Current display version is **V1.0** and technical version is `1.0.0`.
+  `RELEASE_LOCK.md` owns the accepted-product contract and future change gate.
+- Runtime, Windows executable and installer metadata share the same authoritative
+  identity. Database schema/migration identifiers and historical 1.7.x evidence
+  are intentionally not renumbered.
+- Official V1.0 preserves the existing AppId/executable/install path and exact
+  seven-entry cleanup allowlist, so internal 1.7.8 upgrades in place without
+  broadening deletion or replacing database/licence/settings/client assets.
+- Version-source, test, artifact and copy verification evidence is stored only
+  in the safe dated `release_validation/2026-07-12_v1.0` folder; it contains no
+  private licence, client database, credentials or session files.
+- Certified V1.0 setup: 43,187,187 bytes, SHA-256
+  `04505DBEC75642B6345D547F4FC1536E3D901AE79DA3F6A0D0E2CAEF7CFBA584`.
+  Its frozen executable is version `1.0.0`, 9,842,776 bytes, SHA-256
+  `0C521954DE709E1B1FA6CE5EBBD25CBBE9E9188F63D883ECEE9F8429F7748550`.
+- Final verification passed: compile, **226 tests**, 59/59 route audit, package
+  privacy, clean install, authenticated installed UI, preserving uninstall,
+  real local upgrade and exact responsive `PRM BILLING INVENTORY V1.0 Login`.
+- The real upgrade preserved the existing client database and `.prmlic`
+  byte-for-byte. Windows code signing remains external because no organization
+  certificate was supplied; physical printer, live SMTP/WhatsApp and government
+  GST credential acceptance remain separate operational gates.
+
+## Branding correction and certified installer 1.7.8 - 2026-07-12
 
 - Status: branding ownership, Dispatch Summary navigation, cleanup, installer
   build, clean/upgrade/uninstall certification and the real local upgrade have
@@ -17,10 +42,14 @@
   `reports:daily_dispatch_summary` -> `daily_dispatch_summary` in Report
   Center. Sidebar, Dashboard, Reports and Global Search reuse it and apply the
   existing report-role and plan filters.
-- Certified 1.7.7 setup: 43,193,577 bytes, SHA-256
-  `E4ADC9CCCF76E2E1C38ACD042F42C6C9FF44A20329DC5E353A3EA8B83A6EE54C`.
+- Certified 1.7.8 setup: 43,187,727 bytes, SHA-256
+  `0C57293DECCC94ED6FDE2CD6177DBA3D6DB55DFF638A02B98CA2C1D5B5E6B1A2`.
   The real installed executable matches the certified frozen hash and its
   database/licence were byte-identical across the upgrade.
+- 1.7.8 supersedes 1.7.7 for upgrades. It removes only obsolete partial
+  `numpy`/`lxml`, old runtime docs and legacy `requirements.txt` paths that Inno
+  otherwise retained from 1.7.6. This resolves the pre-startup
+  `numpy.short`/openpyxl script exception without touching client-owned data.
 - Cleanup quarantined uncertain/client-facing historical output and deleted
   only generated/rebuildable material. The exact inventory, hashes and measured
   size accounting are in `audit/cleanup_manifest_20260712.md`.

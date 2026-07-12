@@ -1,5 +1,11 @@
 # Transaction Entry Framework
 
+> **Official V1.0 lock:** [`RELEASE_LOCK.md`](../RELEASE_LOCK.md) is the
+> authoritative change-control contract. Atomic saves, edit/cancel reversal,
+> GST and stock/account posting, shared transaction layout, keyboard actions,
+> visible Grand Total and document-output parity described here are accepted
+> V1.0 behavior and may not be weakened by later refactors.
+
 ## 2026-07-12 GST, Communication And Output Contract
 
 - Party selectors carry state/place-of-supply into the transaction model.

@@ -1,5 +1,12 @@
 # Desktop UI System
 
+> **Official V1.0 lock:** [`RELEASE_LOCK.md`](../RELEASE_LOCK.md) is
+> authoritative. PRM product/client branding separation, live navigation,
+> 1366x768/1440x900/1920x1080 fit, shared ERP components, horizontal actions,
+> Grand Total visibility, keyboard behavior and incremental smart dropdowns are
+> locked accepted behavior. The 1.7.x references below are internal pre-release
+> history and are superseded as current product identity by V1.0.
+
 ## 2026-07-12 Product/Client Ownership And Dispatch Navigation Lock
 
 - `widgets/product_branding.py` is the product-owned identity boundary.
@@ -39,8 +46,9 @@
   selected report subroute.
 - Multi-resolution product-header/client-card captures, Company Profile,
   Dispatch Summary and client-header/PRM-footer PDF captures use the
-  `branding_after_` prefix under `screenshots/`. The 1.7.7 all-route and
-  installed-runtime certification passed; the evidence is locked in
+  `branding_after_` prefix under `screenshots/`. The internal 1.7.8 all-route
+  and installed-runtime certification passed before the official V1.0 lock;
+  current evidence is recorded in
   `TEST_REPORT.md` and `audit/installer_release_certification.md`.
 
 ## 2026-07-12 Production UI Foundation

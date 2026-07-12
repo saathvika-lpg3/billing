@@ -34,6 +34,7 @@ from PyQt6.QtWidgets import (
 )
 
 from config.app_config import AppConfig
+from config.product_version import DISPLAY_VERSION, PRODUCT_VERSION
 from services.backup_service import BackupService
 from services.business_rules import PERMISSION_CATALOG, permission_keys, profile_rows
 from services.company_profile_service import CompanyProfileService
@@ -85,11 +86,14 @@ class DeveloperConsoleView(QWidget):
         root.addWidget(self.tabs, stretch=1)
 
     def _title_bar(self) -> QWidget:
-        header = ERPPageHeader("Developer Console", "Desktop super-admin controls for licenses, templates, permissions, settings and backup")
+        header = ERPPageHeader(
+            "Developer Console",
+            "Super-admin controls for licenses, templates, permissions, settings and backup",
+        )
         refresh = QPushButton("Refresh")
         refresh.clicked.connect(self.refresh_all)
         header.layout().addWidget(refresh)
-        header.status_label.setText("Ready")
+        header.status_label.setText(f"{DISPLAY_VERSION} | Ready")
         self.status_label = header.status_label
         return header
 
@@ -777,7 +781,7 @@ class DeveloperConsoleView(QWidget):
         self._refresh_communication_tables()
         self._refresh_communication_templates()
         self._reload_roles()
-        self.status_label.setText(f"Refreshed {datetime.now():%H:%M:%S}")
+        self.status_label.setText(f"{DISPLAY_VERSION} | Refreshed {datetime.now():%H:%M:%S}")
 
     def _refresh_summary(self) -> None:
         counts = {
@@ -793,6 +797,11 @@ class DeveloperConsoleView(QWidget):
         self._fill_table(
             self.summary_table,
             [
+                {
+                    "Area": "Product",
+                    "Status": DISPLAY_VERSION,
+                    "Detail": f"PRM BILLING INVENTORY runtime {PRODUCT_VERSION}",
+                },
                 {"Area": "Backup", "Status": "Ready", "Detail": str(self.config.project_root / "backups")},
                 {"Area": "Free Space", "Status": "Backup + Excel + Delete + Vacuum", "Detail": str(self.config.project_root / "archives" / "free_space")},
                 {"Area": "Database", "Status": "Local SQLite", "Detail": str(self.db_path)},

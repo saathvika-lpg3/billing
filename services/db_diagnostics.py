@@ -6,6 +6,8 @@ import sqlite3
 from pathlib import Path
 from typing import Dict
 
+from config.product_version import DISPLAY_VERSION, PRODUCT_NAME, PRODUCT_VERSION
+
 
 def _ensure_log_dir() -> Path:
     base = Path(__file__).resolve().parents[1]
@@ -30,6 +32,9 @@ def run_startup_db_diagnostics(sqlite_path: Path, use_sqlite: bool) -> Dict[str,
         logger.setLevel(logging.INFO)
 
     summary: Dict[str, object] = {
+        "product_name": PRODUCT_NAME,
+        "product_version": PRODUCT_VERSION,
+        "display_version": DISPLAY_VERSION,
         "use_sqlite": use_sqlite,
         "sqlite_path": str(sqlite_path),
         "sqlite_exists": sqlite_path.exists(),

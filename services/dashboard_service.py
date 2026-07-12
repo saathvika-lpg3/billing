@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from config.product_version import DISPLAY_VERSION, PRODUCT_VERSION, runtime_version_record
 from services.communication_log_service import mask_recipient
 from services.email_service import SmtpEmailConfig
 from services.mysql_source import MySqlSource
@@ -554,6 +555,7 @@ class DashboardService:
             return [{"status": f"Error: {exc}", "database": path.name if path else "", "size_mb": 0}]
 
     def _application_version(self) -> list[dict[str, Any]]:
+        runtime = runtime_version_record()
         rows = self._rows(
             """
             SELECT version_key component, version_value version, notes, updated_at
@@ -562,20 +564,36 @@ class DashboardService:
             LIMIT 5
             """
         )
-        if rows:
-            return rows
-        settings = self._rows(
-            """
-            SELECT setting_key component, setting_value version, '' notes, updated_at
-            FROM app_settings
-            WHERE LOWER(setting_key) LIKE '%version%'
-            ORDER BY updated_at DESC
-            LIMIT 5
-            """
-        )
-        if settings:
-            return settings
-        return [{"component": "Desktop Runtime", "version": "Current workspace", "notes": "Local PyQt ERP build", "updated_at": ""}]
+        if not rows:
+            rows = self._rows(
+                """
+                SELECT setting_key component, setting_value version, '' notes, updated_at
+                FROM app_settings
+                WHERE LOWER(setting_key) LIKE '%version%'
+                ORDER BY updated_at DESC
+                LIMIT 5
+                """
+            )
+
+        history: list[dict[str, Any]] = []
+        for row in rows:
+            component = str(row.get("component") or "Recorded component").strip()
+            recorded_version = str(row.get("version") or "").strip()
+            if component.casefold() == "desktop runtime" and recorded_version in {
+                DISPLAY_VERSION,
+                PRODUCT_VERSION,
+            }:
+                continue
+            notes = str(row.get("notes") or "").strip()
+            history.append(
+                {
+                    "component": f"History: {component}",
+                    "version": recorded_version,
+                    "notes": "Recorded compatibility/history entry" + (f" - {notes}" if notes else ""),
+                    "updated_at": row.get("updated_at") or "",
+                }
+            )
+        return [runtime, *history[:4]]
 
     def _trend(self, table: str, date_field: str, amount_field: str, today: str) -> list[dict[str, Any]]:
         end = date.fromisoformat(today)

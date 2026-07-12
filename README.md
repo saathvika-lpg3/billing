@@ -4,9 +4,14 @@ This project is the Python desktop ERP for PRM Billing Inventory.
 It runs from its own application folder with a local SQLite database, without
 requiring XAMPP on client machines.
 
-Current certified local installer: **1.7.7**. It uses fixed PRM product branding
-and accepts a separately exported `.prmlic` file for each client through the
-installer Browse page.
+Official product release: **PRM BILLING INVENTORY V1.0** (technical version
+`1.0.0`). The release contract is [`RELEASE_LOCK.md`](RELEASE_LOCK.md). The
+installer uses fixed PRM product branding and accepts a separately exported
+`.prmlic` file for each client through its Browse page.
+
+Official Windows setup: `installer_output/PRM_Billing_Inventory_V1.0_Setup.exe`.
+The setup stores the selected client file internally as `license/client.prmlic`;
+it is not bound to a particular exported filename or client.
 
 ## Target
 

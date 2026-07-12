@@ -28,7 +28,7 @@ if (!$PythonExe) {
     throw "Python with PyInstaller was not found. Install PyInstaller in .venv or the local Python 3.13 runtime."
 }
 & $PythonExe "$Root\tools\prepare_installer_database.py" `
-    --source "$Root\database\prm_billing_inventory.db" `
+    --source "$Root\database\prm_billing_inventory_seed.db" `
     --output "$Root\build\installer_payload\database\prm_billing_inventory.db" `
     --report "$Root\build\installer_payload\database\seed_report.json"
 if ($LASTEXITCODE -ne 0) {

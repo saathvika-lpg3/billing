@@ -65,6 +65,7 @@ def _run_smoke_on_database(
     from PyQt6.QtWidgets import QApplication, QFrame, QMessageBox
 
     from config.app_config import AppConfig
+    from config.product_version import DISPLAY_VERSION, RELEASE_NAME
     from services.license_service import LicenseService
     from services.master_repository import MasterRepository
     from views.main_window import MainWindow
@@ -118,6 +119,10 @@ def _run_smoke_on_database(
     product_brand = window.findChild(ProductBrandHeader, "productBrandHeader")
     if product_brand is None or product_brand.title_label.text() != PRODUCT_NAME:
         raise RuntimeError("Installed shell is missing PRM product branding")
+    if product_brand.version_label.text() != DISPLAY_VERSION:
+        raise RuntimeError("Installed shell is missing the official V1.0 display version")
+    if window.windowTitle() != RELEASE_NAME:
+        raise RuntimeError(f"Installed window has unexpected release title: {window.windowTitle()}")
     if product_brand.logo.pixmap() is None or product_brand.logo.pixmap().isNull():
         raise RuntimeError("Installed PRM product logo did not load")
     top_bar = window.findChild(QFrame, "topBar")
@@ -261,6 +266,8 @@ def _run_smoke_on_database(
         "horizontal_list_toolbar": horizontal_toolbar,
         "product_branding": {
             "product_name": product_name,
+            "display_version": DISPLAY_VERSION,
+            "window_title": RELEASE_NAME,
             "product_logo_loaded": True,
             "client_identity_in_top_bar": False,
         },

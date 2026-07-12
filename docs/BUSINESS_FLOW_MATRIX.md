@@ -1,5 +1,12 @@
 # ERP Business Flow Completion Matrix
 
+> **Official V1.0 release context:** [`RELEASE_LOCK.md`](../RELEASE_LOCK.md)
+> locks only the accepted, tested behaviors identified as functional in this
+> matrix. Explicit limitations remain accurate scope disclosures; the V1.0
+> label does not silently convert incomplete operations into passed workflows.
+> Historical checkpoint identifiers below remain evidence, not active product
+> versions.
+
 Audit cycle: 2026-07-11
 Starting checkpoint: `71a4aab` on `business-flow-audit-20260710`
 Intermediate safety commit: `acfb396`

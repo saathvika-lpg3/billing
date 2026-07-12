@@ -1,5 +1,47 @@
 # Changelog
 
+## 2026-07-12 - official PRM BILLING INVENTORY V1.0 release lock
+
+- Established one authoritative product identity: semantic/runtime/installer
+  version `1.0.0`, compact display `V1.0`, release name
+  **PRM BILLING INVENTORY V1.0** and annotated release tag `v1.0.0`.
+- Added `RELEASE_LOCK.md` as the permanent non-regression contract for accepted
+  UI, master/transaction/list frameworks, keyboard/smart-dropdown behavior,
+  GST/stock/account posting, Grand Total, branding, navigation, printing,
+  reports, communication and installer data safety.
+- Added runtime identity to Qt, the fixed product header, login/window title,
+  Dashboard Application Version, Developer Console and diagnostics without
+  resetting database schema/migration or protocol versions.
+- Updated the stable-AppId installer to official V1.0 metadata and a versioned
+  setup filename while preserving the stable installed executable/path and the
+  exact seven-entry upgrade-residue cleanup allowlist.
+- Added Windows version metadata for the frozen executable and setup. The
+  internal 1.7.8 installer correction below remains historical upgrade evidence
+  and is superseded as current product identity by official V1.0.
+- Locked the product-owned sanitized installer seed so builds do not read or
+  package the workstation's runtime/client database.
+
+## 2026-07-12 - installer 1.7.8 stale-runtime upgrade correction
+
+- Reproduced the user-reported native dialog titled **Unhandled exception in
+  script** after upgrading the real 1.7.6 installation to optimized 1.7.7.
+  The captured traceback ended in `openpyxl.compat.numbers` with
+  `AttributeError: module 'numpy' has no attribute 'short'`.
+- Root cause: Inno Setup replaces packaged files but does not automatically
+  remove files omitted by a newer payload. Old partial `numpy`/`lxml` trees,
+  documentation and the legacy requirements file therefore remained in the
+  upgraded `_internal` directory even though the 1.7.7 clean payload excluded
+  them. `openpyxl` discovered the stale `numpy` before application logging.
+- Added a narrowly scoped `[InstallDelete]` upgrade list for the proven obsolete
+  runtime paths and bumped setup to 1.7.8. Client database, licence, uploads,
+  settings, templates and generated documents are outside this list.
+- Real 1.7.7-to-1.7.8 upgrade removed every stale path while preserving the
+  database and licence byte-for-byte. The same hidden diagnostic then opened
+  `PRM BILLING INVENTORY Login`, remained responsive and produced empty stderr.
+- Authenticated installed-resource smoke passed with SQLite integrity, product
+  two-pack persistence, Sales/Purchase Grand Totals, themes, PRM/client branding
+  separation and canonical Dispatch Summary.
+
 ## 2026-07-12 - Product/client branding correction and certified installer 1.7.7
 
 - Replaced the licensed-client widget in the fixed desktop header with an

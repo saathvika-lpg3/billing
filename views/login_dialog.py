@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
 )
 
 from config.app_config import AppConfig
+from config.product_version import RELEASE_NAME
 from services.company_profile_service import CompanyProfileService
 from services.license_service import LicenseContext, LicenseService
 from widgets.company_branding import ClientCompanyIdentityCard
@@ -26,7 +27,7 @@ class LoginDialog(QDialog):
         self.license_context = license_context
         self.license_service = license_service
         self.session: dict[str, str] = {}
-        self.setWindowTitle("PRM BILLING INVENTORY Login")
+        self.setWindowTitle(f"{RELEASE_NAME} Login")
         self.setMinimumWidth(540)
         self._build()
 

@@ -36,6 +36,7 @@ from PyQt6.QtWidgets import (
 )
 
 from config.app_config import AppConfig
+from config.product_version import RELEASE_NAME
 from config.qt_fonts import ensure_application_font
 from services.audit_reader import read_csv_rows
 from services.business_rules import normalize_business_type
@@ -182,7 +183,7 @@ class MainWindow(QMainWindow):
             self._startup_trace("business_type_loading", "SUCCESS", f"business_type={business_type}")
         except Exception as exc:
             self._startup_trace_exception("business_type_loading", exc)
-        self.setWindowTitle("PRM BILLING INVENTORY")
+        self.setWindowTitle(RELEASE_NAME)
         self.resize(1220, 700)
         self.setMinimumSize(900, 500)
         self.stack = FitToWidthStack()

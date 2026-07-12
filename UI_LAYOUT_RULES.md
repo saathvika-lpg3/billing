@@ -1,5 +1,12 @@
 # UI Layout Rules
 
+> **Official V1.0 lock:** [`RELEASE_LOCK.md`](RELEASE_LOCK.md) is the
+> authoritative non-regression contract. The responsive three-resolution fit,
+> shared master/transaction/list frameworks, visible Grand Total, horizontal
+> actions, keyboard flow, button feedback and smart-dropdown behavior defined
+> here are accepted PRM BILLING INVENTORY V1.0 behavior. Future changes must
+> follow the backup, test, visual-verification and approval process in that lock.
+
 Updated: 2026-07-12
 
 These rules define the compact responsive ERP layout standard for the PyQt
